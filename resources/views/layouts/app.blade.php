@@ -81,16 +81,27 @@
                     CRM
                 </div>
 
-                <span class="fm-nav-link fm-nav-link-disabled">
+                <a
+                    href="{{ route('companies.index') }}"
+                    class="fm-nav-link {{ request()->routeIs('companies.*') ? 'active' : '' }}"
+                >
                     <i class="bi bi-buildings"></i>
-                    <span>Companies</span>
-                    <span class="fm-coming-soon">Soon</span>
-                </span>
+
+                    <span>
+                        Companies
+                    </span>
+                </a>
 
                 <span class="fm-nav-link fm-nav-link-disabled">
                     <i class="bi bi-person-vcard"></i>
-                    <span>Contacts</span>
-                    <span class="fm-coming-soon">Soon</span>
+
+                    <span>
+                        Contacts
+                    </span>
+
+                    <span class="fm-coming-soon">
+                        Soon
+                    </span>
                 </span>
 
                 <div class="fm-nav-section">

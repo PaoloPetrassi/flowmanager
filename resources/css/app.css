@@ -790,3 +790,47 @@ a {
         padding: 1rem;
     }
 }
+
+/* ----------------------------------------------------------
+   Companies
+---------------------------------------------------------- */
+
+.fm-company-avatar {
+    width: 64px;
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 0.9rem;
+
+    background-color: var(--fm-primary-soft);
+
+    color: var(--fm-primary);
+
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+    min-height: 44px;
+
+    border-color: var(--fm-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: rgba(37, 99, 235, 0.6);
+
+    box-shadow:
+        0 0 0 0.2rem rgba(37, 99, 235, 0.1);
+}
+
+.pagination {
+    margin-bottom: 0;
+}
