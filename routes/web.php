@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,17 +14,30 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'create'])
-        ->name('login');
+    Route::get(
+        '/login',
+        [LoginController::class, 'create']
+    )->name('login');
 
-    Route::post('/login', [LoginController::class, 'store'])
-        ->name('login.attempt');
+    Route::post(
+        '/login',
+        [LoginController::class, 'store']
+    )->name('login.attempt');
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
+    Route::get(
+        '/dashboard',
+        [DashboardController::class, 'index']
+    )->name('dashboard');
 
-    Route::post('/logout', [LoginController::class, 'destroy'])
-        ->name('logout');
+    Route::resource(
+        'companies',
+        CompanyController::class
+    );
+
+    Route::post(
+        '/logout',
+        [LoginController::class, 'destroy']
+    )->name('logout');
 });
