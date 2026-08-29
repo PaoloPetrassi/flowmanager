@@ -2,17 +2,14 @@
 
 namespace App\Models;
 
-use App\Enums\CompanyStatus;
-use App\Enums\CompanyType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Company extends Model
+class Contact extends Model
 {
-    /** @use HasFactory<\Database\Factories\CompanyFactory> */
+    /** @use HasFactory<\Database\Factories\ContactFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -21,22 +18,15 @@ class Company extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'legal_name',
-        'type',
-        'status',
-        'vat_number',
-        'tax_code',
+        'company_id',
+        'first_name',
+        'last_name',
+        'job_title',
+        'department',
         'email',
         'phone',
-        'website',
-        'industry',
-        'employees',
-        'address',
-        'city',
-        'province',
-        'postal_code',
-        'country_code',
+        'mobile',
+        'is_primary',
         'notes',
         'created_by',
     ];
@@ -49,28 +39,36 @@ class Company extends Model
     protected function casts(): array
     {
         return [
-            'type' => CompanyType::class,
-            'status' => CompanyStatus::class,
-            'employees' => 'integer',
+            'is_primary' => 'boolean',
         ];
     }
 
     /**
-     * Get the contacts associated with the company.
+     * Get the company associated with the contact.
      */
-    public function contacts(): HasMany
+    public function company(): BelongsTo
     {
-        return $this->hasMany(Contact::class);
+        return $this->belongsTo(Company::class);
     }
 
     /**
-     * Get the user who created the company.
+     * Get the user who created the contact.
      */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(
             User::class,
             'created_by'
+        );
+    }
+
+    /**
+     * Get the contact's full name.
+     */
+    public function getFullNameAttribute(): string
+    {
+        return trim(
+            "{$this->first_name} {$this->last_name}"
         );
     }
 }

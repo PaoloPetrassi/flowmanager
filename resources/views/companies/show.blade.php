@@ -188,6 +188,144 @@
 
             </div>
 
+            @can('viewAny', App\Models\Contact::class)
+
+                <div class="card fm-card mt-4">
+
+                    <div class="card-header fm-card-header">
+
+                        <div>
+                            <h2 class="fm-card-title">
+                                Contacts
+                            </h2>
+
+                            <p class="fm-card-subtitle">
+                                People associated with this company
+                            </p>
+                        </div>
+
+                        @can('create', App\Models\Contact::class)
+
+                            <a
+                                href="{{ route('contacts.create', ['company' => $company->id]) }}"
+                                class="btn btn-sm btn-primary"
+                            >
+                                <i class="bi bi-plus-lg me-1"></i>
+                                New contact
+                            </a>
+
+                        @endcan
+
+                    </div>
+
+                    @if ($contacts->isNotEmpty())
+
+                        <div class="table-responsive">
+
+                            <table class="table align-middle mb-0 fm-table">
+
+                                <thead>
+                                    <tr>
+                                        <th>Contact</th>
+                                        <th>Role</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    @foreach ($contacts as $contact)
+
+                                        <tr>
+
+                                            <td>
+
+                                                <a
+                                                    href="{{ route('contacts.show', $contact) }}"
+                                                    class="fw-semibold text-dark"
+                                                >
+                                                    {{ $contact->full_name }}
+                                                </a>
+
+                                                @if ($contact->is_primary)
+
+                                                    <span class="badge text-bg-primary ms-1">
+                                                        Primary
+                                                    </span>
+
+                                                @endif
+
+                                            </td>
+
+                                            <td>
+                                                {{ $contact->job_title ?: '—' }}
+                                            </td>
+
+                                            <td>
+
+                                                @if ($contact->email)
+
+                                                    <a href="mailto:{{ $contact->email }}">
+                                                        {{ $contact->email }}
+                                                    </a>
+
+                                                @else
+                                                    —
+                                                @endif
+
+                                            </td>
+
+                                            <td>
+                                                {{ $contact->mobile ?: ($contact->phone ?: '—') }}
+                                            </td>
+
+                                            <td class="text-end">
+
+                                                <a
+                                                    href="{{ route('contacts.show', $contact) }}"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    title="View"
+                                                >
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+
+                                            </td>
+
+                                        </tr>
+
+                                    @endforeach
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        <div class="card-footer bg-white p-3 text-end">
+
+                            <a
+                                href="{{ route('contacts.index', ['company_id' => $company->id]) }}"
+                                class="btn btn-sm btn-outline-secondary"
+                            >
+                                View all company contacts ({{ $contactsCount }})
+                            </a>
+
+                        </div>
+
+                    @else
+
+                        <div class="card-body p-4 text-secondary">
+                            No contacts are associated with this company yet.
+                        </div>
+
+                    @endif
+
+                </div>
+
+            @endcan
+
             @if ($company->notes)
 
                 <div class="card fm-card mt-4">

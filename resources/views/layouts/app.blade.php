@@ -92,17 +92,16 @@
                     </span>
                 </a>
 
-                <span class="fm-nav-link fm-nav-link-disabled">
+                <a
+                    href="{{ route('contacts.index') }}"
+                    class="fm-nav-link {{ request()->routeIs('contacts.*') ? 'active' : '' }}"
+                >
                     <i class="bi bi-person-vcard"></i>
 
                     <span>
                         Contacts
                     </span>
-
-                    <span class="fm-coming-soon">
-                        Soon
-                    </span>
-                </span>
+                </a>
 
                 <div class="fm-nav-section">
                     Operations

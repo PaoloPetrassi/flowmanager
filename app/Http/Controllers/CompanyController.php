@@ -7,6 +7,7 @@ use App\Enums\CompanyType;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
+use App\Models\Contact;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -142,8 +143,24 @@ class CompanyController extends Controller
 
         $company->load('creator');
 
+        $contacts = collect();
+        $contactsCount = 0;
+
+        if (Gate::allows('viewAny', Contact::class)) {
+            $contactsCount = $company->contacts()->count();
+
+            $contacts = $company->contacts()
+                ->orderByDesc('is_primary')
+                ->orderBy('last_name')
+                ->orderBy('first_name')
+                ->limit(10)
+                ->get();
+        }
+
         return view('companies.show', [
             'company' => $company,
+            'contacts' => $contacts,
+            'contactsCount' => $contactsCount,
         ]);
     }
 

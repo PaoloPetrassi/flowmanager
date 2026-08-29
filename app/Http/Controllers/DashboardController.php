@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Permission;
+use App\Models\Company;
+use App\Models\Contact;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -28,19 +29,19 @@ class DashboardController extends Controller
 
         $stats = [
             [
+                'label' => 'Companies',
+                'value' => Company::count(),
+                'icon' => 'bi-buildings',
+            ],
+            [
+                'label' => 'Contacts',
+                'value' => Contact::count(),
+                'icon' => 'bi-person-vcard',
+            ],
+            [
                 'label' => 'Users',
                 'value' => User::count(),
                 'icon' => 'bi-people',
-            ],
-            [
-                'label' => 'Roles',
-                'value' => Role::count(),
-                'icon' => 'bi-shield-check',
-            ],
-            [
-                'label' => 'Permissions',
-                'value' => Permission::count(),
-                'icon' => 'bi-key',
             ],
             [
                 'label' => 'Database',

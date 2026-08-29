@@ -792,10 +792,11 @@ a {
 }
 
 /* ----------------------------------------------------------
-   Companies
+   CRM
 ---------------------------------------------------------- */
 
-.fm-company-avatar {
+.fm-company-avatar,
+.fm-contact-avatar {
     width: 64px;
     height: 64px;
 
