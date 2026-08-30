@@ -259,4 +259,6 @@
             </div>
         </div>
     </div>
+
+    @include('partials.collaboration-panel', ['collaborationTarget' => $company])
 @endsection

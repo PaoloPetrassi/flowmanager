@@ -299,4 +299,118 @@
             @endif
         </div>
     </div>
+
+
+    <div class="row g-4 mt-1">
+        @if (!empty($trendSeries['items']))
+            <div class="col-12 col-xxl-6">
+                <div class="card fm-card h-100">
+                    <div class="card-header fm-card-header">
+                        <div>
+                            <h2 class="fm-card-title">{{ __('Six-month throughput') }}</h2>
+                            <p class="fm-card-subtitle">{{ __('Completed tasks and resolved tickets by month') }}</p>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="fm-chart-legend">
+                            <span><i class="fm-legend-dot fm-legend-primary"></i>{{ __('Tasks completed') }}</span>
+                            <span><i class="fm-legend-dot fm-legend-success"></i>{{ __('Tickets resolved') }}</span>
+                        </div>
+                        <div class="fm-column-chart" role="img" aria-label="{{ __('Six-month throughput') }}">
+                            @foreach ($trendSeries['items'] as $point)
+                                <div class="fm-column-group">
+                                    <div class="fm-column-pair">
+                                        <div class="fm-column fm-column-primary" style="height: {{ max(4, round(($point['tasks'] / $trendSeries['max']) * 150)) }}px" title="{{ __('Tasks completed') }}: {{ $point['tasks'] }}">
+                                            <span>{{ $point['tasks'] }}</span>
+                                        </div>
+                                        <div class="fm-column fm-column-success" style="height: {{ max(4, round(($point['tickets'] / $trendSeries['max']) * 150)) }}px" title="{{ __('Tickets resolved') }}: {{ $point['tickets'] }}">
+                                            <span>{{ $point['tickets'] }}</span>
+                                        </div>
+                                    </div>
+                                    <small>{{ $point['label'] }}</small>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if (!empty($taskStatusChart))
+            <div class="col-12 col-lg-6 col-xxl-3">
+                <div class="card fm-card h-100">
+                    <div class="card-header fm-card-header">
+                        <div>
+                            <h2 class="fm-card-title">{{ __('Tasks by status') }}</h2>
+                            <p class="fm-card-subtitle">{{ __('Current task distribution') }}</p>
+                        </div>
+                    </div>
+                    <div class="card-body fm-bar-chart">
+                        @php($taskMax = max(1, collect($taskStatusChart)->max('value')))
+                        @foreach ($taskStatusChart as $item)
+                            <div class="fm-bar-row">
+                                <div class="fm-bar-label"><span>{{ $item['label'] }}</span><strong>{{ $item['value'] }}</strong></div>
+                                <div class="fm-bar-track"><span style="width: {{ round(($item['value'] / $taskMax) * 100) }}%"></span></div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if (!empty($ticketPriorityChart))
+            <div class="col-12 col-lg-6 col-xxl-3">
+                <div class="card fm-card h-100">
+                    <div class="card-header fm-card-header">
+                        <div>
+                            <h2 class="fm-card-title">{{ __('Open tickets by priority') }}</h2>
+                            <p class="fm-card-subtitle">{{ __('Current support pressure') }}</p>
+                        </div>
+                    </div>
+                    <div class="card-body fm-bar-chart">
+                        @php($ticketMax = max(1, collect($ticketPriorityChart)->max('value')))
+                        @foreach ($ticketPriorityChart as $item)
+                            <div class="fm-bar-row">
+                                <div class="fm-bar-label"><span>{{ $item['label'] }}</span><strong>{{ $item['value'] }}</strong></div>
+                                <div class="fm-bar-track"><span style="width: {{ round(($item['value'] / $ticketMax) * 100) }}%"></span></div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
+    @if ($teamWorkload->isNotEmpty())
+        <div class="card fm-card mt-4">
+            <div class="card-header fm-card-header">
+                <div>
+                    <h2 class="fm-card-title">{{ __('Team workload') }}</h2>
+                    <p class="fm-card-subtitle">{{ __('Open tasks and tickets currently assigned') }}</p>
+                </div>
+                @if (auth()->user()->hasPermission('reports.view'))
+                    <a href="{{ route('reports.index') }}" class="btn btn-sm btn-outline-secondary">{{ __('Open reports') }}</a>
+                @endif
+            </div>
+            <div class="card-body">
+                @php($workloadMax = max(1, $teamWorkload->max('workload_total')))
+                <div class="fm-workload-grid">
+                    @foreach ($teamWorkload as $member)
+                        <div class="fm-workload-item">
+                            <div class="d-flex justify-content-between gap-3 mb-2">
+                                <strong>{{ $member->name }}</strong>
+                                <span class="text-secondary small">{{ $member->workload_total }}</span>
+                            </div>
+                            <div class="fm-bar-track"><span style="width: {{ round(($member->workload_total / $workloadMax) * 100) }}%"></span></div>
+                            <div class="small text-secondary mt-2">
+                                {{ trans_choice('ui.counts.tasks', $member->open_tasks_count, ['count' => $member->open_tasks_count]) }} ·
+                                {{ trans_choice('ui.counts.tickets', $member->open_tickets_count, ['count' => $member->open_tickets_count]) }}
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
 @endsection

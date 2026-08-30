@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Project;
 use App\Models\Ticket;
+use App\Services\CollaborationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -226,6 +227,8 @@ class ContactController extends Controller
             'projects' => $projects,
             'tickets' => $tickets,
             'relatedCounts' => $relatedCounts,
+            'collaboration' => CollaborationService::dataFor($contact),
+            'collaborationType' => 'contact',
         ]);
     }
 

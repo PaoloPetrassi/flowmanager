@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
+use App\Models\Concerns\HasCollaboration;
 use App\Enums\CompanyStatus;
 use App\Enums\CompanyType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Company extends Model
 {
     /** @use HasFactory<\Database\Factories\CompanyFactory> */
-    use HasFactory, SoftDeletes;
+    use Auditable, HasCollaboration, HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

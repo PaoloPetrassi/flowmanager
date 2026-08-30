@@ -6,6 +6,7 @@ use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\AuditService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -69,6 +70,19 @@ class RoleController extends Controller
 
             $role->permissions()->sync($permissions);
 
+            AuditService::record(
+                $role,
+                'permissions_updated',
+                [],
+                [
+                    'permissions' => Permission::query()
+                        ->whereIn('id', $permissions)
+                        ->orderBy('slug')
+                        ->pluck('slug')
+                        ->all(),
+                ]
+            );
+
             return $role;
         });
 
@@ -115,8 +129,28 @@ class RoleController extends Controller
             $permissions = $data['permissions'] ?? [];
             unset($data['permissions']);
 
+            $oldPermissions = $role->permissions()
+                ->orderBy('slug')
+                ->pluck('slug')
+                ->all();
+
             $role->update($data);
             $role->permissions()->sync($permissions);
+
+            $newPermissions = Permission::query()
+                ->whereIn('id', $permissions)
+                ->orderBy('slug')
+                ->pluck('slug')
+                ->all();
+
+            if ($oldPermissions !== $newPermissions) {
+                AuditService::record(
+                    $role,
+                    'permissions_updated',
+                    ['permissions' => $oldPermissions],
+                    ['permissions' => $newPermissions]
+                );
+            }
         });
 
         return redirect()

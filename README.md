@@ -1,58 +1,196 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# FlowManager
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+FlowManager is a Laravel management application that combines CRM, projects, tasks, assets, support, collaboration, auditability, analytics and role-based administration in one responsive bilingual interface.
 
-## About Laravel
+Current application version: **v0.6 — Analytics & Planning**, including the complete **v0.5 — Collaboration & Audit** layer.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Modules
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Dashboard** — KPIs, personal work queues, managed projects, six-month throughput, status/priority charts and team workload.
+- **Companies** — company registry plus related contacts, projects, assets and tickets.
+- **Contacts** — company contacts, primary-contact handling and related operational records.
+- **Projects** — company projects, contacts, managers, priorities, dates, budgets and task progress.
+- **Tasks** — project work, assignments, priorities, deadlines and quick complete/reopen actions.
+- **Assets** — inventory, company ownership, lifecycle, warranty and user assignment.
+- **Tickets** — support requests, assignment, category, priority, resolution and quick resolve/reopen actions.
+- **Calendar** — unified monthly deadlines for projects, tasks and asset warranties.
+- **Kanban** — task and ticket workflow boards with status forms and desktop drag-and-drop.
+- **Reports** — filterable datasets with CSV, Excel and print/PDF output.
+- **Users / Roles** — users, system roles and database-backed permissions.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## v0.5 — Collaboration & Audit
 
-## Learning Laravel
+### Audit log
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Authenticated create, update, delete, restore and permanent-delete activity is automatically recorded for operational records, users and roles. Manual audit events also cover role/permission changes, comments and attachments.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Audit entries can contain actor, date/time, resource, event, before/after values, IP address and user agent. Passwords and remember tokens are excluded from audit values.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Comments and private attachments
 
-## Agentic Development
+Companies, contacts, projects, tasks, assets and tickets share one polymorphic collaboration layer.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Allowed attachments: PDF, DOC/DOCX, XLS/XLSX, CSV/TXT, PNG/JPG/JPEG and ZIP, up to 10 MB.
+
+Files are stored on Laravel's private `local` disk and downloaded only through an authenticated, authorized controller route. `php artisan storage:link` is not required.
+
+### Notifications
+
+The header includes an unread badge, recent notification dropdown and complete notification center. Current automatic notifications include assignments/reassignments and relevant comments.
+
+### Global search
+
+The global search bar searches companies, contacts, projects, tasks, assets, tickets and users, while respecting the current user's permissions. On desktop, `/` focuses the search field when no editable control is active.
+
+### Trash and restore
+
+Soft-deleted operational records can be filtered, restored and, with the required permission, permanently deleted. Destructive operations are blocked when dependent records would make permanent deletion unsafe.
+
+## v0.6 — Analytics & Planning
+
+### Advanced dashboard
+
+The dashboard adds:
+
+- six-month completed-task vs resolved-ticket throughput;
+- task distribution by status;
+- open-ticket distribution by priority;
+- team workload based on assigned open tasks and tickets.
+
+All charts are rendered with local HTML/CSS and require no external chart service.
+
+### Reports and exports
+
+The Reports area provides Projects, Tasks, Tickets and Assets datasets with optional creation-date filters.
+
+Exports include:
+
+- UTF-8 CSV;
+- Excel-compatible SpreadsheetML (`.xls`);
+- native downloadable PDF reports generated by FlowManager;
+- a print-friendly browser view for physical printing or browser PDF output.
+
+No additional spreadsheet/PDF Composer package is required.
+
+### Unified calendar
+
+The monthly calendar combines:
+
+- project due dates;
+- task due dates;
+- asset warranty expiration dates.
+
+Calendar entries link directly to their records.
+
+### Kanban boards
+
+Tasks and Tickets have separate workflow boards. Authorized users can move records by changing the status selector or dragging cards between columns on pointer-enabled desktop browsers. Status updates continue to pass through existing policies and model audit hooks.
+
+## Languages and responsive design
+
+FlowManager supports English and Italian. The selected locale is stored in session and a one-year cookie.
+
+The interface is desktop-first but remains usable on tablets and phones. The sidebar becomes off-canvas on smaller screens, controls reflow and large tables/calendar/kanban surfaces use local horizontal scrolling instead of hiding operational information.
+
+## Requirements
+
+- PHP 8.3+
+- Composer
+- Node.js and npm
+- MySQL/MariaDB or another Laravel-supported database
+
+## Fresh local setup
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Configure the database in `.env`, then run:
 
-## Contributing
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Run the application in two terminals:
 
-## Code of Conduct
+```bash
+npm run dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan serve
+```
 
-## Security Vulnerabilities
+Open `http://127.0.0.1:8000`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Upgrade from v0.4.x to v0.6
 
-## License
+After copying the v0.6 files over the current project:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan migrate
+php artisan db:seed --class=RolePermissionSeeder
+php artisan optimize:clear
+php artisan test
+```
+
+The v0.5 migrations create:
+
+1. `audit_logs`
+2. `comments`
+3. `attachments`
+4. `notifications`
+
+v0.6 adds no additional database tables. Re-running `RolePermissionSeeder` is required so the current system roles receive audit, collaboration, trash and report permissions.
+
+No operational records are replaced by this upgrade.
+
+## Tests
+
+```bash
+php artisan test
+```
+
+The feature suite contains **87 declared tests** covering authentication, localization, permissions, CRUD workflows, relationships, dashboard work queues and analytics, audit logging, collaboration, attachments, notifications, global search, trash/restore, reports/exports, calendar and Kanban status changes.
+
+Useful focused runs:
+
+```bash
+php artisan test --filter=AuditLogTest
+php artisan test --filter=CollaborationTest
+php artisan test --filter=NotificationCenterTest
+php artisan test --filter=GlobalSearchTest
+php artisan test --filter=TrashManagementTest
+php artisan test --filter=ReportManagementTest
+php artisan test --filter=PlanningToolsTest
+php artisan test --filter=DashboardAnalyticsTest
+```
+
+## Access model
+
+| Role | Typical access |
+| --- | --- |
+| Administrator | Full operational, collaboration, audit, trash, reporting and administration access |
+| Manager | Operational management, audit, collaboration, restore and report export |
+| Operator | Daily CRM/task/ticket work, comments, attachment upload and report viewing |
+| Viewer | Read-only operational, calendar, Kanban and report viewing |
+
+Permissions remain database-backed and configurable through Roles.
+
+## Development workflow
+
+Development is performed directly on `main`.
+
+```bash
+php artisan test
+git status
+git add .
+git commit -m "Describe the change"
+git push origin main
+```
+
+See `docs/DEVELOPMENT_COMMANDS.md` for the Artisan scaffolding used by each module and cross-cutting feature.

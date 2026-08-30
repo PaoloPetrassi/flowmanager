@@ -11,6 +11,7 @@ use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\CollaborationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -178,6 +179,8 @@ class TicketController extends Controller
 
         return view('tickets.show', [
             'ticket' => $ticket,
+            'collaboration' => CollaborationService::dataFor($ticket),
+            'collaborationType' => 'ticket',
         ]);
     }
 

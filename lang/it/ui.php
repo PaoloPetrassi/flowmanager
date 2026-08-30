@@ -12,5 +12,10 @@ return [
         'tickets' => '{1} :count ticket|[2,*] :count ticket',
         'users' => '{1} :count utente|[2,*] :count utenti',
         'roles' => '{1} :count ruolo|[2,*] :count ruoli',
+        'audit_events' => '{1} :count evento registrato|[2,*] :count eventi registrati',
+        'search_results' => '{1} :count risultato|[2,*] :count risultati',
+        'report_rows' => '{1} :count riga|[2,*] :count righe',
+        'calendar_events' => '{0} Nessun evento|{1} :count evento|[2,*] :count eventi',
+        'unread_notifications' => '{0} Nessuna notifica non letta|{1} :count notifica non letta|[2,*] :count notifiche non lette',
     ],
 ];

@@ -76,4 +76,6 @@
             </div>
         </div>
     </div>
+
+    @include('partials.collaboration-panel', ['collaborationTarget' => $ticket])
 @endsection

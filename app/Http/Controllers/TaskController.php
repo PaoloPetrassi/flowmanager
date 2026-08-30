@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\CollaborationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -157,6 +158,8 @@ class TaskController extends Controller
 
         return view('tasks.show', [
             'task' => $task,
+            'collaboration' => CollaborationService::dataFor($task),
+            'collaborationType' => 'task',
         ]);
     }
 

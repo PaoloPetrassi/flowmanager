@@ -36,6 +36,11 @@
                     <span>{{ __('Dashboard') }}</span>
                 </a>
 
+                <a href="{{ route('search.index') }}" class="fm-nav-link {{ request()->routeIs('search.*') ? 'active' : '' }}">
+                    <i class="bi bi-search"></i>
+                    <span>{{ __('Global search') }}</span>
+                </a>
+
                 <div class="fm-nav-section">{{ __('CRM') }}</div>
 
                 @can('viewAny', App\Models\Company::class)
@@ -90,7 +95,42 @@
                     </a>
                 @endcan
 
-                @if (auth()->user()->can('viewAny', App\Models\User::class) || auth()->user()->can('viewAny', App\Models\Role::class))
+                <div class="fm-nav-section">{{ __('Planning') }}</div>
+
+                @if (
+                    auth()->user()->can('viewAny', App\Models\Project::class)
+                    || auth()->user()->can('viewAny', App\Models\Task::class)
+                    || auth()->user()->can('viewAny', App\Models\Asset::class)
+                )
+                    <a href="{{ route('calendar.index') }}" class="fm-nav-link {{ request()->routeIs('calendar.*') ? 'active' : '' }}">
+                        <i class="bi bi-calendar3"></i>
+                        <span>{{ __('Calendar') }}</span>
+                    </a>
+                @endif
+
+                @if (
+                    auth()->user()->can('viewAny', App\Models\Task::class)
+                    || auth()->user()->can('viewAny', App\Models\Ticket::class)
+                )
+                    <a href="{{ route('boards.index') }}" class="fm-nav-link {{ request()->routeIs('boards.*') ? 'active' : '' }}">
+                        <i class="bi bi-columns-gap"></i>
+                        <span>{{ __('Kanban') }}</span>
+                    </a>
+                @endif
+
+                @if (auth()->user()->hasPermission('reports.view'))
+                    <a href="{{ route('reports.index') }}" class="fm-nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span>{{ __('Reports') }}</span>
+                    </a>
+                @endif
+
+                @if (
+                    auth()->user()->can('viewAny', App\Models\User::class)
+                    || auth()->user()->can('viewAny', App\Models\Role::class)
+                    || auth()->user()->hasPermission('audit.view')
+                    || auth()->user()->hasPermission('trash.view')
+                )
                     <div class="fm-nav-section">{{ __('Administration') }}</div>
                 @endif
 
@@ -107,11 +147,25 @@
                         <span>{{ __('Roles') }}</span>
                     </a>
                 @endcan
+
+                @if (auth()->user()->hasPermission('audit.view'))
+                    <a href="{{ route('activity.index') }}" class="fm-nav-link {{ request()->routeIs('activity.*') ? 'active' : '' }}">
+                        <i class="bi bi-clock-history"></i>
+                        <span>{{ __('Activity log') }}</span>
+                    </a>
+                @endif
+
+                @if (auth()->user()->hasPermission('trash.view'))
+                    <a href="{{ route('trash.index') }}" class="fm-nav-link {{ request()->routeIs('trash.*') ? 'active' : '' }}">
+                        <i class="bi bi-trash3"></i>
+                        <span>{{ __('Trash') }}</span>
+                    </a>
+                @endif
             </nav>
 
             <div class="fm-sidebar-footer">
                 <div>FlowManager</div>
-                <small>{{ __('Portfolio build v0.4') }}</small>
+                <small>{{ __('Portfolio build v0.6') }}</small>
             </div>
         </aside>
 
@@ -131,7 +185,65 @@
                     </div>
                 </div>
 
+                <form method="GET" action="{{ route('search.index') }}" class="fm-header-search" role="search">
+                    <i class="bi bi-search"></i>
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ request()->routeIs('search.*') ? request('q') : '' }}"
+                        placeholder="{{ __('Search FlowManager...') }}"
+                        aria-label="{{ __('Global search') }}"
+                    >
+                    <span class="fm-search-shortcut">/</span>
+                </form>
+
                 <div class="fm-header-actions">
+                    <div class="dropdown">
+                        <button class="fm-icon-button position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ __('Notifications') }}">
+                            <i class="bi bi-bell"></i>
+                            @if (($unreadNotificationCount ?? 0) > 0)
+                                <span class="fm-notification-badge">{{ min($unreadNotificationCount, 99) }}</span>
+                            @endif
+                        </button>
+
+                        <div class="dropdown-menu dropdown-menu-end fm-notification-dropdown p-0">
+                            <div class="fm-notification-dropdown-header">
+                                <div>
+                                    <div class="fw-semibold">{{ __('Notifications') }}</div>
+                                    <small class="text-secondary">{{ trans_choice('ui.counts.unread_notifications', $unreadNotificationCount ?? 0, ['count' => $unreadNotificationCount ?? 0]) }}</small>
+                                </div>
+                                @if (($unreadNotificationCount ?? 0) > 0)
+                                    <form method="POST" action="{{ route('notifications.read-all') }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm btn-link text-decoration-none">{{ __('Read all') }}</button>
+                                    </form>
+                                @endif
+                            </div>
+
+                            <div class="fm-notification-dropdown-list">
+                                @forelse (($headerNotifications ?? collect()) as $notification)
+                                    @php($notificationData = $notification->data)
+                                    <a href="{{ route('notifications.open', $notification->id) }}" class="fm-notification-dropdown-item {{ $notification->read_at ? '' : 'is-unread' }}">
+                                        <span class="fm-notification-small-icon"><i class="bi {{ $notificationData['icon'] ?? 'bi-bell' }}"></i></span>
+                                        <span class="min-w-0">
+                                            <strong>{{ __($notificationData['title_key'] ?? 'Notification') }}</strong>
+                                            <small>{{ __($notificationData['message_key'] ?? '', $notificationData['parameters'] ?? []) }}</small>
+                                            <small class="text-secondary">{{ $notification->created_at->diffForHumans() }}</small>
+                                        </span>
+                                    </a>
+                                @empty
+                                    <div class="p-4 text-center text-secondary small">{{ __('No notifications yet.') }}</div>
+                                @endforelse
+                            </div>
+
+                            <a href="{{ route('notifications.index') }}" class="fm-notification-dropdown-footer">
+                                {{ __('View all notifications') }}
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+
                     @include('partials.language-switcher')
 
                     <div class="dropdown">
@@ -153,6 +265,13 @@
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
+                                <a href="{{ route('notifications.index') }}" class="dropdown-item">
+                                    <i class="bi bi-bell me-2"></i>
+                                    {{ __('Notifications') }}
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="dropdown-item">
@@ -170,6 +289,13 @@
                 @if (session('status'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         {{ session('status') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
                     </div>
                 @endif

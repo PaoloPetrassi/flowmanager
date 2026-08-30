@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateAssetRequest;
 use App\Models\Asset;
 use App\Models\Company;
 use App\Models\User;
+use App\Services\CollaborationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -159,6 +160,8 @@ class AssetController extends Controller
 
         return view('assets.show', [
             'asset' => $asset,
+            'collaboration' => CollaborationService::dataFor($asset),
+            'collaborationType' => 'asset',
         ]);
     }
 

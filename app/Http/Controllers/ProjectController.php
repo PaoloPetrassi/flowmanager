@@ -10,6 +10,7 @@ use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Project;
 use App\Models\User;
+use App\Services\CollaborationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -177,6 +178,8 @@ class ProjectController extends Controller
 
         return view('projects.show', [
             'project' => $project,
+            'collaboration' => CollaborationService::dataFor($project),
+            'collaborationType' => 'project',
         ]);
     }
 

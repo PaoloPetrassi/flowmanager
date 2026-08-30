@@ -17,6 +17,7 @@ return [
         'numeric' => 'Il campo :attribute non può essere superiore a :max.',
         'string' => 'Il campo :attribute non può superare :max caratteri.',
     ],
+    'mimes' => 'Il campo :attribute deve essere un file di tipo: :values.',
     'min' => [
         'array' => 'Il campo :attribute deve contenere almeno :min elementi.',
         'file' => 'Il file :attribute deve essere di almeno :min kilobyte.',
@@ -40,6 +41,7 @@ return [
         'asset_tag' => 'codice bene',
         'assigned_to' => 'assegnatario',
         'brand' => 'marca',
+        'body' => 'commento',
         'budget' => 'budget',
         'category' => 'categoria',
         'city' => 'città',
@@ -52,6 +54,7 @@ return [
         'due_date' => 'data di scadenza',
         'email' => 'email',
         'employees' => 'dipendenti',
+        'file' => 'file',
         'first_name' => 'nome',
         'industry' => 'settore',
         'is_primary' => 'contatto principale',

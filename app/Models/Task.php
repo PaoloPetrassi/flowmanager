@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
+use App\Models\Concerns\HasCollaboration;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Task extends Model
 {
     /** @use HasFactory<\Database\Factories\TaskFactory> */
-    use HasFactory, SoftDeletes;
+    use Auditable, HasCollaboration, HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

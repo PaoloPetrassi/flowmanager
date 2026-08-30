@@ -6,6 +6,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\AuditService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -75,6 +76,19 @@ class UserController extends Controller
             $user = User::create($data);
             $user->roles()->sync($roles);
 
+            AuditService::record(
+                $user,
+                'roles_updated',
+                [],
+                [
+                    'roles' => Role::query()
+                        ->whereIn('id', $roles)
+                        ->orderBy('slug')
+                        ->pluck('slug')
+                        ->all(),
+                ]
+            );
+
             return $user;
         });
 
@@ -118,12 +132,41 @@ class UserController extends Controller
             $roles = $data['roles'] ?? [];
             unset($data['roles']);
 
-            if (empty($data['password'])) {
+            $oldRoles = $user->roles()
+                ->orderBy('slug')
+                ->pluck('slug')
+                ->all();
+
+            $passwordChanged = ! empty($data['password']);
+
+            if (! $passwordChanged) {
                 unset($data['password']);
             }
 
             $user->update($data);
             $user->roles()->sync($roles);
+
+            $newRoles = Role::query()
+                ->whereIn('id', $roles)
+                ->orderBy('slug')
+                ->pluck('slug')
+                ->all();
+
+            if ($oldRoles !== $newRoles) {
+                AuditService::record(
+                    $user,
+                    'roles_updated',
+                    ['roles' => $oldRoles],
+                    ['roles' => $newRoles]
+                );
+            }
+
+            if ($passwordChanged) {
+                AuditService::record(
+                    $user,
+                    'password_changed'
+                );
+            }
         });
 
         return redirect()

@@ -11,6 +11,7 @@ use App\Models\Asset;
 use App\Models\Contact;
 use App\Models\Project;
 use App\Models\Ticket;
+use App\Services\CollaborationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -203,6 +204,8 @@ class CompanyController extends Controller
             'assets' => $assets,
             'tickets' => $tickets,
             'relatedCounts' => $relatedCounts,
+            'collaboration' => CollaborationService::dataFor($company),
+            'collaborationType' => 'company',
         ]);
     }
 

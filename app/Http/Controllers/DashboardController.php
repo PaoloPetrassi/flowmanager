@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\AssetStatus;
 use App\Enums\ProjectStatus;
+use App\Enums\TaskStatus;
+use App\Enums\TicketPriority;
+use App\Enums\TicketStatus;
 use App\Models\Asset;
 use App\Models\Company;
 use App\Models\Contact;
@@ -12,6 +15,7 @@ use App\Models\Role;
 use App\Models\Task;
 use App\Models\Ticket;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -139,12 +143,30 @@ class DashboardController extends Controller
         }
 
         $latestUsers = collect();
+        $teamWorkload = collect();
 
         if (Gate::allows('viewAny', User::class)) {
             $latestUsers = User::with('roles')
                 ->latest()
                 ->limit(5)
                 ->get();
+
+            $teamWorkload = User::query()
+                ->withCount([
+                    'assignedTasks as open_tasks_count' => fn ($query) => $query->open(),
+                    'assignedTickets as open_tickets_count' => fn ($query) => $query->open(),
+                ])
+                ->orderBy('name')
+                ->get(['id', 'name'])
+                ->map(function (User $user) {
+                    $user->workload_total = $user->open_tasks_count + $user->open_tickets_count;
+
+                    return $user;
+                })
+                ->filter(fn (User $user) => $user->workload_total > 0)
+                ->sortByDesc('workload_total')
+                ->take(6)
+                ->values();
         }
 
         return view('dashboard.index', [
@@ -156,6 +178,101 @@ class DashboardController extends Controller
             'myTickets' => $myTickets,
             'managedProjects' => $managedProjects,
             'overdueTaskCount' => $overdueTaskCount,
+            'taskStatusChart' => $this->taskStatusChart(),
+            'ticketPriorityChart' => $this->ticketPriorityChart(),
+            'trendSeries' => $this->trendSeries(),
+            'teamWorkload' => $teamWorkload,
         ]);
+    }
+
+    private function taskStatusChart(): array
+    {
+        if (! Gate::allows('viewAny', Task::class)) {
+            return [];
+        }
+
+        $counts = Task::query()
+            ->selectRaw('status, COUNT(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        return collect(TaskStatus::cases())
+            ->map(fn (TaskStatus $status) => [
+                'key' => $status->value,
+                'label' => $status->label(),
+                'value' => (int) ($counts[$status->value] ?? 0),
+            ])
+            ->all();
+    }
+
+    private function ticketPriorityChart(): array
+    {
+        if (! Gate::allows('viewAny', Ticket::class)) {
+            return [];
+        }
+
+        $counts = Ticket::query()
+            ->open()
+            ->selectRaw('priority, COUNT(*) as aggregate')
+            ->groupBy('priority')
+            ->pluck('aggregate', 'priority');
+
+        return collect(TicketPriority::cases())
+            ->map(fn (TicketPriority $priority) => [
+                'key' => $priority->value,
+                'label' => $priority->label(),
+                'value' => (int) ($counts[$priority->value] ?? 0),
+            ])
+            ->all();
+    }
+
+    private function trendSeries(): array
+    {
+        $endMonth = CarbonImmutable::now()->startOfMonth();
+        $months = collect(range(5, 0))
+            ->map(fn (int $offset) => $endMonth->subMonths($offset));
+
+        $start = $months->first()->startOfMonth();
+        $end = $months->last()->endOfMonth();
+
+        $completedTasks = Gate::allows('viewAny', Task::class)
+            ? Task::query()
+                ->whereNotNull('completed_at')
+                ->whereBetween('completed_at', [$start, $end])
+                ->get(['completed_at'])
+                ->groupBy(fn (Task $task) => $task->completed_at->format('Y-m'))
+                ->map->count()
+            : collect();
+
+        $resolvedTickets = Gate::allows('viewAny', Ticket::class)
+            ? Ticket::query()
+                ->whereNotNull('resolved_at')
+                ->whereBetween('resolved_at', [$start, $end])
+                ->get(['resolved_at'])
+                ->groupBy(fn (Ticket $ticket) => $ticket->resolved_at->format('Y-m'))
+                ->map->count()
+            : collect();
+
+        $series = $months->map(function (CarbonImmutable $month) use ($completedTasks, $resolvedTickets) {
+            $key = $month->format('Y-m');
+
+            return [
+                'key' => $key,
+                'label' => $month->locale(app()->getLocale())->translatedFormat('M'),
+                'tasks' => (int) ($completedTasks[$key] ?? 0),
+                'tickets' => (int) ($resolvedTickets[$key] ?? 0),
+            ];
+        });
+
+        $max = max(
+            1,
+            (int) $series->max('tasks'),
+            (int) $series->max('tickets')
+        );
+
+        return [
+            'items' => $series->all(),
+            'max' => $max,
+        ];
     }
 }

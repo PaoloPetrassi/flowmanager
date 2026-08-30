@@ -84,6 +84,15 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'Update tickets', 'slug' => 'tickets.update'],
             ['name' => 'Delete tickets', 'slug' => 'tickets.delete'],
 
+            ['name' => 'View audit log', 'slug' => 'audit.view'],
+            ['name' => 'Create comments', 'slug' => 'comments.create'],
+            ['name' => 'Delete comments', 'slug' => 'comments.delete'],
+            ['name' => 'Upload attachments', 'slug' => 'attachments.create'],
+            ['name' => 'Delete attachments', 'slug' => 'attachments.delete'],
+            ['name' => 'View trash', 'slug' => 'trash.view'],
+            ['name' => 'Restore trash', 'slug' => 'trash.restore'],
+            ['name' => 'Permanently delete trash', 'slug' => 'trash.delete'],
+
             ['name' => 'View reports', 'slug' => 'reports.view'],
             ['name' => 'Export reports', 'slug' => 'reports.export'],
         ];
@@ -109,6 +118,7 @@ class RolePermissionSeeder extends Seeder
                 ->whereNotIn('slug', [
                     'users.manage',
                     'roles.manage',
+                    'trash.delete',
                 ])
                 ->pluck('id')
         );
@@ -131,6 +141,8 @@ class RolePermissionSeeder extends Seeder
                     'tickets.view',
                     'tickets.create',
                     'tickets.update',
+                    'comments.create',
+                    'attachments.create',
                     'reports.view',
                 ])
                 ->pluck('id')
