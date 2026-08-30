@@ -14,11 +14,6 @@ enum TicketPriority: string
      */
     public function label(): string
     {
-        return match ($this) {
-            self::Low => 'Low',
-            self::Medium => 'Medium',
-            self::High => 'High',
-            self::Urgent => 'Urgent',
-        };
+        return __('enums.ticket_priority.'.$this->value);
     }
 }

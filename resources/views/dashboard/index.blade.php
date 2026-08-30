@@ -1,18 +1,18 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
-@section('page-title', 'Dashboard')
-@section('page-subtitle', 'Operational overview and work that needs your attention')
+@section('title', __('Dashboard'))
+@section('page-title', __('Dashboard'))
+@section('page-subtitle', __('Operational overview and work that needs your attention'))
 
 @section('content')
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
         <div>
-            <div class="fw-semibold">Welcome back, {{ $currentUser->name }}.</div>
+            <div class="fw-semibold">{{ __('Welcome back, :name.', ['name' => $currentUser->name]) }}</div>
             <div class="text-secondary small">
                 @if ($overdueTaskCount > 0)
-                    You have {{ $overdueTaskCount }} overdue task{{ $overdueTaskCount === 1 ? '' : 's' }} assigned to you.
+                    {{ trans_choice('ui.overdue_tasks', $overdueTaskCount, ['count' => $overdueTaskCount]) }}
                 @else
-                    No overdue tasks are currently assigned to you.
+                    {{ __('No overdue tasks are currently assigned to you.') }}
                 @endif
             </div>
         </div>
@@ -21,21 +21,21 @@
             @can('create', App\Models\Task::class)
                 <a href="{{ route('tasks.create', ['assign_to_me' => 1]) }}" class="btn btn-outline-primary">
                     <i class="bi bi-check2-square me-1"></i>
-                    New task
+                    {{ __('New task') }}
                 </a>
             @endcan
 
             @can('create', App\Models\Ticket::class)
                 <a href="{{ route('tickets.create', ['assign_to_me' => 1]) }}" class="btn btn-outline-primary">
                     <i class="bi bi-ticket-perforated me-1"></i>
-                    New ticket
+                    {{ __('New ticket') }}
                 </a>
             @endcan
 
             @can('create', App\Models\Project::class)
                 <a href="{{ route('projects.create', ['manage_by_me' => 1]) }}" class="btn btn-primary">
                     <i class="bi bi-plus-lg me-1"></i>
-                    New project
+                    {{ __('New project') }}
                 </a>
             @endcan
         </div>
@@ -75,11 +75,11 @@
                 <div class="card fm-card h-100">
                     <div class="card-header fm-card-header">
                         <div>
-                            <h2 class="fm-card-title">My open tasks</h2>
-                            <p class="fm-card-subtitle">Nearest deadlines assigned to you</p>
+                            <h2 class="fm-card-title">{{ __('My open tasks') }}</h2>
+                            <p class="fm-card-subtitle">{{ __('Nearest deadlines assigned to you') }}</p>
                         </div>
                         <a href="{{ route('tasks.index', ['assigned_to' => $currentUser->id]) }}" class="btn btn-sm btn-outline-secondary">
-                            View all
+                            {{ __('View all') }}
                         </a>
                     </div>
 
@@ -96,13 +96,13 @@
                                             {{ $task->title }}
                                         </a>
                                         @if ($isOverdue)
-                                            <span class="badge text-bg-danger">Overdue</span>
+                                            <span class="badge text-bg-danger">{{ __('Overdue') }}</span>
                                         @endif
                                     </div>
                                     <div class="small text-secondary mt-1">
                                         {{ $task->project->code }} · {{ $task->project->company->name }}
                                         @if ($task->due_date)
-                                            · Due {{ $task->due_date->format('d/m/Y') }}
+                                            · {{ __('Due :date', ['date' => $task->due_date->format('d/m/Y')]) }}
                                         @endif
                                     </div>
                                 </div>
@@ -111,7 +111,7 @@
                                     <form method="POST" action="{{ route('tasks.complete', $task) }}">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark completed">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="{{ __('Mark completed') }}">
                                             <i class="bi bi-check-lg"></i>
                                         </button>
                                     </form>
@@ -119,7 +119,7 @@
                             </div>
                         @empty
                             <div class="p-4 text-center text-secondary">
-                                No open tasks are assigned to you.
+                                {{ __('No open tasks are assigned to you.') }}
                             </div>
                         @endforelse
                     </div>
@@ -132,11 +132,11 @@
                 <div class="card fm-card h-100">
                     <div class="card-header fm-card-header">
                         <div>
-                            <h2 class="fm-card-title">My open tickets</h2>
-                            <p class="fm-card-subtitle">Support requests currently assigned to you</p>
+                            <h2 class="fm-card-title">{{ __('My open tickets') }}</h2>
+                            <p class="fm-card-subtitle">{{ __('Support requests currently assigned to you') }}</p>
                         </div>
                         <a href="{{ route('tickets.index', ['assigned_to' => $currentUser->id]) }}" class="btn btn-sm btn-outline-secondary">
-                            View all
+                            {{ __('View all') }}
                         </a>
                     </div>
 
@@ -149,9 +149,9 @@
                                             {{ $ticket->subject }}
                                         </a>
                                         @if ($ticket->priority->value === 'urgent')
-                                            <span class="badge text-bg-danger">Urgent</span>
+                                            <span class="badge text-bg-danger">{{ __('Urgent') }}</span>
                                         @elseif ($ticket->priority->value === 'high')
-                                            <span class="badge text-bg-warning">High</span>
+                                            <span class="badge text-bg-warning">{{ __('High') }}</span>
                                         @endif
                                     </div>
                                     <div class="small text-secondary mt-1">
@@ -167,7 +167,7 @@
                                     <form method="POST" action="{{ route('tickets.resolve', $ticket) }}">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark resolved">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="{{ __('Mark resolved') }}">
                                             <i class="bi bi-check-lg"></i>
                                         </button>
                                     </form>
@@ -175,7 +175,7 @@
                             </div>
                         @empty
                             <div class="p-4 text-center text-secondary">
-                                No open tickets are assigned to you.
+                                {{ __('No open tickets are assigned to you.') }}
                             </div>
                         @endforelse
                     </div>
@@ -190,11 +190,11 @@
                 <div class="card fm-card h-100">
                     <div class="card-header fm-card-header">
                         <div>
-                            <h2 class="fm-card-title">Projects I manage</h2>
-                            <p class="fm-card-subtitle">Active delivery under your responsibility</p>
+                            <h2 class="fm-card-title">{{ __('Projects I manage') }}</h2>
+                            <p class="fm-card-subtitle">{{ __('Active delivery under your responsibility') }}</p>
                         </div>
                         <a href="{{ route('projects.index', ['manager_id' => $currentUser->id]) }}" class="btn btn-sm btn-outline-secondary">
-                            View all
+                            {{ __('View all') }}
                         </a>
                     </div>
 
@@ -202,11 +202,11 @@
                         <table class="table align-middle mb-0 fm-table">
                             <thead>
                                 <tr>
-                                    <th>Project</th>
-                                    <th>Company</th>
-                                    <th>Status</th>
-                                    <th>Open tasks</th>
-                                    <th>Due</th>
+                                    <th>{{ __('Project') }}</th>
+                                    <th>{{ __('Company') }}</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Open tasks') }}</th>
+                                    <th>{{ __('Due') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -226,7 +226,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="5" class="text-center py-4 text-secondary">
-                                            No active projects are currently managed by you.
+                                            {{ __('No active projects are currently managed by you.') }}
                                         </td>
                                     </tr>
                                 @endforelse
@@ -240,7 +240,7 @@
         <div class="col-12 col-xl-5">
             <div class="card fm-card mb-4">
                 <div class="card-body">
-                    <h2 class="fm-card-title mb-3">Your access</h2>
+                    <h2 class="fm-card-title mb-3">{{ __('Your access') }}</h2>
 
                     <div class="fm-access-user">
                         <div class="fm-access-avatar">
@@ -255,17 +255,17 @@
                     <hr>
 
                     <div class="fm-access-row">
-                        <span>Roles</span>
+                        <span>{{ __('Roles') }}</span>
                         <strong>{{ $currentUser->roles->count() }}</strong>
                     </div>
                     <div class="fm-access-row">
-                        <span>Permissions</span>
+                        <span>{{ __('Permissions') }}</span>
                         <strong>{{ $permissionCount }}</strong>
                     </div>
 
                     <div class="mt-3">
                         @foreach ($currentUser->roles as $role)
-                            <span class="badge text-bg-primary me-1">{{ $role->name }}</span>
+                            <span class="badge text-bg-primary me-1">{{ __($role->name) }}</span>
                         @endforeach
                     </div>
                 </div>
@@ -275,11 +275,11 @@
                 <div class="card fm-card">
                     <div class="card-header fm-card-header">
                         <div>
-                            <h2 class="fm-card-title">Recent users</h2>
-                            <p class="fm-card-subtitle">Latest application accounts</p>
+                            <h2 class="fm-card-title">{{ __('Recent users') }}</h2>
+                            <p class="fm-card-subtitle">{{ __('Latest application accounts') }}</p>
                         </div>
                         @can('viewAny', App\Models\User::class)
-                            <a href="{{ route('users.index') }}" class="btn btn-sm btn-outline-secondary">View all</a>
+                            <a href="{{ route('users.index') }}" class="btn btn-sm btn-outline-secondary">{{ __('View all') }}</a>
                         @endcan
                     </div>
 
@@ -289,7 +289,7 @@
                                 <div class="fm-small-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
                                 <div class="flex-grow-1">
                                     <div class="fw-semibold">{{ $user->name }}</div>
-                                    <small class="text-secondary">{{ $user->roles->pluck('name')->implode(', ') ?: 'No role' }}</small>
+                                    <small class="text-secondary">{{ $user->roles->pluck('name')->map(fn ($name) => __($name))->implode(', ') ?: __('No role') }}</small>
                                 </div>
                                 <i class="bi bi-chevron-right text-secondary"></i>
                             </a>

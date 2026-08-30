@@ -1,12 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Contacts')
+@section('title', __('Contacts'))
 
-@section('page-title', 'Contacts')
+@section('page-title', __('Contacts'))
 
-@section('page-subtitle')
-    Manage people and company relationships
-@endsection
+@section('page-subtitle', __('Manage people and company relationships'))
 
 @section('content')
 
@@ -14,8 +12,7 @@
 
         <div>
             <span class="text-secondary">
-                {{ $contacts->total() }}
-                {{ Str::plural('contact', $contacts->total()) }}
+                {{ trans_choice('ui.counts.contacts', $contacts->total(), ['count' => $contacts->total()]) }}
             </span>
         </div>
 
@@ -26,7 +23,7 @@
                 class="btn btn-primary"
             >
                 <i class="bi bi-plus-lg me-1"></i>
-                New contact
+                {{ __('New contact') }}
             </a>
 
         @endcan
@@ -50,7 +47,7 @@
                             for="search"
                             class="form-label fw-semibold"
                         >
-                            Search
+                            {{ __('Search') }}
                         </label>
 
                         <div class="input-group">
@@ -65,7 +62,7 @@
                                 name="search"
                                 value="{{ $filters['search'] }}"
                                 class="form-control"
-                                placeholder="Name, company, email, role..."
+                                placeholder="{{ __('Name, company, email, role...') }}"
                             >
 
                         </div>
@@ -78,7 +75,7 @@
                             for="company_id"
                             class="form-label fw-semibold"
                         >
-                            Company
+                            {{ __('Company') }}
                         </label>
 
                         <select
@@ -88,7 +85,7 @@
                         >
 
                             <option value="">
-                                All companies
+                                {{ __('All companies') }}
                             </option>
 
                             @foreach ($companies as $company)
@@ -114,7 +111,7 @@
                             for="primary"
                             class="form-label fw-semibold"
                         >
-                            Contact type
+                            {{ __('Contact type') }}
                         </label>
 
                         <select
@@ -124,21 +121,21 @@
                         >
 
                             <option value="">
-                                All contacts
+                                {{ __('All contacts') }}
                             </option>
 
                             <option
                                 value="1"
                                 @selected($filters['primary'] === '1')
                             >
-                                Primary only
+                                {{ __('Primary only') }}
                             </option>
 
                             <option
                                 value="0"
                                 @selected($filters['primary'] === '0')
                             >
-                                Non-primary
+                                {{ __('Non-primary') }}
                             </option>
 
                         </select>
@@ -151,7 +148,7 @@
                             for="sort"
                             class="form-label fw-semibold"
                         >
-                            Sort by
+                            {{ __('Sort by') }}
                         </label>
 
                         <select
@@ -164,28 +161,28 @@
                                 value="last_name"
                                 @selected($filters['sort'] === 'last_name')
                             >
-                                Last name
+                                {{ __('Last name') }}
                             </option>
 
                             <option
                                 value="first_name"
                                 @selected($filters['sort'] === 'first_name')
                             >
-                                First name
+                                {{ __('First name') }}
                             </option>
 
                             <option
                                 value="job_title"
                                 @selected($filters['sort'] === 'job_title')
                             >
-                                Job title
+                                {{ __('Job title') }}
                             </option>
 
                             <option
                                 value="created_at"
                                 @selected($filters['sort'] === 'created_at')
                             >
-                                Created
+                                {{ __('Created') }}
                             </option>
 
                         </select>
@@ -198,7 +195,7 @@
                             for="direction"
                             class="form-label fw-semibold"
                         >
-                            Order
+                            {{ __('Order') }}
                         </label>
 
                         <select
@@ -211,14 +208,14 @@
                                 value="asc"
                                 @selected($filters['direction'] === 'asc')
                             >
-                                A-Z
+                                {{ __('A-Z') }}
                             </option>
 
                             <option
                                 value="desc"
                                 @selected($filters['direction'] === 'desc')
                             >
-                                Z-A
+                                {{ __('Z-A') }}
                             </option>
 
                         </select>
@@ -233,14 +230,14 @@
                         href="{{ route('contacts.index') }}"
                         class="btn btn-outline-secondary"
                     >
-                        Reset
+                        {{ __('Reset') }}
                     </a>
 
                     <button
                         type="submit"
                         class="btn btn-primary"
                     >
-                        Apply filters
+                        {{ __('Apply filters') }}
                     </button>
 
                 </div>
@@ -259,13 +256,13 @@
 
                 <thead>
                     <tr>
-                        <th>Contact</th>
-                        <th>Company</th>
-                        <th>Role</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Type</th>
-                        <th class="text-end">Actions</th>
+                        <th>{{ __('Contact') }}</th>
+                        <th>{{ __('Company') }}</th>
+                        <th>{{ __('Role') }}</th>
+                        <th>{{ __('Email') }}</th>
+                        <th>{{ __('Phone') }}</th>
+                        <th>{{ __('Type') }}</th>
+                        <th class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
 
@@ -356,13 +353,13 @@
                                 @if ($contact->is_primary)
 
                                     <span class="badge text-bg-primary">
-                                        Primary
+                                        {{ __('Primary') }}
                                     </span>
 
                                 @else
 
                                     <span class="badge text-bg-light border text-secondary">
-                                        Standard
+                                        {{ __('Standard') }}
                                     </span>
 
                                 @endif
@@ -376,7 +373,7 @@
                                     <a
                                         href="{{ route('contacts.show', $contact) }}"
                                         class="btn btn-sm btn-outline-secondary"
-                                        title="View"
+                                        title="{{ __('View') }}"
                                     >
                                         <i class="bi bi-eye"></i>
                                     </a>
@@ -386,7 +383,7 @@
                                         <a
                                             href="{{ route('contacts.edit', $contact) }}"
                                             class="btn btn-sm btn-outline-secondary"
-                                            title="Edit"
+                                            title="{{ __('Edit') }}"
                                         >
                                             <i class="bi bi-pencil"></i>
                                         </a>
@@ -398,7 +395,7 @@
                                         <form
                                             method="POST"
                                             action="{{ route('contacts.destroy', $contact) }}"
-                                            onsubmit="return confirm('Delete this contact?');"
+                                            onsubmit="return confirm(@js(__('Delete this contact?')));"
                                         >
                                             @csrf
                                             @method('DELETE')
@@ -406,7 +403,7 @@
                                             <button
                                                 type="submit"
                                                 class="btn btn-sm btn-outline-danger rounded-start-0"
-                                                title="Delete"
+                                                title="{{ __('Delete') }}"
                                             >
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -433,11 +430,11 @@
                                 <i class="bi bi-person-vcard fs-1 text-secondary"></i>
 
                                 <div class="fw-semibold mt-3">
-                                    No contacts found
+                                    {{ __('No contacts found') }}
                                 </div>
 
                                 <div class="text-secondary">
-                                    Try changing the search filters or create a new contact.
+                                    {{ __('Try changing the search filters or create a new contact.') }}
                                 </div>
 
                             </td>

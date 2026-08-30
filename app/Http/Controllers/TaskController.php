@@ -142,7 +142,7 @@ class TaskController extends Controller
 
         return redirect()
             ->route('tasks.show', $task)
-            ->with('status', 'Task created successfully.');
+            ->with('status', __('Task created successfully.'));
     }
 
     public function show(Task $task): View
@@ -179,7 +179,7 @@ class TaskController extends Controller
 
         return redirect()
             ->route('tasks.show', $task)
-            ->with('status', 'Task updated successfully.');
+            ->with('status', __('Task updated successfully.'));
     }
 
     public function complete(Task $task): RedirectResponse
@@ -191,7 +191,7 @@ class TaskController extends Controller
             'completed_at' => $task->completed_at ?? now(),
         ]);
 
-        return back()->with('status', 'Task marked as completed.');
+        return back()->with('status', __('Task marked as completed.'));
     }
 
     public function reopen(Task $task): RedirectResponse
@@ -203,7 +203,7 @@ class TaskController extends Controller
             'completed_at' => null,
         ]);
 
-        return back()->with('status', 'Task reopened.');
+        return back()->with('status', __('Task reopened.'));
     }
 
     public function destroy(Task $task): RedirectResponse
@@ -214,7 +214,7 @@ class TaskController extends Controller
 
         return redirect()
             ->route('tasks.index')
-            ->with('status', 'Task deleted successfully.');
+            ->with('status', __('Task deleted successfully.'));
     }
 
     /**

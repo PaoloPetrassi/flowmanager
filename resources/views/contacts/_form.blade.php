@@ -7,11 +7,11 @@
             <div class="card-header fm-card-header">
                 <div>
                     <h2 class="fm-card-title">
-                        General information
+                        {{ __('General information') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Contact identity and business role
+                        {{ __('Contact identity and business role') }}
                     </p>
                 </div>
             </div>
@@ -26,7 +26,7 @@
                             for="first_name"
                             class="form-label fw-semibold"
                         >
-                            First name *
+                            {{ __('First name *') }}
                         </label>
 
                         <input
@@ -53,7 +53,7 @@
                             for="last_name"
                             class="form-label fw-semibold"
                         >
-                            Last name *
+                            {{ __('Last name *') }}
                         </label>
 
                         <input
@@ -79,7 +79,7 @@
                             for="job_title"
                             class="form-label fw-semibold"
                         >
-                            Job title
+                            {{ __('Job title') }}
                         </label>
 
                         <input
@@ -88,7 +88,7 @@
                             name="job_title"
                             value="{{ old('job_title', $contact->job_title) }}"
                             class="form-control @error('job_title') is-invalid @enderror"
-                            placeholder="e.g. Chief Financial Officer"
+                            placeholder="{{ __('e.g. Chief Financial Officer') }}"
                         >
 
                         @error('job_title')
@@ -105,7 +105,7 @@
                             for="department"
                             class="form-label fw-semibold"
                         >
-                            Department
+                            {{ __('Department') }}
                         </label>
 
                         <input
@@ -114,7 +114,7 @@
                             name="department"
                             value="{{ old('department', $contact->department) }}"
                             class="form-control @error('department') is-invalid @enderror"
-                            placeholder="e.g. Finance"
+                            placeholder="{{ __('e.g. Finance') }}"
                         >
 
                         @error('department')
@@ -136,11 +136,11 @@
             <div class="card-header fm-card-header">
                 <div>
                     <h2 class="fm-card-title">
-                        Contact details
+                        {{ __('Contact details') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Email and telephone information
+                        {{ __('Email and telephone information') }}
                     </p>
                 </div>
             </div>
@@ -155,7 +155,7 @@
                             for="email"
                             class="form-label fw-semibold"
                         >
-                            Email
+                            {{ __('Email') }}
                         </label>
 
                         <input
@@ -181,7 +181,7 @@
                             for="phone"
                             class="form-label fw-semibold"
                         >
-                            Phone
+                            {{ __('Phone') }}
                         </label>
 
                         <input
@@ -206,7 +206,7 @@
                             for="mobile"
                             class="form-label fw-semibold"
                         >
-                            Mobile
+                            {{ __('Mobile') }}
                         </label>
 
                         <input
@@ -236,11 +236,11 @@
             <div class="card-header fm-card-header">
                 <div>
                     <h2 class="fm-card-title">
-                        Notes
+                        {{ __('Notes') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Optional internal information about this contact
+                        {{ __('Optional internal information about this contact') }}
                     </p>
                 </div>
             </div>
@@ -251,7 +251,7 @@
                     for="notes"
                     class="visually-hidden"
                 >
-                    Notes
+                    {{ __('Notes') }}
                 </label>
 
                 <textarea
@@ -280,11 +280,11 @@
             <div class="card-header fm-card-header">
                 <div>
                     <h2 class="fm-card-title">
-                        Company
+                        {{ __('Company') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Associate the contact with a CRM company
+                        {{ __('Associate the contact with a CRM company') }}
                     </p>
                 </div>
             </div>
@@ -297,7 +297,7 @@
                         for="company_id"
                         class="form-label fw-semibold"
                     >
-                        Company
+                        {{ __('Company') }}
                     </label>
 
                     <select
@@ -307,7 +307,7 @@
                     >
 
                         <option value="">
-                            No company
+                            {{ __('No company') }}
                         </option>
 
                         @foreach ($companies as $company)
@@ -356,11 +356,11 @@
                         for="is_primary"
                         class="form-check-label fw-semibold"
                     >
-                        Primary contact
+                        {{ __('Primary contact') }}
                     </label>
 
                     <div class="form-text">
-                        A company can have only one primary contact. Selecting this will replace the current primary contact.
+                        {{ __('A company can have only one primary contact. Selecting this will replace the current primary contact.') }}
                     </div>
 
                     @error('is_primary')

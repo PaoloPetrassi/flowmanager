@@ -77,7 +77,7 @@ class UpdateUserRequest extends FormRequest
             if (! $anotherAdministratorExists) {
                 $validator->errors()->add(
                     'roles',
-                    'The last administrator cannot lose the Administrator role.'
+                    __('The last administrator cannot lose the Administrator role.')
                 );
             }
         });

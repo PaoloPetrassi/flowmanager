@@ -1,12 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'New Contact')
+@section('title', __('New Contact'))
 
-@section('page-title', 'New Contact')
+@section('page-title', __('New Contact'))
 
-@section('page-subtitle')
-    Create a new CRM contact
-@endsection
+@section('page-subtitle', __('Create a new CRM contact'))
 
 @section('content')
 
@@ -23,7 +21,7 @@
                 class="btn btn-outline-secondary"
             >
                 <i class="bi bi-arrow-left me-1"></i>
-                Back
+                {{ __('Back') }}
             </a>
 
             <button
@@ -31,7 +29,7 @@
                 class="btn btn-primary"
             >
                 <i class="bi bi-check-lg me-1"></i>
-                Create contact
+                {{ __('Create contact') }}
             </button>
 
         </div>
@@ -45,7 +43,7 @@
                 class="btn btn-primary px-4"
             >
                 <i class="bi bi-check-lg me-1"></i>
-                Create contact
+                {{ __('Create contact') }}
             </button>
 
         </div>

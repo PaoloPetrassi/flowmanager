@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Sign in')
+@section('title', __('Sign in'))
 
 @section('content')
 
@@ -18,7 +18,7 @@
                 </h1>
 
                 <p class="text-secondary mb-0">
-                    Business Management Platform
+                    {{ __('Business Management Platform') }}
                 </p>
 
             </div>
@@ -45,7 +45,7 @@
                         for="email"
                         class="form-label fm-form-label"
                     >
-                        Email address
+                        {{ __('Email address') }}
                     </label>
 
                     <input
@@ -73,7 +73,7 @@
                         for="password"
                         class="form-label fm-form-label"
                     >
-                        Password
+                        {{ __('Password') }}
                     </label>
 
                     <div class="input-group">
@@ -92,7 +92,9 @@
                             class="btn btn-outline-secondary fm-password-toggle"
                             data-password-toggle
                             data-target="password"
-                            aria-label="Show password"
+                            data-label-show="{{ __('Show password') }}"
+                            data-label-hide="{{ __('Hide password') }}"
+                            aria-label="{{ __('Show password') }}"
                         >
                             <i class="bi bi-eye"></i>
                         </button>
@@ -122,7 +124,7 @@
                         for="remember"
                         class="form-check-label"
                     >
-                        Remember me
+                        {{ __('Remember me') }}
                     </label>
 
                 </div>
@@ -131,7 +133,7 @@
                     type="submit"
                     class="btn btn-primary fm-btn-primary w-100"
                 >
-                    Sign in
+                    {{ __('Sign in') }}
                 </button>
 
             </form>
@@ -140,7 +142,7 @@
     </div>
 
     <div class="text-center mt-4 fm-login-footer">
-        FlowManager Portfolio Project
+        {{ __('FlowManager Portfolio Project') }}
     </div>
 
 @endsection

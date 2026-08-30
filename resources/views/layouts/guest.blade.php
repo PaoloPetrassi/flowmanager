@@ -26,6 +26,10 @@
 <body class="fm-login-page">
 
     <main class="fm-login-container">
+        <div class="d-flex justify-content-end mb-3">
+            @include('partials.language-switcher')
+        </div>
+
         @yield('content')
     </main>
 

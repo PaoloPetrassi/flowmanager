@@ -30,7 +30,7 @@ class LoginController extends Controller
 
         return redirect()
             ->intended(route('dashboard'))
-            ->with('status', 'Welcome back.');
+            ->with('status', __('Welcome back.'));
     }
 
     /**
@@ -46,6 +46,6 @@ class LoginController extends Controller
 
         return redirect()
             ->route('login')
-            ->with('status', 'You have been signed out.');
+            ->with('status', __('You have been signed out.'));
     }
 }

@@ -7,11 +7,11 @@
             <div class="card-header fm-card-header">
                 <div>
                     <h2 class="fm-card-title">
-                        General information
+                        {{ __('General information') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Basic company identification and classification
+                        {{ __('Basic company identification and classification') }}
                     </p>
                 </div>
             </div>
@@ -26,7 +26,7 @@
                             for="name"
                             class="form-label fw-semibold"
                         >
-                            Company name *
+                            {{ __('Company name *') }}
                         </label>
 
                         <input
@@ -52,7 +52,7 @@
                             for="legal_name"
                             class="form-label fw-semibold"
                         >
-                            Legal name
+                            {{ __('Legal name') }}
                         </label>
 
                         <input
@@ -77,7 +77,7 @@
                             for="type"
                             class="form-label fw-semibold"
                         >
-                            Type *
+                            {{ __('Type *') }}
                         </label>
 
                         <select
@@ -88,7 +88,7 @@
                         >
 
                             <option value="">
-                                Select type
+                                {{ __('Select type') }}
                             </option>
 
                             @foreach ($types as $type)
@@ -123,7 +123,7 @@
                             for="status"
                             class="form-label fw-semibold"
                         >
-                            Status *
+                            {{ __('Status *') }}
                         </label>
 
                         <select
@@ -134,7 +134,7 @@
                         >
 
                             <option value="">
-                                Select status
+                                {{ __('Select status') }}
                             </option>
 
                             @foreach ($statuses as $status)
@@ -169,7 +169,7 @@
                             for="industry"
                             class="form-label fw-semibold"
                         >
-                            Industry
+                            {{ __('Industry') }}
                         </label>
 
                         <input
@@ -194,7 +194,7 @@
                             for="employees"
                             class="form-label fw-semibold"
                         >
-                            Employees
+                            {{ __('Employees') }}
                         </label>
 
                         <input
@@ -230,11 +230,11 @@
 
                 <div>
                     <h2 class="fm-card-title">
-                        Fiscal information
+                        {{ __('Fiscal information') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Tax and registration identifiers
+                        {{ __('Tax and registration identifiers') }}
                     </p>
                 </div>
 
@@ -248,7 +248,7 @@
                         for="vat_number"
                         class="form-label fw-semibold"
                     >
-                        VAT number
+                        {{ __('VAT number') }}
                     </label>
 
                     <input
@@ -273,7 +273,7 @@
                         for="tax_code"
                         class="form-label fw-semibold"
                     >
-                        Tax code
+                        {{ __('Tax code') }}
                     </label>
 
                     <input
@@ -306,11 +306,11 @@
 
                 <div>
                     <h2 class="fm-card-title">
-                        Contact information
+                        {{ __('Contact information') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Main company communication channels
+                        {{ __('Main company communication channels') }}
                     </p>
                 </div>
 
@@ -324,7 +324,7 @@
                         for="email"
                         class="form-label fw-semibold"
                     >
-                        Email
+                        {{ __('Email') }}
                     </label>
 
                     <input
@@ -349,7 +349,7 @@
                         for="phone"
                         class="form-label fw-semibold"
                     >
-                        Phone
+                        {{ __('Phone') }}
                     </label>
 
                     <input
@@ -374,7 +374,7 @@
                         for="website"
                         class="form-label fw-semibold"
                     >
-                        Website
+                        {{ __('Website') }}
                     </label>
 
                     <input
@@ -408,11 +408,11 @@
 
                 <div>
                     <h2 class="fm-card-title">
-                        Address
+                        {{ __('Address') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Registered or primary business location
+                        {{ __('Registered or primary business location') }}
                     </p>
                 </div>
 
@@ -428,7 +428,7 @@
                             for="address"
                             class="form-label fw-semibold"
                         >
-                            Address
+                            {{ __('Address') }}
                         </label>
 
                         <input
@@ -453,7 +453,7 @@
                             for="city"
                             class="form-label fw-semibold"
                         >
-                            City
+                            {{ __('City') }}
                         </label>
 
                         <input
@@ -478,7 +478,7 @@
                             for="province"
                             class="form-label fw-semibold"
                         >
-                            Province / State
+                            {{ __('Province / State') }}
                         </label>
 
                         <input
@@ -503,7 +503,7 @@
                             for="postal_code"
                             class="form-label fw-semibold"
                         >
-                            Postal code
+                            {{ __('Postal code') }}
                         </label>
 
                         <input
@@ -528,7 +528,7 @@
                             for="country_code"
                             class="form-label fw-semibold"
                         >
-                            Country
+                            {{ __('Country') }}
                         </label>
 
                         <input
@@ -564,11 +564,11 @@
 
                 <div>
                     <h2 class="fm-card-title">
-                        Notes
+                        {{ __('Notes') }}
                     </h2>
 
                     <p class="fm-card-subtitle">
-                        Internal information about the company
+                        {{ __('Internal information about the company') }}
                     </p>
                 </div>
 

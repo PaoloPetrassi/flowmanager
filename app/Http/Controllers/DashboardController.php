@@ -36,7 +36,7 @@ class DashboardController extends Controller
 
         $stats = collect([
             [
-                'label' => 'Companies',
+                'label' => __('Companies'),
                 'value' => Company::count(),
                 'icon' => 'bi-buildings',
                 'url' => Gate::allows('viewAny', Company::class)
@@ -44,7 +44,7 @@ class DashboardController extends Controller
                     : null,
             ],
             [
-                'label' => 'Contacts',
+                'label' => __('Contacts'),
                 'value' => Contact::count(),
                 'icon' => 'bi-person-vcard',
                 'url' => Gate::allows('viewAny', Contact::class)
@@ -52,7 +52,7 @@ class DashboardController extends Controller
                     : null,
             ],
             [
-                'label' => 'Active projects',
+                'label' => __('Active projects'),
                 'value' => Project::query()
                     ->where('status', ProjectStatus::Active->value)
                     ->count(),
@@ -62,7 +62,7 @@ class DashboardController extends Controller
                     : null,
             ],
             [
-                'label' => 'Open tasks',
+                'label' => __('Open tasks'),
                 'value' => Task::query()->open()->count(),
                 'icon' => 'bi-check2-square',
                 'url' => Gate::allows('viewAny', Task::class)
@@ -70,7 +70,7 @@ class DashboardController extends Controller
                     : null,
             ],
             [
-                'label' => 'Assets in service',
+                'label' => __('Assets in service'),
                 'value' => Asset::query()
                     ->where('status', '!=', AssetStatus::Retired->value)
                     ->count(),
@@ -80,7 +80,7 @@ class DashboardController extends Controller
                     : null,
             ],
             [
-                'label' => 'Open tickets',
+                'label' => __('Open tickets'),
                 'value' => Ticket::query()->open()->count(),
                 'icon' => 'bi-ticket-perforated',
                 'url' => Gate::allows('viewAny', Ticket::class)

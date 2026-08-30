@@ -14,11 +14,6 @@ enum ProjectPriority: string
      */
     public function label(): string
     {
-        return match ($this) {
-            self::Low => 'Low',
-            self::Medium => 'Medium',
-            self::High => 'High',
-            self::Urgent => 'Urgent',
-        };
+        return __('enums.project_priority.'.$this->value);
     }
 }

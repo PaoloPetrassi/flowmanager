@@ -133,7 +133,7 @@ class CompanyController extends Controller
             ->route('companies.show', $company)
             ->with(
                 'status',
-                'Company created successfully.'
+                __('Company created successfully.')
             );
     }
 
@@ -237,7 +237,7 @@ class CompanyController extends Controller
             ->route('companies.show', $company)
             ->with(
                 'status',
-                'Company updated successfully.'
+                __('Company updated successfully.')
             );
     }
 
@@ -255,7 +255,7 @@ class CompanyController extends Controller
             ->route('companies.index')
             ->with(
                 'status',
-                'Company deleted successfully.'
+                __('Company deleted successfully.')
             );
     }
 }

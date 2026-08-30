@@ -162,7 +162,7 @@ class TicketController extends Controller
 
         return redirect()
             ->route('tickets.show', $ticket)
-            ->with('status', 'Ticket created successfully.');
+            ->with('status', __('Ticket created successfully.'));
     }
 
     public function show(Ticket $ticket): View
@@ -200,7 +200,7 @@ class TicketController extends Controller
 
         return redirect()
             ->route('tickets.show', $ticket)
-            ->with('status', 'Ticket updated successfully.');
+            ->with('status', __('Ticket updated successfully.'));
     }
 
     public function resolve(Ticket $ticket): RedirectResponse
@@ -212,7 +212,7 @@ class TicketController extends Controller
             'resolved_at' => $ticket->resolved_at ?? now(),
         ]);
 
-        return back()->with('status', 'Ticket marked as resolved.');
+        return back()->with('status', __('Ticket marked as resolved.'));
     }
 
     public function reopen(Ticket $ticket): RedirectResponse
@@ -224,7 +224,7 @@ class TicketController extends Controller
             'resolved_at' => null,
         ]);
 
-        return back()->with('status', 'Ticket reopened.');
+        return back()->with('status', __('Ticket reopened.'));
     }
 
     public function destroy(Ticket $ticket): RedirectResponse
@@ -235,7 +235,7 @@ class TicketController extends Controller
 
         return redirect()
             ->route('tickets.index')
-            ->with('status', 'Ticket deleted successfully.');
+            ->with('status', __('Ticket deleted successfully.'));
     }
 
     /**

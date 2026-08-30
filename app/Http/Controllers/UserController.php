@@ -80,7 +80,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.show', $user)
-            ->with('status', 'User created successfully.');
+            ->with('status', __('User created successfully.'));
     }
 
     public function show(User $user): View
@@ -128,7 +128,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.show', $user)
-            ->with('status', 'User updated successfully.');
+            ->with('status', __('User updated successfully.'));
     }
 
     public function destroy(User $user): RedirectResponse
@@ -139,7 +139,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with('status', 'User deleted successfully.');
+            ->with('status', __('User deleted successfully.'));
     }
 
     private function roleOptions()

@@ -74,7 +74,7 @@ class RoleController extends Controller
 
         return redirect()
             ->route('roles.show', $role)
-            ->with('status', 'Role created successfully.');
+            ->with('status', __('Role created successfully.'));
     }
 
     public function show(Role $role): View
@@ -121,7 +121,7 @@ class RoleController extends Controller
 
         return redirect()
             ->route('roles.show', $role)
-            ->with('status', 'Role updated successfully.');
+            ->with('status', __('Role updated successfully.'));
     }
 
     public function destroy(Role $role): RedirectResponse
@@ -132,7 +132,7 @@ class RoleController extends Controller
 
         return redirect()
             ->route('roles.index')
-            ->with('status', 'Role deleted successfully.');
+            ->with('status', __('Role deleted successfully.'));
     }
 
     private function permissionGroups()

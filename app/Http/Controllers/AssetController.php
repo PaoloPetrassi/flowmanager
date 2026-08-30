@@ -144,7 +144,7 @@ class AssetController extends Controller
 
         return redirect()
             ->route('assets.show', $asset)
-            ->with('status', 'Asset created successfully.');
+            ->with('status', __('Asset created successfully.'));
     }
 
     public function show(Asset $asset): View
@@ -181,7 +181,7 @@ class AssetController extends Controller
 
         return redirect()
             ->route('assets.show', $asset)
-            ->with('status', 'Asset updated successfully.');
+            ->with('status', __('Asset updated successfully.'));
     }
 
     public function editAssignment(Asset $asset): View
@@ -211,7 +211,7 @@ class AssetController extends Controller
 
         return redirect()
             ->route('assets.show', $asset)
-            ->with('status', 'Asset assignment updated successfully.');
+            ->with('status', __('Asset assignment updated successfully.'));
     }
 
     public function destroy(Asset $asset): RedirectResponse
@@ -222,7 +222,7 @@ class AssetController extends Controller
 
         return redirect()
             ->route('assets.index')
-            ->with('status', 'Asset deleted successfully.');
+            ->with('status', __('Asset deleted successfully.'));
     }
 
     /**

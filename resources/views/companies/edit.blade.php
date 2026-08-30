@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Company')
+@section('title', __('Edit Company'))
 
-@section('page-title', 'Edit Company')
+@section('page-title', __('Edit Company'))
 
 @section('page-subtitle')
     {{ $company->name }}
@@ -24,7 +24,7 @@
                 class="btn btn-outline-secondary"
             >
                 <i class="bi bi-arrow-left me-1"></i>
-                Back
+                {{ __('Back') }}
             </a>
 
             <button
@@ -32,7 +32,7 @@
                 class="btn btn-primary"
             >
                 <i class="bi bi-check-lg me-1"></i>
-                Save changes
+                {{ __('Save changes') }}
             </button>
 
         </div>
@@ -46,7 +46,7 @@
                 class="btn btn-primary px-4"
             >
                 <i class="bi bi-check-lg me-1"></i>
-                Save changes
+                {{ __('Save changes') }}
             </button>
 
         </div>

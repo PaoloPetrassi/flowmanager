@@ -15,12 +15,6 @@ enum CompanyType: string
      */
     public function label(): string
     {
-        return match ($this) {
-            self::Customer => 'Customer',
-            self::Supplier => 'Supplier',
-            self::Partner => 'Partner',
-            self::Prospect => 'Prospect',
-            self::Other => 'Other',
-        };
+        return __('enums.company_type.'.$this->value);
     }
 }

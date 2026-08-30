@@ -15,12 +15,6 @@ enum AssetStatus: string
      */
     public function label(): string
     {
-        return match ($this) {
-            self::Available => 'Available',
-            self::Assigned => 'Assigned',
-            self::Maintenance => 'Maintenance',
-            self::Retired => 'Retired',
-            self::Lost => 'Lost',
-        };
+        return __('enums.asset_status.'.$this->value);
     }
 }

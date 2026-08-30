@@ -1,12 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'New Company')
+@section('title', __('New Company'))
 
-@section('page-title', 'New Company')
+@section('page-title', __('New Company'))
 
-@section('page-subtitle')
-    Create a new company record
-@endsection
+@section('page-subtitle', __('Create a new company record'))
 
 @section('content')
 
@@ -23,7 +21,7 @@
                 class="btn btn-outline-secondary"
             >
                 <i class="bi bi-arrow-left me-1"></i>
-                Back
+                {{ __('Back') }}
             </a>
 
             <button
@@ -31,7 +29,7 @@
                 class="btn btn-primary"
             >
                 <i class="bi bi-check-lg me-1"></i>
-                Create company
+                {{ __('Create company') }}
             </button>
 
         </div>
@@ -45,7 +43,7 @@
                 class="btn btn-primary px-4"
             >
                 <i class="bi bi-check-lg me-1"></i>
-                Create company
+                {{ __('Create company') }}
             </button>
 
         </div>

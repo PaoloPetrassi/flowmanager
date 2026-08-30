@@ -16,13 +16,6 @@ enum TicketCategory: string
      */
     public function label(): string
     {
-        return match ($this) {
-            self::General => 'General',
-            self::Technical => 'Technical',
-            self::Access => 'Access',
-            self::Billing => 'Billing',
-            self::Request => 'Request',
-            self::Other => 'Other',
-        };
+        return __('enums.ticket_category.'.$this->value);
     }
 }

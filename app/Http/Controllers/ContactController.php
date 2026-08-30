@@ -179,7 +179,7 @@ class ContactController extends Controller
             ->route('contacts.show', $contact)
             ->with(
                 'status',
-                'Contact created successfully.'
+                __('Contact created successfully.')
             );
     }
 
@@ -270,7 +270,7 @@ class ContactController extends Controller
             ->route('contacts.show', $contact)
             ->with(
                 'status',
-                'Contact updated successfully.'
+                __('Contact updated successfully.')
             );
     }
 
@@ -287,7 +287,7 @@ class ContactController extends Controller
             ->route('contacts.index')
             ->with(
                 'status',
-                'Contact deleted successfully.'
+                __('Contact deleted successfully.')
             );
     }
 

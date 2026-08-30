@@ -1,12 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Companies')
+@section('title', __('Companies'))
 
-@section('page-title', 'Companies')
+@section('page-title', __('Companies'))
 
-@section('page-subtitle')
-    Manage customers, suppliers, partners and prospects
-@endsection
+@section('page-subtitle', __('Manage customers, suppliers, partners and prospects'))
 
 @section('content')
 
@@ -14,8 +12,7 @@
 
         <div>
             <span class="text-secondary">
-                {{ $companies->total() }}
-                {{ Str::plural('company', $companies->total()) }}
+                {{ trans_choice('ui.counts.companies', $companies->total(), ['count' => $companies->total()]) }}
             </span>
         </div>
 
@@ -26,7 +23,7 @@
                 class="btn btn-primary"
             >
                 <i class="bi bi-plus-lg me-1"></i>
-                New company
+                {{ __('New company') }}
             </a>
 
         @endcan
@@ -50,7 +47,7 @@
                             for="search"
                             class="form-label fw-semibold"
                         >
-                            Search
+                            {{ __('Search') }}
                         </label>
 
                         <div class="input-group">
@@ -65,7 +62,7 @@
                                 name="search"
                                 value="{{ $filters['search'] }}"
                                 class="form-control"
-                                placeholder="Name, VAT, email, city..."
+                                placeholder="{{ __('Name, VAT, email, city...') }}"
                             >
 
                         </div>
@@ -78,7 +75,7 @@
                             for="type"
                             class="form-label fw-semibold"
                         >
-                            Type
+                            {{ __('Type') }}
                         </label>
 
                         <select
@@ -88,7 +85,7 @@
                         >
 
                             <option value="">
-                                All types
+                                {{ __('All types') }}
                             </option>
 
                             @foreach ($types as $type)
@@ -114,7 +111,7 @@
                             for="status"
                             class="form-label fw-semibold"
                         >
-                            Status
+                            {{ __('Status') }}
                         </label>
 
                         <select
@@ -124,7 +121,7 @@
                         >
 
                             <option value="">
-                                All statuses
+                                {{ __('All statuses') }}
                             </option>
 
                             @foreach ($statuses as $status)
@@ -150,7 +147,7 @@
                             for="sort"
                             class="form-label fw-semibold"
                         >
-                            Sort by
+                            {{ __('Sort by') }}
                         </label>
 
                         <select
@@ -163,42 +160,42 @@
                                 value="name"
                                 @selected($filters['sort'] === 'name')
                             >
-                                Name
+                                {{ __('Name') }}
                             </option>
 
                             <option
                                 value="type"
                                 @selected($filters['sort'] === 'type')
                             >
-                                Type
+                                {{ __('Type') }}
                             </option>
 
                             <option
                                 value="status"
                                 @selected($filters['sort'] === 'status')
                             >
-                                Status
+                                {{ __('Status') }}
                             </option>
 
                             <option
                                 value="city"
                                 @selected($filters['sort'] === 'city')
                             >
-                                City
+                                {{ __('City') }}
                             </option>
 
                             <option
                                 value="industry"
                                 @selected($filters['sort'] === 'industry')
                             >
-                                Industry
+                                {{ __('Industry') }}
                             </option>
 
                             <option
                                 value="created_at"
                                 @selected($filters['sort'] === 'created_at')
                             >
-                                Created
+                                {{ __('Created') }}
                             </option>
 
                         </select>
@@ -211,7 +208,7 @@
                             for="direction"
                             class="form-label fw-semibold"
                         >
-                            Direction
+                            {{ __('Direction') }}
                         </label>
 
                         <select
@@ -224,14 +221,14 @@
                                 value="asc"
                                 @selected($filters['direction'] === 'asc')
                             >
-                                Ascending
+                                {{ __('Ascending') }}
                             </option>
 
                             <option
                                 value="desc"
                                 @selected($filters['direction'] === 'desc')
                             >
-                                Descending
+                                {{ __('Descending') }}
                             </option>
 
                         </select>
@@ -246,14 +243,14 @@
                         href="{{ route('companies.index') }}"
                         class="btn btn-outline-secondary"
                     >
-                        Reset
+                        {{ __('Reset') }}
                     </a>
 
                     <button
                         type="submit"
                         class="btn btn-primary"
                     >
-                        Apply filters
+                        {{ __('Apply filters') }}
                     </button>
 
                 </div>
@@ -272,13 +269,13 @@
 
                 <thead>
                     <tr>
-                        <th>Company</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                        <th>Industry</th>
-                        <th>Location</th>
-                        <th>Contact</th>
-                        <th class="text-end">Actions</th>
+                        <th>{{ __('Company') }}</th>
+                        <th>{{ __('Type') }}</th>
+                        <th>{{ __('Status') }}</th>
+                        <th>{{ __('Industry') }}</th>
+                        <th>{{ __('Location') }}</th>
+                        <th>{{ __('Contact') }}</th>
+                        <th class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
 
@@ -399,7 +396,7 @@
                                     <a
                                         href="{{ route('companies.show', $company) }}"
                                         class="btn btn-sm btn-outline-secondary"
-                                        title="View"
+                                        title="{{ __('View') }}"
                                     >
                                         <i class="bi bi-eye"></i>
                                     </a>
@@ -409,7 +406,7 @@
                                         <a
                                             href="{{ route('companies.edit', $company) }}"
                                             class="btn btn-sm btn-outline-secondary"
-                                            title="Edit"
+                                            title="{{ __('Edit') }}"
                                         >
                                             <i class="bi bi-pencil"></i>
                                         </a>
@@ -421,7 +418,7 @@
                                         <form
                                             method="POST"
                                             action="{{ route('companies.destroy', $company) }}"
-                                            onsubmit="return confirm('Delete this company?');"
+                                            onsubmit="return confirm(@js(__('Delete this company?')));"
                                         >
                                             @csrf
                                             @method('DELETE')
@@ -429,7 +426,7 @@
                                             <button
                                                 type="submit"
                                                 class="btn btn-sm btn-outline-danger rounded-start-0"
-                                                title="Delete"
+                                                title="{{ __('Delete') }}"
                                             >
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -456,11 +453,11 @@
                                 <i class="bi bi-buildings fs-1 text-secondary"></i>
 
                                 <div class="fw-semibold mt-3">
-                                    No companies found
+                                    {{ __('No companies found') }}
                                 </div>
 
                                 <div class="text-secondary">
-                                    Try changing the search filters or create a new company.
+                                    {{ __('Try changing the search filters or create a new company.') }}
                                 </div>
 
                             </td>

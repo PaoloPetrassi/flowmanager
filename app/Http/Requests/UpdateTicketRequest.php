@@ -82,7 +82,7 @@ class UpdateTicketRequest extends FormRequest
             if (! $matches) {
                 $validator->errors()->add(
                     'contact_id',
-                    'The selected contact must belong to the selected company.'
+                    __('The selected contact must belong to the selected company.')
                 );
             }
         });

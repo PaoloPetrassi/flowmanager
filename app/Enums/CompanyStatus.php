@@ -14,11 +14,6 @@ enum CompanyStatus: string
      */
     public function label(): string
     {
-        return match ($this) {
-            self::Active => 'Active',
-            self::Inactive => 'Inactive',
-            self::Prospect => 'Prospect',
-            self::Suspended => 'Suspended',
-        };
+        return __('enums.company_status.'.$this->value);
     }
 }

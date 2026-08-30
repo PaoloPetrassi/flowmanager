@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarBackdrop = document.querySelector(
         '[data-fm-sidebar-backdrop]'
     );
-
     const sidebarToggles = document.querySelectorAll(
         '[data-fm-sidebar-toggle]'
     );
@@ -24,6 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
             'fm-sidebar-open',
             isOpen
         );
+
+        sidebarToggles.forEach((toggle) => {
+            toggle.setAttribute(
+                'aria-expanded',
+                isOpen ? 'true' : 'false'
+            );
+        });
     };
 
     sidebarToggles.forEach((toggle) => {
@@ -36,6 +42,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sidebarBackdrop?.addEventListener('click', () => {
         setSidebarState(false);
+    });
+
+    sidebar
+        ?.querySelectorAll('a.fm-nav-link')
+        .forEach((link) => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    setSidebarState(false);
+                }
+            });
+        });
+
+    document.addEventListener('keydown', (event) => {
+        if (
+            event.key === 'Escape'
+            && sidebar?.classList.contains('is-open')
+        ) {
+            setSidebarState(false);
+        }
     });
 
     window.addEventListener('resize', () => {
@@ -78,8 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.setAttribute(
                     'aria-label',
                     showPassword
-                        ? 'Hide password'
-                        : 'Show password'
+                        ? button.dataset.labelHide || 'Hide password'
+                        : button.dataset.labelShow || 'Show password'
                 );
             });
         });
@@ -89,8 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .forEach((element) => {
             new bootstrap.Tooltip(element);
         });
-});
-document.addEventListener('DOMContentLoaded', () => {
+
     document
         .querySelectorAll('[data-company-contact-select]')
         .forEach((contactSelect) => {
@@ -126,7 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
-            companySelect.addEventListener('change', filterContacts);
+            companySelect.addEventListener(
+                'change',
+                filterContacts
+            );
+
             filterContacts();
         });
 });
