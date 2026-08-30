@@ -10,7 +10,7 @@ class Role extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
@@ -20,17 +20,23 @@ class Role extends Model
     ];
 
     /**
-     * Get the users assigned to the role.
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
+    protected function casts(): array
+    {
+        return [
+            'is_system' => 'boolean',
+        ];
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
             ->withTimestamps();
     }
 
-    /**
-     * Get the permissions assigned to the role.
-     */
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class)

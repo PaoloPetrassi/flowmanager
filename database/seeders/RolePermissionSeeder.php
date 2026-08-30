@@ -50,6 +50,8 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             ['name' => 'View users', 'slug' => 'users.view'],
             ['name' => 'Manage users', 'slug' => 'users.manage'],
+            ['name' => 'View roles', 'slug' => 'roles.view'],
+            ['name' => 'Manage roles', 'slug' => 'roles.manage'],
 
             ['name' => 'View companies', 'slug' => 'companies.view'],
             ['name' => 'Create companies', 'slug' => 'companies.create'],
@@ -93,50 +95,58 @@ class RolePermissionSeeder extends Seeder
             );
         }
 
-        $allPermissions = Permission::all();
-
         $administrator = Role::where('slug', 'administrator')->firstOrFail();
         $manager = Role::where('slug', 'manager')->firstOrFail();
         $operator = Role::where('slug', 'operator')->firstOrFail();
         $viewer = Role::where('slug', 'viewer')->firstOrFail();
 
         $administrator->permissions()->sync(
-            $allPermissions->pluck('id')
+            Permission::query()->pluck('id')
         );
 
         $manager->permissions()->sync(
-            Permission::whereNotIn('slug', [
-                'users.manage',
-            ])->pluck('id')
+            Permission::query()
+                ->whereNotIn('slug', [
+                    'users.manage',
+                    'roles.manage',
+                ])
+                ->pluck('id')
         );
 
         $operator->permissions()->sync(
-            Permission::whereIn('slug', [
-                'companies.view',
-                'companies.create',
-                'companies.update',
-
-                'contacts.view',
-                'contacts.create',
-                'contacts.update',
-
-                'projects.view',
-
-                'tasks.view',
-                'tasks.create',
-                'tasks.update',
-
-                'assets.view',
-                'assets.assign',
-
-                'tickets.view',
-                'tickets.create',
-                'tickets.update',
-            ])->pluck('id')
+            Permission::query()
+                ->whereIn('slug', [
+                    'companies.view',
+                    'companies.create',
+                    'companies.update',
+                    'contacts.view',
+                    'contacts.create',
+                    'contacts.update',
+                    'projects.view',
+                    'tasks.view',
+                    'tasks.create',
+                    'tasks.update',
+                    'assets.view',
+                    'assets.assign',
+                    'tickets.view',
+                    'tickets.create',
+                    'tickets.update',
+                    'reports.view',
+                ])
+                ->pluck('id')
         );
 
         $viewer->permissions()->sync(
-            Permission::where('slug', 'like', '%.view')
+            Permission::query()
+                ->whereIn('slug', [
+                    'companies.view',
+                    'contacts.view',
+                    'projects.view',
+                    'tasks.view',
+                    'assets.view',
+                    'tickets.view',
+                    'reports.view',
+                ])
                 ->pluck('id')
         );
     }

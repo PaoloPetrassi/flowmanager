@@ -55,22 +55,28 @@ class Company extends Model
         ];
     }
 
-    /**
-     * Get the contacts associated with the company.
-     */
     public function contacts(): HasMany
     {
         return $this->hasMany(Contact::class);
     }
 
-    /**
-     * Get the user who created the company.
-     */
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class);
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(
-            User::class,
-            'created_by'
-        );
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

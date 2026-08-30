@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -46,18 +47,32 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Get the roles assigned to the user.
-     */
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class)
             ->withTimestamps();
     }
 
-    /**
-     * Determine whether the user has the given role.
-     */
+    public function managedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'manager_id');
+    }
+
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    public function assignedAssets(): HasMany
+    {
+        return $this->hasMany(Asset::class, 'assigned_to');
+    }
+
+    public function assignedTickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'assigned_to');
+    }
+
     public function hasRole(string $role): bool
     {
         return $this->roles()
@@ -65,9 +80,6 @@ class User extends Authenticatable
             ->exists();
     }
 
-    /**
-     * Determine whether the user has the given permission.
-     */
     public function hasPermission(string $permission): bool
     {
         return $this->roles()

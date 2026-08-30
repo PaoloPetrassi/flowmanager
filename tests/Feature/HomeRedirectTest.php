@@ -28,12 +28,13 @@ test('authenticated users are redirected from home to dashboard', function () {
 });
 
 test('login page is accessible to guest users', function () {
+    $this->assertGuest();
+
     $response = $this->get(
         route('login')
     );
 
     $response
         ->assertOk()
-        ->assertSee('FlowManager')
-        ->assertSee('Sign in');
+        ->assertViewIs('auth.login');
 });

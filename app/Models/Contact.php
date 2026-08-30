@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contact extends Model
@@ -43,32 +44,28 @@ class Contact extends Model
         ];
     }
 
-    /**
-     * Get the company associated with the contact.
-     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    /**
-     * Get the user who created the contact.
-     */
-    public function creator(): BelongsTo
+    public function projects(): HasMany
     {
-        return $this->belongsTo(
-            User::class,
-            'created_by'
-        );
+        return $this->hasMany(Project::class);
     }
 
-    /**
-     * Get the contact's full name.
-     */
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function getFullNameAttribute(): string
     {
-        return trim(
-            "{$this->first_name} {$this->last_name}"
-        );
+        return trim("{$this->first_name} {$this->last_name}");
     }
 }

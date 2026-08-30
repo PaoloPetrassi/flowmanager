@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             CompanySeeder::class,
             ContactSeeder::class,
+            ProjectSeeder::class,
+            TaskSeeder::class,
+            AssetSeeder::class,
+            TicketSeeder::class,
         ]);
     }
 }
