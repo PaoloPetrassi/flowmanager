@@ -119,6 +119,9 @@ class TaskController extends Controller
             'project_id' => Project::query()->whereKey($projectId)->exists()
                 ? $projectId
                 : null,
+            'assigned_to' => $request->boolean('assign_to_me')
+                ? Auth::id()
+                : null,
             'status' => TaskStatus::Todo,
             'priority' => TaskPriority::Medium,
         ]);
@@ -177,6 +180,30 @@ class TaskController extends Controller
         return redirect()
             ->route('tasks.show', $task)
             ->with('status', 'Task updated successfully.');
+    }
+
+    public function complete(Task $task): RedirectResponse
+    {
+        Gate::authorize('update', $task);
+
+        $task->update([
+            'status' => TaskStatus::Completed,
+            'completed_at' => $task->completed_at ?? now(),
+        ]);
+
+        return back()->with('status', 'Task marked as completed.');
+    }
+
+    public function reopen(Task $task): RedirectResponse
+    {
+        Gate::authorize('update', $task);
+
+        $task->update([
+            'status' => TaskStatus::InProgress,
+            'completed_at' => null,
+        ]);
+
+        return back()->with('status', 'Task reopened.');
     }
 
     public function destroy(Task $task): RedirectResponse

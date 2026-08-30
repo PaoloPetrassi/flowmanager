@@ -65,6 +65,9 @@
                     <a href="{{ route('tasks.index') }}" class="fm-nav-link {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
                         <i class="bi bi-check2-square"></i>
                         <span>Tasks</span>
+                        @if (($sidebarWorkCounts['tasks'] ?? 0) > 0)
+                            <span class="fm-nav-counter">{{ $sidebarWorkCounts['tasks'] }}</span>
+                        @endif
                     </a>
                 @endcan
 
@@ -81,6 +84,9 @@
                     <a href="{{ route('tickets.index') }}" class="fm-nav-link {{ request()->routeIs('tickets.*') ? 'active' : '' }}">
                         <i class="bi bi-ticket-perforated"></i>
                         <span>Tickets</span>
+                        @if (($sidebarWorkCounts['tickets'] ?? 0) > 0)
+                            <span class="fm-nav-counter">{{ $sidebarWorkCounts['tickets'] }}</span>
+                        @endif
                     </a>
                 @endcan
 
@@ -105,7 +111,7 @@
 
             <div class="fm-sidebar-footer">
                 <div>FlowManager</div>
-                <small>Portfolio build v0.2</small>
+                <small>Portfolio build v0.3</small>
             </div>
         </aside>
 

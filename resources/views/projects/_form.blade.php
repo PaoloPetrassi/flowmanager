@@ -40,10 +40,10 @@
 
     <div class="col-12 col-md-6">
         <label for="contact_id" class="form-label fw-semibold">Reference contact</label>
-        <select id="contact_id" name="contact_id" class="form-select @error('contact_id') is-invalid @enderror">
+        <select id="contact_id" name="contact_id" class="form-select @error('contact_id') is-invalid @enderror" data-company-contact-select data-company-source="company_id">
             <option value="">No reference contact</option>
             @foreach ($contacts as $contact)
-                <option value="{{ $contact->id }}" @selected((string) old('contact_id', $project->contact_id) === (string) $contact->id)>
+                <option value="{{ $contact->id }}" data-company-id="{{ $contact->company_id }}" @selected((string) old('contact_id', $project->contact_id) === (string) $contact->id)>
                     {{ $contact->full_name }}{{ $contact->company ? ' — '.$contact->company->name : '' }}
                 </option>
             @endforeach

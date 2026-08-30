@@ -75,17 +75,17 @@ class User extends Authenticatable
 
     public function hasRole(string $role): bool
     {
-        return $this->roles()
-            ->where('slug', $role)
-            ->exists();
+        $this->loadMissing('roles');
+
+        return $this->roles->contains('slug', $role);
     }
 
     public function hasPermission(string $permission): bool
     {
-        return $this->roles()
-            ->whereHas('permissions', function ($query) use ($permission) {
-                $query->where('slug', $permission);
-            })
-            ->exists();
+        $this->loadMissing('roles.permissions');
+
+        return $this->roles->contains(function (Role $role) use ($permission) {
+            return $role->permissions->contains('slug', $permission);
+        });
     }
 }

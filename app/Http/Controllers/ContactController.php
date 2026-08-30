@@ -6,6 +6,8 @@ use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
 use App\Models\Company;
 use App\Models\Contact;
+use App\Models\Project;
+use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -193,8 +195,37 @@ class ContactController extends Controller
             'creator',
         ]);
 
+        $projects = collect();
+        $tickets = collect();
+        $relatedCounts = [
+            'projects' => 0,
+            'tickets' => 0,
+        ];
+
+        if (Gate::allows('viewAny', Project::class)) {
+            $relatedCounts['projects'] = $contact->projects()->count();
+            $projects = $contact->projects()
+                ->with(['company:id,name', 'manager:id,name'])
+                ->withCount('tasks')
+                ->latest('updated_at')
+                ->limit(6)
+                ->get();
+        }
+
+        if (Gate::allows('viewAny', Ticket::class)) {
+            $relatedCounts['tickets'] = $contact->tickets()->count();
+            $tickets = $contact->tickets()
+                ->with(['company:id,name', 'assignee:id,name'])
+                ->latest('updated_at')
+                ->limit(6)
+                ->get();
+        }
+
         return view('contacts.show', [
             'contact' => $contact,
+            'projects' => $projects,
+            'tickets' => $tickets,
+            'relatedCounts' => $relatedCounts,
         ]);
     }
 

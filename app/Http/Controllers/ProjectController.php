@@ -116,9 +116,27 @@ class ProjectController extends Controller
         Gate::authorize('create', Project::class);
 
         $companyId = (int) $request->query('company', 0);
+        $contactId = (int) $request->query('contact', 0);
+
+        $contact = Contact::query()->find($contactId);
+
+        if ($contact && ! $companyId) {
+            $companyId = (int) ($contact->company_id ?? 0);
+        }
+
+        if ($contact && $companyId && (int) $contact->company_id !== $companyId) {
+            $contact = null;
+        }
+
+        $companyId = Company::query()->whereKey($companyId)->exists()
+            ? $companyId
+            : null;
+
         $project = new Project([
-            'company_id' => Company::query()->whereKey($companyId)->exists()
-                ? $companyId
+            'company_id' => $companyId,
+            'contact_id' => $contact?->id,
+            'manager_id' => $request->boolean('manage_by_me')
+                ? Auth::id()
                 : null,
             'status' => ProjectStatus::Planned,
             'priority' => ProjectPriority::Medium,

@@ -7,7 +7,10 @@ use App\Enums\CompanyType;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
+use App\Models\Asset;
 use App\Models\Contact;
+use App\Models\Project;
+use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -144,23 +147,62 @@ class CompanyController extends Controller
         $company->load('creator');
 
         $contacts = collect();
-        $contactsCount = 0;
+        $projects = collect();
+        $assets = collect();
+        $tickets = collect();
+
+        $relatedCounts = [
+            'contacts' => 0,
+            'projects' => 0,
+            'assets' => 0,
+            'tickets' => 0,
+        ];
 
         if (Gate::allows('viewAny', Contact::class)) {
-            $contactsCount = $company->contacts()->count();
-
+            $relatedCounts['contacts'] = $company->contacts()->count();
             $contacts = $company->contacts()
                 ->orderByDesc('is_primary')
                 ->orderBy('last_name')
                 ->orderBy('first_name')
-                ->limit(10)
+                ->limit(6)
+                ->get();
+        }
+
+        if (Gate::allows('viewAny', Project::class)) {
+            $relatedCounts['projects'] = $company->projects()->count();
+            $projects = $company->projects()
+                ->with(['manager:id,name'])
+                ->withCount('tasks')
+                ->latest('updated_at')
+                ->limit(6)
+                ->get();
+        }
+
+        if (Gate::allows('viewAny', Asset::class)) {
+            $relatedCounts['assets'] = $company->assets()->count();
+            $assets = $company->assets()
+                ->with('assignee:id,name')
+                ->latest('updated_at')
+                ->limit(6)
+                ->get();
+        }
+
+        if (Gate::allows('viewAny', Ticket::class)) {
+            $relatedCounts['tickets'] = $company->tickets()->count();
+            $tickets = $company->tickets()
+                ->with(['contact:id,first_name,last_name', 'assignee:id,name'])
+                ->latest('updated_at')
+                ->limit(6)
                 ->get();
         }
 
         return view('companies.show', [
             'company' => $company,
             'contacts' => $contacts,
-            'contactsCount' => $contactsCount,
+            'projects' => $projects,
+            'assets' => $assets,
+            'tickets' => $tickets,
+            'relatedCounts' => $relatedCounts,
         ]);
     }
 

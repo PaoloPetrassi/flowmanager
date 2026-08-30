@@ -53,6 +53,16 @@ Route::middleware('auth')->group(function () {
         ProjectController::class
     );
 
+    Route::patch(
+        '/tasks/{task}/complete',
+        [TaskController::class, 'complete']
+    )->name('tasks.complete');
+
+    Route::patch(
+        '/tasks/{task}/reopen',
+        [TaskController::class, 'reopen']
+    )->name('tasks.reopen');
+
     Route::resource(
         'tasks',
         TaskController::class
@@ -72,6 +82,16 @@ Route::middleware('auth')->group(function () {
         'assets',
         AssetController::class
     );
+
+    Route::patch(
+        '/tickets/{ticket}/resolve',
+        [TicketController::class, 'resolve']
+    )->name('tickets.resolve');
+
+    Route::patch(
+        '/tickets/{ticket}/reopen',
+        [TicketController::class, 'reopen']
+    )->name('tickets.reopen');
 
     Route::resource(
         'tickets',

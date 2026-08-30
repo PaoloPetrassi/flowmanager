@@ -131,3 +131,36 @@ test('administrator can soft delete a task', function () {
 
     $this->assertSoftDeleted('tasks', ['id' => $task->id]);
 });
+
+test('operator can complete and reopen a task with quick actions', function () {
+    $operator = createTaskTestUser('operator');
+    $company = Company::factory()->create(['created_by' => $operator->id]);
+    $project = Project::factory()->create([
+        'company_id' => $company->id,
+        'manager_id' => $operator->id,
+        'created_by' => $operator->id,
+    ]);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'assigned_to' => $operator->id,
+        'status' => TaskStatus::InProgress,
+        'completed_at' => null,
+        'created_by' => $operator->id,
+    ]);
+
+    $this->actingAs($operator)
+        ->patch(route('tasks.complete', $task))
+        ->assertRedirect();
+
+    $task->refresh();
+    expect($task->status)->toBe(TaskStatus::Completed);
+    expect($task->completed_at)->not->toBeNull();
+
+    $this->actingAs($operator)
+        ->patch(route('tasks.reopen', $task))
+        ->assertRedirect();
+
+    $task->refresh();
+    expect($task->status)->toBe(TaskStatus::InProgress);
+    expect($task->completed_at)->toBeNull();
+});

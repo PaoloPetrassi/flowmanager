@@ -122,9 +122,28 @@ class TicketController extends Controller
         $companyId = (int) $request->query('company', 0);
         $contactId = (int) $request->query('contact', 0);
 
+        $contact = Contact::query()
+            ->with('company:id')
+            ->find($contactId);
+
+        if ($contact && ! $companyId) {
+            $companyId = (int) ($contact->company_id ?? 0);
+        }
+
+        if ($contact && $companyId && (int) $contact->company_id !== $companyId) {
+            $contact = null;
+        }
+
+        $companyId = Company::query()->whereKey($companyId)->exists()
+            ? $companyId
+            : null;
+
         return view('tickets.create', $this->formData(new Ticket([
-            'company_id' => Company::query()->whereKey($companyId)->exists() ? $companyId : null,
-            'contact_id' => Contact::query()->whereKey($contactId)->exists() ? $contactId : null,
+            'company_id' => $companyId,
+            'contact_id' => $contact?->id,
+            'assigned_to' => $request->boolean('assign_to_me')
+                ? Auth::id()
+                : null,
             'reference' => $this->nextReference(),
             'category' => TicketCategory::General,
             'status' => TicketStatus::Open,
@@ -182,6 +201,30 @@ class TicketController extends Controller
         return redirect()
             ->route('tickets.show', $ticket)
             ->with('status', 'Ticket updated successfully.');
+    }
+
+    public function resolve(Ticket $ticket): RedirectResponse
+    {
+        Gate::authorize('update', $ticket);
+
+        $ticket->update([
+            'status' => TicketStatus::Resolved,
+            'resolved_at' => $ticket->resolved_at ?? now(),
+        ]);
+
+        return back()->with('status', 'Ticket marked as resolved.');
+    }
+
+    public function reopen(Ticket $ticket): RedirectResponse
+    {
+        Gate::authorize('update', $ticket);
+
+        $ticket->update([
+            'status' => TicketStatus::InProgress,
+            'resolved_at' => null,
+        ]);
+
+        return back()->with('status', 'Ticket reopened.');
     }
 
     public function destroy(Ticket $ticket): RedirectResponse

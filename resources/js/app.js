@@ -90,3 +90,43 @@ document.addEventListener('DOMContentLoaded', () => {
             new bootstrap.Tooltip(element);
         });
 });
+document.addEventListener('DOMContentLoaded', () => {
+    document
+        .querySelectorAll('[data-company-contact-select]')
+        .forEach((contactSelect) => {
+            const companySourceId = contactSelect.dataset.companySource;
+            const companySelect = document.getElementById(companySourceId);
+
+            if (!companySelect) {
+                return;
+            }
+
+            const filterContacts = () => {
+                const companyId = companySelect.value;
+                const currentOption = contactSelect.selectedOptions[0];
+
+                Array.from(contactSelect.options).forEach((option) => {
+                    if (!option.value) {
+                        option.hidden = false;
+                        option.disabled = false;
+                        return;
+                    }
+
+                    const optionCompanyId = option.dataset.companyId || '';
+                    const isVisible = !companyId
+                        || !optionCompanyId
+                        || optionCompanyId === companyId;
+
+                    option.hidden = !isVisible;
+                    option.disabled = !isVisible;
+                });
+
+                if (currentOption?.disabled) {
+                    contactSelect.value = '';
+                }
+            };
+
+            companySelect.addEventListener('change', filterContacts);
+            filterContacts();
+        });
+});

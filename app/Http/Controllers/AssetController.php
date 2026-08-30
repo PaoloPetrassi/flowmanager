@@ -114,12 +114,22 @@ class AssetController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         Gate::authorize('create', Asset::class);
 
+        $companyId = (int) $request->query('company', 0);
+
         return view('assets.create', $this->formData(new Asset([
-            'status' => AssetStatus::Available,
+            'company_id' => Company::query()->whereKey($companyId)->exists()
+                ? $companyId
+                : null,
+            'assigned_to' => $request->boolean('assign_to_me')
+                ? Auth::id()
+                : null,
+            'status' => $request->boolean('assign_to_me')
+                ? AssetStatus::Assigned
+                : AssetStatus::Available,
         ])));
     }
 

@@ -835,3 +835,82 @@ a {
 .pagination {
     margin-bottom: 0;
 }
+/* ----------------------------------------------------------
+   Operational enhancements
+---------------------------------------------------------- */
+
+.min-w-0 {
+    min-width: 0;
+}
+
+.fm-nav-counter {
+    min-width: 22px;
+    height: 22px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-left: auto;
+    padding: 0 0.4rem;
+
+    border-radius: 999px;
+
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.fm-nav-link.active .fm-nav-counter {
+    background-color: var(--fm-primary);
+}
+
+.fm-stat-link,
+.fm-related-stat {
+    transition:
+        transform 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.fm-stat-link:hover,
+.fm-related-stat:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(37, 99, 235, 0.3);
+
+    box-shadow:
+        0 8px 24px rgba(15, 23, 42, 0.07);
+}
+
+.fm-work-item,
+.fm-related-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    padding: 1rem 1.25rem;
+
+    border-color: var(--fm-border);
+}
+
+.fm-related-list-item .fw-semibold,
+.fm-work-item .fw-semibold {
+    overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fm-stat-link,
+    .fm-related-stat {
+        transition: none;
+    }
+
+    .fm-stat-link:hover,
+    .fm-related-stat:hover {
+        transform: none;
+    }
+}

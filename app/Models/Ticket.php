@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\TicketCategory;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -68,5 +69,13 @@ class Ticket extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function scopeOpen(Builder $query): Builder
+    {
+        return $query->whereNotIn('status', [
+            TicketStatus::Resolved->value,
+            TicketStatus::Closed->value,
+        ]);
     }
 }

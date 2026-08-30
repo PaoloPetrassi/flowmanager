@@ -111,3 +111,31 @@ test('administrator can soft delete a ticket', function () {
 
     $this->assertSoftDeleted('tickets', ['id' => $ticket->id]);
 });
+
+test('operator can resolve and reopen a ticket with quick actions', function () {
+    $operator = createTicketTestUser('operator');
+    $company = Company::factory()->create(['created_by' => $operator->id]);
+    $ticket = Ticket::factory()->create([
+        'company_id' => $company->id,
+        'assigned_to' => $operator->id,
+        'status' => TicketStatus::InProgress,
+        'resolved_at' => null,
+        'created_by' => $operator->id,
+    ]);
+
+    $this->actingAs($operator)
+        ->patch(route('tickets.resolve', $ticket))
+        ->assertRedirect();
+
+    $ticket->refresh();
+    expect($ticket->status)->toBe(TicketStatus::Resolved);
+    expect($ticket->resolved_at)->not->toBeNull();
+
+    $this->actingAs($operator)
+        ->patch(route('tickets.reopen', $ticket))
+        ->assertRedirect();
+
+    $ticket->refresh();
+    expect($ticket->status)->toBe(TicketStatus::InProgress);
+    expect($ticket->resolved_at)->toBeNull();
+});

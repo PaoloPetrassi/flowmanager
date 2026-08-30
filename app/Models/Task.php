@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -59,5 +60,21 @@ class Task extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function scopeOpen(Builder $query): Builder
+    {
+        return $query->whereNotIn('status', [
+            TaskStatus::Completed->value,
+            TaskStatus::Cancelled->value,
+        ]);
+    }
+
+    public function scopeOverdue(Builder $query): Builder
+    {
+        return $query
+            ->open()
+            ->whereNotNull('due_date')
+            ->whereDate('due_date', '<', today());
     }
 }
