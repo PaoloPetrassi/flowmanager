@@ -15,7 +15,7 @@
                 </div>
                 <a href="{{ route('calendar.index', ['month' => $nextMonth]) }}" class="btn btn-sm btn-outline-secondary" aria-label="{{ __('Next month') }}"><i class="bi bi-chevron-right"></i></a>
             </div>
-            <a href="{{ route('calendar.index', ['month' => now()->format('Y-m')]) }}" class="btn btn-sm btn-outline-primary">{{ __('Today') }}</a>
+            <div class="d-flex gap-2"><a href="{{ route('calendar.ics') }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-calendar-plus me-1"></i>{{ __('Export iCalendar') }}</a><a href="{{ route('calendar.index', ['month' => now()->format('Y-m')]) }}" class="btn btn-sm btn-outline-primary">{{ __('Today') }}</a></div>
         </div>
 
         <div class="fm-calendar-scroll">
@@ -25,8 +25,10 @@
                 @endforeach
 
                 @foreach ($days as $day)
-                    @php($dateKey = $day->toDateString())
-                    @php($dayEvents = $eventsByDate->get($dateKey, collect()))
+                    @php
+                        $dateKey = $day->toDateString();
+                        $dayEvents = $eventsByDate->get($dateKey, collect());
+                    @endphp
                     <div class="fm-calendar-day {{ $day->month !== $month->month ? 'is-outside' : '' }} {{ $day->isToday() ? 'is-today' : '' }}" role="gridcell">
                         <div class="fm-calendar-day-number">{{ $day->day }}</div>
                         <div class="fm-calendar-events">

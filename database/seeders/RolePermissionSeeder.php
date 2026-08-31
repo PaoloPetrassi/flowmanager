@@ -101,6 +101,14 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'View automations', 'slug' => 'automations.view'],
             ['name' => 'Manage automations', 'slug' => 'automations.manage'],
             ['name' => 'View team workload', 'slug' => 'workload.view'],
+            ['name' => 'Manage imports', 'slug' => 'imports.manage'],
+            ['name' => 'Manage tags', 'slug' => 'tags.manage'],
+            ['name' => 'Manage custom fields', 'slug' => 'custom-fields.manage'],
+            ['name' => 'Manage integrations', 'slug' => 'integrations.manage'],
+            ['name' => 'View documents', 'slug' => 'documents.view'],
+            ['name' => 'Manage document templates', 'slug' => 'documents.manage'],
+            ['name' => 'Approve documents', 'slug' => 'documents.approve'],
+            ['name' => 'View analytics', 'slug' => 'analytics.view'],
         ];
 
         foreach ($permissions as $permission) {
@@ -127,6 +135,9 @@ class RolePermissionSeeder extends Seeder
                     'trash.delete',
                     'system.view',
                     'system.manage',
+                    'integrations.manage',
+                    'custom-fields.manage',
+                    'tags.manage',
                 ])
                 ->pluck('id')
         );
@@ -152,6 +163,8 @@ class RolePermissionSeeder extends Seeder
                     'comments.create',
                     'attachments.create',
                     'reports.view',
+                    'documents.view',
+                    'analytics.view',
                 ])
                 ->pluck('id')
         );
@@ -166,6 +179,8 @@ class RolePermissionSeeder extends Seeder
                     'assets.view',
                     'tickets.view',
                     'reports.view',
+                    'documents.view',
+                    'analytics.view',
                 ])
                 ->pluck('id')
         );

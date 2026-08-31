@@ -55,10 +55,15 @@
         </div>
     </div>
 
+
+    @include('partials.saved-filters', ['filterResource' => 'projects', 'filterRoute' => 'projects.index'])
+    <div data-bulk-container>
+        @include('partials.bulk-toolbar', ['bulkResource' => 'projects', 'statuses' => $statuses, 'priorities' => $priorities])
+
     <div class="card fm-card">
         <div class="table-responsive">
-            <table class="table align-middle mb-0 fm-table">
-                <thead><tr><th>{{ __('Project') }}</th><th>{{ __('Company') }}</th><th>{{ __('Status') }}</th><th>{{ __('Priority') }}</th><th>{{ __('Manager') }}</th><th>{{ __('Due date') }}</th><th>{{ __('Progress') }}</th><th>{{ __('Tasks') }}</th><th class="text-end">{{ __('Actions') }}</th></tr></thead>
+            <table class="table align-middle mb-0 fm-table" data-table-resource="projects">
+                <thead><tr><th style="width:42px"><input type="checkbox" class="form-check-input" data-bulk-select-all aria-label="{{ __('Select all') }}"></th><th>{{ __('Project') }}</th><th data-column="company">{{ __('Company') }}</th><th data-column="status">{{ __('Status') }}</th><th data-column="priority">{{ __('Priority') }}</th><th data-column="manager">{{ __('Manager') }}</th><th data-column="due_date">{{ __('Due date') }}</th><th data-column="progress">{{ __('Progress') }}</th><th data-column="tasks">{{ __('Tasks') }}</th><th class="text-end">{{ __('Actions') }}</th></tr></thead>
                 <tbody>
                     @forelse ($projects as $project)
                         @php
@@ -66,8 +71,9 @@
                             $priorityClass = match ($project->priority->value) {'urgent' => 'text-bg-danger', 'high' => 'text-bg-warning', 'low' => 'text-bg-light border text-secondary', default => 'text-bg-primary'};
                         @endphp
                         <tr>
+                            <td><input type="checkbox" class="form-check-input" value="{{ $project->id }}" data-bulk-checkbox aria-label="{{ __('Select') }}"></td>
                             <td><a class="fw-semibold text-dark" href="{{ route('projects.show', $project) }}">{{ $project->name }}</a><div class="small text-secondary">{{ $project->code }}</div></td>
-                            <td>
+                            <td data-column="company">
                                 @if ($project->company->trashed())
                                     <span>{{ $project->company->name }}</span>
                                     <span class="badge text-bg-light border text-secondary ms-1">{{ __('Archived') }}</span>
@@ -75,20 +81,21 @@
                                     <a href="{{ route('companies.show', $project->company) }}">{{ $project->company->name }}</a>
                                 @endif
                             </td>
-                            <td><span class="badge {{ $statusClass }}">{{ $project->status->label() }}</span></td>
-                            <td><span class="badge {{ $priorityClass }}">{{ $project->priority->label() }}</span></td>
-                            <td>{{ $project->manager?->name ?: '—' }}</td>
-                            <td>{{ $project->due_date?->format('d/m/Y') ?: '—' }}</td>
-                            <td style="min-width:120px"><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1" style="height:6px"><div class="progress-bar" style="width: {{ $project->progressPercentage() }}%"></div></div><span class="small">{{ $project->progressPercentage() }}%</span></div></td>
-                            <td>{{ $project->tasks_count }}</td>
+                            <td data-column="status"><span class="badge {{ $statusClass }}">{{ $project->status->label() }}</span></td>
+                            <td data-column="priority"><span class="badge {{ $priorityClass }}">{{ $project->priority->label() }}</span></td>
+                            <td data-column="manager">{{ $project->manager?->name ?: '—' }}</td>
+                            <td data-column="due_date">{{ $project->due_date?->format('d/m/Y') ?: '—' }}</td>
+                            <td data-column="progress" style="min-width:120px"><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1" style="height:6px"><div class="progress-bar" style="width: {{ $project->progressPercentage() }}%"></div></div><span class="small">{{ $project->progressPercentage() }}%</span></div></td>
+                            <td data-column="tasks">{{ $project->tasks_count }}</td>
                             <td class="text-end"><div class="btn-group"><a href="{{ route('projects.show', $project) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('View') }}"><i class="bi bi-eye"></i></a>@can('update', $project)<a href="{{ route('projects.edit', $project) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></a>@endcan @can('delete', $project)<form method="POST" action="{{ route('projects.destroy', $project) }}" onsubmit="return confirm(@js(__('Delete this project?')));">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger rounded-start-0" title="{{ __('Delete') }}"><i class="bi bi-trash"></i></button></form>@endcan</div></td>
                         </tr>
                     @empty
-                        <tr><td colspan="9" class="text-center py-5"><i class="bi bi-kanban fs-1 text-secondary"></i><div class="fw-semibold mt-3">{{ __('No projects found') }}</div><div class="text-secondary">{{ __('Create a project or change the active filters.') }}</div></td></tr>
+                        <tr><td colspan="10" class="text-center py-5"><i class="bi bi-kanban fs-1 text-secondary"></i><div class="fw-semibold mt-3">{{ __('No projects found') }}</div><div class="text-secondary">{{ __('Create a project or change the active filters.') }}</div></td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
         @if ($projects->hasPages())<div class="card-footer bg-white p-3">{{ $projects->links() }}</div>@endif
+    </div>
     </div>
 @endsection

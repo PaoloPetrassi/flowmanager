@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Enums\TaskStatus;
 use App\Models\Task;
 use App\Services\RecurringTaskService;
+use App\Services\WebhookService;
 use Illuminate\Validation\ValidationException;
 
 class TaskWorkflowObserver
@@ -37,5 +38,6 @@ class TaskWorkflowObserver
         }
 
         app(RecurringTaskService::class)->createNext($task->fresh('dependencies'));
+        WebhookService::dispatch('task.completed', $task, ['status' => $task->status->value]);
     }
 }

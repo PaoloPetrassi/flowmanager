@@ -77,3 +77,4 @@
         @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>
 </div>
+@include('partials.extensible-fields', ['resourceModel' => $task])

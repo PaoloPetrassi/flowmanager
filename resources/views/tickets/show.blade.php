@@ -34,5 +34,8 @@
             <div class="card fm-card"><div class="card-body"><h2 class="fm-card-title mb-3">{{ __('Record information') }}</h2><div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">{{ __('Created by') }}</span><strong>{{ $ticket->creator?->name ?: __('System') }}</strong></div><div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">{{ __('Created') }}</span><strong>{{ $ticket->created_at->format('d/m/Y H:i') }}</strong></div><div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">{{ __('SLA due') }}</span><strong>{{ $ticket->sla_due_at?->format('d/m/Y H:i') ?: '—' }}</strong></div><div class="d-flex justify-content-between pt-2"><span class="text-secondary">{{ __('Updated') }}</span><strong>{{ $ticket->updated_at->format('d/m/Y H:i') }}</strong></div></div></div>
         </div>
     </div>
-    @include('partials.collaboration-panel', ['collaborationTarget' => $ticket])
+    
+@include('partials.extensible-summary', ['resourceModel' => $ticket])
+@include('partials.document-generation', ['resourceModel' => $ticket])
+@include('partials.collaboration-panel', ['collaborationTarget' => $ticket])
 @endsection

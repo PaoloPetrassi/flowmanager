@@ -96,20 +96,12 @@
                         @csrf
 
                         <label for="collaboration-file" class="form-label fw-semibold">{{ __('Upload file') }}</label>
-                        <div class="input-group">
-                            <input
-                                id="collaboration-file"
-                                type="file"
-                                name="file"
-                                class="form-control @error('file') is-invalid @enderror"
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg,.zip"
-                                required
-                            >
-                            <button type="submit" class="btn btn-outline-primary">
-                                <i class="bi bi-upload"></i>
-                                <span class="d-none d-sm-inline ms-1">{{ __('Upload') }}</span>
-                            </button>
+                        <input id="collaboration-file" type="file" name="file" class="form-control @error('file') is-invalid @enderror" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg,.zip" required>
+                        <div class="row g-2 mt-1">
+                            <div class="col-sm-7"><input name="document_category" class="form-control form-control-sm" maxlength="60" placeholder="{{ __('Document category') }}"></div>
+                            <div class="col-sm-5"><input name="expires_at" type="date" class="form-control form-control-sm" title="{{ __('Expiration date') }}"></div>
                         </div>
+                        <div class="d-flex justify-content-end mt-2"><button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-upload"></i><span class="ms-1">{{ __('Upload') }}</span></button></div>
 
                         @error('file')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -132,7 +124,7 @@
                                 {{ $attachment->original_name }}
                             </a>
                             <div class="small text-secondary">
-                                {{ $attachment->formattedSize() }}
+                                {{ $attachment->formattedSize() }} · v{{ $attachment->version }} @if($attachment->document_category) · {{ $attachment->document_category }} @endif
                                 · {{ $attachment->user?->name ?: __('Deleted user') }}
                                 · {{ $attachment->created_at->format('d/m/Y H:i') }}
                             </div>

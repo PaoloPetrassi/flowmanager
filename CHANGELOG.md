@@ -1,59 +1,53 @@
 # FlowManager Changelog
 
+## v0.13 — Integration, Advanced UX, Documents & Business Intelligence
+
+### v0.10 — CRM & Integration
+
+- Guided CSV/XLSX import with preview, mapping and validation results.
+- Bulk status/priority/delete actions for operational work queues.
+- Saved filters across the main registries.
+- Cross-module tags and Administrator-defined custom fields.
+- Scoped bearer API tokens with hashed token storage.
+- Read API for supported resources and write-scoped inbound Ticket creation.
+- Signed outbound webhooks and delivery history.
+- iCalendar planning export.
+
+### v0.11 — Advanced UX
+
+- Ctrl/Cmd + K Command Palette.
+- Persisted light/dark/system appearance preference.
+- Comfortable/compact density preference.
+- Configurable dashboard widget visibility.
+- Persisted table-column visibility for Projects, Tasks and Tickets.
+
+### v0.12 — Document Management
+
+- Document metadata on private attachments.
+- Version chains, expiry, checksum and approval/rejection workflow.
+- Central Documents registry.
+- Document Templates with PDF and Word-compatible DOC generation.
+- Document actions integrated into operational record workspaces.
+
+### v0.13 — Business Intelligence
+
+- Analytics workspace with six-month throughput and status distributions.
+- Tracked-hours and operational workload metrics.
+- Saved analytics reports.
+- Scheduled CSV reports through the configured Laravel mailer.
+- Daily/weekly/monthly schedules with run/error tracking.
+
 ## v0.9 — Production, Automation & Advanced Project Management
 
-### v0.7 — Production Readiness
-
-- Password reset flow and optional email verification.
-- Native TOTP two-factor authentication with optional mandatory Administrator 2FA.
-- Security page for password, 2FA and active database sessions.
-- Login success/failure/lockout activity and login throttling.
-- Last-login timestamp/IP tracking.
-- FlowManager error pages for 403, 404, 419 and 500 responses.
-- System Health administration page.
-- Scheduler heartbeat and status visibility.
-- Portable application-level database backup, private attachment snapshot, verification, retention and CLI restore.
-- Performance indexes for common project/task/ticket/audit queries.
-
-### v0.8 — Automation & Workflow
-
-- Priority-based Ticket SLA due dates, reminders, breach tracking and first-response timestamp.
-- Daily, weekly and monthly recurring tasks with interval/end-date support.
-- Central task workflow observer so recurrence and dependency rules also apply to Kanban/quick actions.
-- Task dependencies with completion protection.
-- Automation rule engine with execution history.
-- Automation triggers for overdue tasks, upcoming tasks, breached SLA and upcoming projects.
-- Automation actions for assignee/manager/specific-user notification and SLA ticket priority changes.
-- Scheduled reminder and automation Artisan commands.
-- Optional email delivery for FlowManager notifications.
-
-### v0.9 — Advanced Project Management
-
-- Project teams with project-specific roles.
-- Milestones and milestone completion.
-- Subtasks and nested task hierarchy.
-- Circular hierarchy/dependency validation.
-- Time estimates and time tracking with live timers and manual entries.
-- Automatic or manually overridden project progress.
-- Project templates and instantiation.
-- Full project duplication including team, milestones, task hierarchy and dependency topology.
-- Gantt planning view.
-- Permission-controlled team workload view.
-- Operational-query isolation so templates do not affect dashboard, reports, reminders, automation or planning statistics.
-- v0.9 demo seeder for local/testing installations.
+- Password reset, optional verification, TOTP 2FA, session/login security and rate limiting.
+- System Health, heartbeat, portable backup/restore and operational indexes.
+- Ticket SLA, recurring tasks, task dependencies and automation engine.
+- Project teams, milestones, subtasks, time tracking, templates, duplication, Gantt and workload.
 
 ## v0.6 — Analytics & Planning
 
-- Advanced dashboard analytics with throughput, task status, ticket priority and team workload views.
-- Unified monthly calendar for project deadlines, task deadlines and asset warranty expiry.
-- Task and Ticket Kanban boards with policy-protected status updates and drag-and-drop enhancement.
-- Reports hub with CSV, SpreadsheetML, native PDF and print output.
+- Advanced dashboard analytics, calendar, Kanban and report exports.
 
 ## v0.5 — Collaboration & Audit
 
-- Automatic audit trail for operational resources, users and roles.
-- Global Activity Log with search and filters.
-- Polymorphic comments and private attachments.
-- Database notification center.
-- Permission-aware global search.
-- Trash, restore and protected permanent deletion.
+- Audit trail, comments, private attachments, notifications, global search and trash/restore.

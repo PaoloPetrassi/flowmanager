@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Enums\TicketStatus;
 use App\Models\Ticket;
 use App\Services\TicketSlaService;
+use App\Services\WebhookService;
 
 class TicketWorkflowObserver
 {
@@ -34,6 +35,10 @@ class TicketWorkflowObserver
             && ! $ticket->resolved_at
         ) {
             $ticket->forceFill(['resolved_at' => now()])->saveQuietly();
+        }
+
+        if ($ticket->wasChanged('status') && in_array($ticket->status, [TicketStatus::Resolved, TicketStatus::Closed], true)) {
+            WebhookService::dispatch('ticket.resolved', $ticket, ['status' => $ticket->status->value]);
         }
     }
 }

@@ -31,6 +31,8 @@ class DashboardController extends Controller
 
         $currentUser->loadMissing('roles.permissions');
 
+        $dashboardWidgets = $currentUser->preference()->firstOrCreate([])->dashboard_widgets ?: ['stats', 'my_work', 'projects', 'access', 'charts'];
+
         $permissionCount = $currentUser->roles
             ->flatMap(function (Role $role) {
                 return $role->permissions;
@@ -186,6 +188,7 @@ class DashboardController extends Controller
             'ticketPriorityChart' => $this->ticketPriorityChart(),
             'trendSeries' => $this->trendSeries(),
             'teamWorkload' => $teamWorkload,
+            'dashboardWidgets' => $dashboardWidgets,
         ]);
     }
 

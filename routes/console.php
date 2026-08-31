@@ -23,3 +23,5 @@ Schedule::command('flowmanager:automations')
 Schedule::command('flowmanager:backup --verify')
     ->dailyAt('02:15')
     ->withoutOverlapping();
+
+Schedule::command('flowmanager:scheduled-reports')->hourly()->withoutOverlapping();

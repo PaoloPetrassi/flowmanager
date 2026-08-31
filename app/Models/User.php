@@ -86,6 +86,26 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->hasMany(LoginActivity::class);
     }
 
+    public function preference()
+    {
+        return $this->hasOne(UserPreference::class);
+    }
+
+    public function savedFilters(): HasMany
+    {
+        return $this->hasMany(SavedFilter::class);
+    }
+
+    public function apiTokens(): HasMany
+    {
+        return $this->hasMany(ApiToken::class);
+    }
+
+    public function savedReports(): HasMany
+    {
+        return $this->hasMany(SavedReport::class);
+    }
+
     public function hasRole(string $role): bool
     {
         $this->loadMissing('roles');

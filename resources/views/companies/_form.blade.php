@@ -596,3 +596,4 @@
     </div>
 
 </div>
+@include('partials.extensible-fields', ['resourceModel' => $company])

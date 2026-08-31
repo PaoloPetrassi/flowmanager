@@ -21,3 +21,4 @@
     <div class="col-12 col-md-4"><label for="warranty_expires_at" class="form-label fw-semibold">{{ __('Warranty expires') }}</label><input id="warranty_expires_at" name="warranty_expires_at" type="date" class="form-control @error('warranty_expires_at') is-invalid @enderror" value="{{ old('warranty_expires_at', $asset->warranty_expires_at?->format('Y-m-d')) }}">@error('warranty_expires_at')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
     <div class="col-12"><label for="notes" class="form-label fw-semibold">{{ __('Notes') }}</label><textarea id="notes" name="notes" rows="4" class="form-control @error('notes') is-invalid @enderror">{{ old('notes', $asset->notes) }}</textarea>@error('notes')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
 </div>
+@include('partials.extensible-fields', ['resourceModel' => $asset])

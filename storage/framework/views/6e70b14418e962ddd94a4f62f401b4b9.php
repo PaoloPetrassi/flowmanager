@@ -54,10 +54,15 @@
         </div>
     </div>
 
+
+    <?php echo $__env->make('partials.saved-filters', ['filterResource' => 'projects', 'filterRoute' => 'projects.index'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <div data-bulk-container>
+        <?php echo $__env->make('partials.bulk-toolbar', ['bulkResource' => 'projects', 'statuses' => $statuses, 'priorities' => $priorities], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+
     <div class="card fm-card">
         <div class="table-responsive">
-            <table class="table align-middle mb-0 fm-table">
-                <thead><tr><th><?php echo e(__('Project')); ?></th><th><?php echo e(__('Company')); ?></th><th><?php echo e(__('Status')); ?></th><th><?php echo e(__('Priority')); ?></th><th><?php echo e(__('Manager')); ?></th><th><?php echo e(__('Due date')); ?></th><th><?php echo e(__('Progress')); ?></th><th><?php echo e(__('Tasks')); ?></th><th class="text-end"><?php echo e(__('Actions')); ?></th></tr></thead>
+            <table class="table align-middle mb-0 fm-table" data-table-resource="projects">
+                <thead><tr><th style="width:42px"><input type="checkbox" class="form-check-input" data-bulk-select-all aria-label="<?php echo e(__('Select all')); ?>"></th><th><?php echo e(__('Project')); ?></th><th data-column="company"><?php echo e(__('Company')); ?></th><th data-column="status"><?php echo e(__('Status')); ?></th><th data-column="priority"><?php echo e(__('Priority')); ?></th><th data-column="manager"><?php echo e(__('Manager')); ?></th><th data-column="due_date"><?php echo e(__('Due date')); ?></th><th data-column="progress"><?php echo e(__('Progress')); ?></th><th data-column="tasks"><?php echo e(__('Tasks')); ?></th><th class="text-end"><?php echo e(__('Actions')); ?></th></tr></thead>
                 <tbody>
                     <?php $__empty_1 = true; $__currentLoopData = $projects; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $project): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <?php
@@ -65,8 +70,9 @@
                             $priorityClass = match ($project->priority->value) {'urgent' => 'text-bg-danger', 'high' => 'text-bg-warning', 'low' => 'text-bg-light border text-secondary', default => 'text-bg-primary'};
                         ?>
                         <tr>
+                            <td><input type="checkbox" class="form-check-input" value="<?php echo e($project->id); ?>" data-bulk-checkbox aria-label="<?php echo e(__('Select')); ?>"></td>
                             <td><a class="fw-semibold text-dark" href="<?php echo e(route('projects.show', $project)); ?>"><?php echo e($project->name); ?></a><div class="small text-secondary"><?php echo e($project->code); ?></div></td>
-                            <td>
+                            <td data-column="company">
                                 <?php if($project->company->trashed()): ?>
                                     <span><?php echo e($project->company->name); ?></span>
                                     <span class="badge text-bg-light border text-secondary ms-1"><?php echo e(__('Archived')); ?></span>
@@ -74,21 +80,22 @@
                                     <a href="<?php echo e(route('companies.show', $project->company)); ?>"><?php echo e($project->company->name); ?></a>
                                 <?php endif; ?>
                             </td>
-                            <td><span class="badge <?php echo e($statusClass); ?>"><?php echo e($project->status->label()); ?></span></td>
-                            <td><span class="badge <?php echo e($priorityClass); ?>"><?php echo e($project->priority->label()); ?></span></td>
-                            <td><?php echo e($project->manager?->name ?: '—'); ?></td>
-                            <td><?php echo e($project->due_date?->format('d/m/Y') ?: '—'); ?></td>
-                            <td style="min-width:120px"><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1" style="height:6px"><div class="progress-bar" style="width: <?php echo e($project->progressPercentage()); ?>%"></div></div><span class="small"><?php echo e($project->progressPercentage()); ?>%</span></div></td>
-                            <td><?php echo e($project->tasks_count); ?></td>
+                            <td data-column="status"><span class="badge <?php echo e($statusClass); ?>"><?php echo e($project->status->label()); ?></span></td>
+                            <td data-column="priority"><span class="badge <?php echo e($priorityClass); ?>"><?php echo e($project->priority->label()); ?></span></td>
+                            <td data-column="manager"><?php echo e($project->manager?->name ?: '—'); ?></td>
+                            <td data-column="due_date"><?php echo e($project->due_date?->format('d/m/Y') ?: '—'); ?></td>
+                            <td data-column="progress" style="min-width:120px"><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1" style="height:6px"><div class="progress-bar" style="width: <?php echo e($project->progressPercentage()); ?>%"></div></div><span class="small"><?php echo e($project->progressPercentage()); ?>%</span></div></td>
+                            <td data-column="tasks"><?php echo e($project->tasks_count); ?></td>
                             <td class="text-end"><div class="btn-group"><a href="<?php echo e(route('projects.show', $project)); ?>" class="btn btn-sm btn-outline-secondary" title="<?php echo e(__('View')); ?>"><i class="bi bi-eye"></i></a><?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', $project)): ?><a href="<?php echo e(route('projects.edit', $project)); ?>" class="btn btn-sm btn-outline-secondary" title="<?php echo e(__('Edit')); ?>"><i class="bi bi-pencil"></i></a><?php endif; ?> <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('delete', $project)): ?><form method="POST" action="<?php echo e(route('projects.destroy', $project)); ?>" onsubmit="return confirm(<?php echo \Illuminate\Support\Js::from(__('Delete this project?'))->toHtml() ?>);"><?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?><button class="btn btn-sm btn-outline-danger rounded-start-0" title="<?php echo e(__('Delete')); ?>"><i class="bi bi-trash"></i></button></form><?php endif; ?></div></td>
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                        <tr><td colspan="9" class="text-center py-5"><i class="bi bi-kanban fs-1 text-secondary"></i><div class="fw-semibold mt-3"><?php echo e(__('No projects found')); ?></div><div class="text-secondary"><?php echo e(__('Create a project or change the active filters.')); ?></div></td></tr>
+                        <tr><td colspan="10" class="text-center py-5"><i class="bi bi-kanban fs-1 text-secondary"></i><div class="fw-semibold mt-3"><?php echo e(__('No projects found')); ?></div><div class="text-secondary"><?php echo e(__('Create a project or change the active filters.')); ?></div></td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
         <?php if($projects->hasPages()): ?><div class="card-footer bg-white p-3"><?php echo e($projects->links()); ?></div><?php endif; ?>
+    </div>
     </div>
 <?php $__env->stopSection(); ?>
 

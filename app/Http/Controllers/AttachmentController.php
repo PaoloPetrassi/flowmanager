@@ -36,6 +36,11 @@ class AttachmentController extends Controller
             'mime_type' => $file->getMimeType(),
             'extension' => strtolower($file->getClientOriginalExtension()),
             'size' => $file->getSize(),
+            'document_category' => $request->input('document_category'),
+            'document_status' => 'active',
+            'version' => 1,
+            'expires_at' => $request->input('expires_at'),
+            'checksum' => hash_file('sha256', Storage::disk('local')->path($path)),
         ]);
 
         AuditService::record(

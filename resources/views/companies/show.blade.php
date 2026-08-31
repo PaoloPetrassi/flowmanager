@@ -260,5 +260,8 @@
         </div>
     </div>
 
-    @include('partials.collaboration-panel', ['collaborationTarget' => $company])
+    
+@include('partials.extensible-summary', ['resourceModel' => $company])
+@include('partials.document-generation', ['resourceModel' => $company])
+@include('partials.collaboration-panel', ['collaborationTarget' => $company])
 @endsection

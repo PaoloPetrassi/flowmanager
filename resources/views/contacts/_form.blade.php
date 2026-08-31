@@ -378,3 +378,4 @@
     </div>
 
 </div>
+@include('partials.extensible-fields', ['resourceModel' => $contact])

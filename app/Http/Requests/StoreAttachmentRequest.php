@@ -14,12 +14,9 @@ class StoreAttachmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => [
-                'required',
-                'file',
-                'max:10240',
-                'mimes:pdf,doc,docx,xls,xlsx,csv,txt,png,jpg,jpeg,zip',
-            ],
+            'file' => ['required', 'file', 'max:10240', 'mimes:pdf,doc,docx,xls,xlsx,csv,txt,png,jpg,jpeg,zip'],
+            'document_category' => ['nullable', 'string', 'max:60'],
+            'expires_at' => ['nullable', 'date', 'after_or_equal:today'],
         ];
     }
 }

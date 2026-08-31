@@ -194,5 +194,8 @@
         </div>
     </div>
 
-    @include('partials.collaboration-panel', ['collaborationTarget' => $contact])
+    
+@include('partials.extensible-summary', ['resourceModel' => $contact])
+@include('partials.document-generation', ['resourceModel' => $contact])
+@include('partials.collaboration-panel', ['collaborationTarget' => $contact])
 @endsection

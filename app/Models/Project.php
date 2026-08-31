@@ -6,6 +6,7 @@ use App\Enums\ProjectPriority;
 use App\Enums\ProjectStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasCollaboration;
+use App\Models\Concerns\HasExtensibleData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Project extends Model
 {
     /** @use HasFactory<\Database\Factories\ProjectFactory> */
-    use Auditable, HasCollaboration, HasFactory, SoftDeletes;
+    use Auditable, HasCollaboration, HasExtensibleData, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'company_id',

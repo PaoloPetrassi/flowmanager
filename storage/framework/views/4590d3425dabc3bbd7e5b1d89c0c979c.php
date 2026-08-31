@@ -12,7 +12,10 @@
         'resources/js/app.js',
     ]); ?>
 </head>
-<body>
+<?php
+    $fmPreferences = auth()->user()->preference()->firstOrCreate([]);
+?>
+<body data-theme="<?php echo e($fmPreferences->theme); ?>" data-density="<?php echo e($fmPreferences->density); ?>">
     <div class="fm-app">
         <div class="fm-sidebar-backdrop" data-fm-sidebar-backdrop></div>
 
@@ -153,12 +156,36 @@
                     </a>
                 <?php endif; ?>
 
+
+                <?php if(auth()->user()->hasPermission('analytics.view')): ?>
+                    <div class="fm-nav-section"><?php echo e(__('Intelligence')); ?></div>
+                    <a href="<?php echo e(route('analytics.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('analytics.*') ? 'active' : ''); ?>">
+                        <i class="bi bi-graph-up-arrow"></i><span><?php echo e(__('Analytics')); ?></span>
+                    </a>
+                <?php endif; ?>
+
+                <?php if(auth()->user()->hasPermission('documents.view') || auth()->user()->hasPermission('imports.manage')): ?>
+                    <div class="fm-nav-section"><?php echo e(__('Data & documents')); ?></div>
+                <?php endif; ?>
+                <?php if(auth()->user()->hasPermission('documents.view')): ?>
+                    <a href="<?php echo e(route('documents.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('documents.*') ? 'active' : ''); ?>"><i class="bi bi-folder2-open"></i><span><?php echo e(__('Documents')); ?></span></a>
+                <?php endif; ?>
+                <?php if(auth()->user()->hasPermission('documents.manage')): ?>
+                    <a href="<?php echo e(route('document-templates.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('document-templates.*') ? 'active' : ''); ?>"><i class="bi bi-file-earmark-text"></i><span><?php echo e(__('Document templates')); ?></span></a>
+                <?php endif; ?>
+                <?php if(auth()->user()->hasPermission('imports.manage')): ?>
+                    <a href="<?php echo e(route('imports.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('imports.*') ? 'active' : ''); ?>"><i class="bi bi-file-earmark-arrow-up"></i><span><?php echo e(__('Import data')); ?></span></a>
+                <?php endif; ?>
+
                 <?php if(
                     auth()->user()->can('viewAny', App\Models\User::class)
                     || auth()->user()->can('viewAny', App\Models\Role::class)
                     || auth()->user()->hasPermission('audit.view')
                     || auth()->user()->hasPermission('trash.view')
                     || auth()->user()->hasPermission('system.view')
+                    || auth()->user()->hasPermission('tags.manage')
+                    || auth()->user()->hasPermission('custom-fields.manage')
+                    || auth()->user()->hasPermission('integrations.manage')
                 ): ?>
                     <div class="fm-nav-section"><?php echo e(__('Administration')); ?></div>
                 <?php endif; ?>
@@ -191,6 +218,18 @@
                     </a>
                 <?php endif; ?>
 
+
+                <?php if(auth()->user()->hasPermission('tags.manage')): ?>
+                    <a href="<?php echo e(route('tags.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('tags.*') ? 'active' : ''); ?>"><i class="bi bi-tags"></i><span><?php echo e(__('Tags')); ?></span></a>
+                <?php endif; ?>
+                <?php if(auth()->user()->hasPermission('custom-fields.manage')): ?>
+                    <a href="<?php echo e(route('custom-fields.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('custom-fields.*') ? 'active' : ''); ?>"><i class="bi bi-ui-checks-grid"></i><span><?php echo e(__('Custom fields')); ?></span></a>
+                <?php endif; ?>
+                <?php if(auth()->user()->hasPermission('integrations.manage')): ?>
+                    <a href="<?php echo e(route('integrations.api.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('integrations.api.*') ? 'active' : ''); ?>"><i class="bi bi-key"></i><span><?php echo e(__('API tokens')); ?></span></a>
+                    <a href="<?php echo e(route('integrations.webhooks.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('integrations.webhooks.*') ? 'active' : ''); ?>"><i class="bi bi-broadcast-pin"></i><span><?php echo e(__('Webhooks')); ?></span></a>
+                <?php endif; ?>
+
                 <?php if(auth()->user()->hasPermission('system.view')): ?>
                     <a href="<?php echo e(route('system.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('system.*') ? 'active' : ''); ?>">
                         <i class="bi bi-activity"></i>
@@ -201,7 +240,7 @@
 
             <div class="fm-sidebar-footer">
                 <div>FlowManager</div>
-                <small><?php echo e(__('Portfolio build v0.9')); ?></small>
+                <small><?php echo e(__('Portfolio build v0.13')); ?></small>
             </div>
         </aside>
 
@@ -234,6 +273,7 @@
                 </form>
 
                 <div class="fm-header-actions">
+                    <button type="button" class="fm-icon-button d-none d-md-inline-flex" data-command-palette-open title="<?php echo e(__('Command palette')); ?>" aria-label="<?php echo e(__('Command palette')); ?>"><i class="bi bi-command"></i></button>
                     <div class="dropdown">
                         <button class="fm-icon-button position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<?php echo e(__('Notifications')); ?>">
                             <i class="bi bi-bell"></i>
@@ -309,6 +349,9 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="<?php echo e(route('preferences.edit')); ?>" class="dropdown-item"><i class="bi bi-sliders me-2"></i><?php echo e(__('Preferences')); ?></a>
+                            </li>
+                            <li>
                                 <a href="<?php echo e(route('notifications.index')); ?>" class="dropdown-item">
                                     <i class="bi bi-bell me-2"></i>
                                     <?php echo e(__('Notifications')); ?>
@@ -352,6 +395,23 @@
             </section>
         </main>
     </div>
+
+
+    <script type="application/json" id="fm-table-preferences"><?php echo json_encode($fmPreferences->table_preferences ?? [], 15, 512) ?></script>
+    <div class="fm-command-backdrop" data-command-palette hidden>
+        <div class="fm-command-dialog" role="dialog" aria-modal="true" aria-label="<?php echo e(__('Command palette')); ?>">
+            <div class="fm-command-search"><i class="bi bi-search"></i><input type="search" data-command-input placeholder="<?php echo e(__('Search commands or records...')); ?>" autocomplete="off"><kbd>Esc</kbd></div>
+            <div class="fm-command-results" data-command-results>
+                <a href="<?php echo e(route('projects.create')); ?>" class="fm-command-item"><span><i class="bi bi-plus-circle"></i> <?php echo e(__('New project')); ?></span><small><?php echo e(__('Command')); ?></small></a>
+                <a href="<?php echo e(route('tasks.create')); ?>" class="fm-command-item"><span><i class="bi bi-check2-square"></i> <?php echo e(__('New task')); ?></span><small><?php echo e(__('Command')); ?></small></a>
+                <a href="<?php echo e(route('tickets.create')); ?>" class="fm-command-item"><span><i class="bi bi-ticket"></i> <?php echo e(__('New ticket')); ?></span><small><?php echo e(__('Command')); ?></small></a>
+                <a href="<?php echo e(route('calendar.index')); ?>" class="fm-command-item"><span><i class="bi bi-calendar3"></i> <?php echo e(__('Open calendar')); ?></span><small><?php echo e(__('Navigate')); ?></small></a>
+                <a href="<?php echo e(route('analytics.index')); ?>" class="fm-command-item"><span><i class="bi bi-graph-up"></i> <?php echo e(__('Open analytics')); ?></span><small><?php echo e(__('Navigate')); ?></small></a>
+            </div>
+            <div class="fm-command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> <?php echo e(__('navigate')); ?></span><span><kbd>Enter</kbd> <?php echo e(__('open')); ?></span><span><kbd>Esc</kbd> <?php echo e(__('close')); ?></span></div>
+        </div>
+    </div>
+
 </body>
 </html>
 <?php /**PATH C:\Projects\flowmanager\resources\views/layouts/app.blade.php ENDPATH**/ ?>

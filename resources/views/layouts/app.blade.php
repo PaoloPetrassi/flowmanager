@@ -12,7 +12,10 @@
         'resources/js/app.js',
     ])
 </head>
-<body>
+@php
+    $fmPreferences = auth()->user()->preference()->firstOrCreate([]);
+@endphp
+<body data-theme="{{ $fmPreferences->theme }}" data-density="{{ $fmPreferences->density }}">
     <div class="fm-app">
         <div class="fm-sidebar-backdrop" data-fm-sidebar-backdrop></div>
 
@@ -153,12 +156,36 @@
                     </a>
                 @endif
 
+
+                @if (auth()->user()->hasPermission('analytics.view'))
+                    <div class="fm-nav-section">{{ __('Intelligence') }}</div>
+                    <a href="{{ route('analytics.index') }}" class="fm-nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up-arrow"></i><span>{{ __('Analytics') }}</span>
+                    </a>
+                @endif
+
+                @if (auth()->user()->hasPermission('documents.view') || auth()->user()->hasPermission('imports.manage'))
+                    <div class="fm-nav-section">{{ __('Data & documents') }}</div>
+                @endif
+                @if (auth()->user()->hasPermission('documents.view'))
+                    <a href="{{ route('documents.index') }}" class="fm-nav-link {{ request()->routeIs('documents.*') ? 'active' : '' }}"><i class="bi bi-folder2-open"></i><span>{{ __('Documents') }}</span></a>
+                @endif
+                @if (auth()->user()->hasPermission('documents.manage'))
+                    <a href="{{ route('document-templates.index') }}" class="fm-nav-link {{ request()->routeIs('document-templates.*') ? 'active' : '' }}"><i class="bi bi-file-earmark-text"></i><span>{{ __('Document templates') }}</span></a>
+                @endif
+                @if (auth()->user()->hasPermission('imports.manage'))
+                    <a href="{{ route('imports.index') }}" class="fm-nav-link {{ request()->routeIs('imports.*') ? 'active' : '' }}"><i class="bi bi-file-earmark-arrow-up"></i><span>{{ __('Import data') }}</span></a>
+                @endif
+
                 @if (
                     auth()->user()->can('viewAny', App\Models\User::class)
                     || auth()->user()->can('viewAny', App\Models\Role::class)
                     || auth()->user()->hasPermission('audit.view')
                     || auth()->user()->hasPermission('trash.view')
                     || auth()->user()->hasPermission('system.view')
+                    || auth()->user()->hasPermission('tags.manage')
+                    || auth()->user()->hasPermission('custom-fields.manage')
+                    || auth()->user()->hasPermission('integrations.manage')
                 )
                     <div class="fm-nav-section">{{ __('Administration') }}</div>
                 @endif
@@ -191,6 +218,18 @@
                     </a>
                 @endif
 
+
+                @if (auth()->user()->hasPermission('tags.manage'))
+                    <a href="{{ route('tags.index') }}" class="fm-nav-link {{ request()->routeIs('tags.*') ? 'active' : '' }}"><i class="bi bi-tags"></i><span>{{ __('Tags') }}</span></a>
+                @endif
+                @if (auth()->user()->hasPermission('custom-fields.manage'))
+                    <a href="{{ route('custom-fields.index') }}" class="fm-nav-link {{ request()->routeIs('custom-fields.*') ? 'active' : '' }}"><i class="bi bi-ui-checks-grid"></i><span>{{ __('Custom fields') }}</span></a>
+                @endif
+                @if (auth()->user()->hasPermission('integrations.manage'))
+                    <a href="{{ route('integrations.api.index') }}" class="fm-nav-link {{ request()->routeIs('integrations.api.*') ? 'active' : '' }}"><i class="bi bi-key"></i><span>{{ __('API tokens') }}</span></a>
+                    <a href="{{ route('integrations.webhooks.index') }}" class="fm-nav-link {{ request()->routeIs('integrations.webhooks.*') ? 'active' : '' }}"><i class="bi bi-broadcast-pin"></i><span>{{ __('Webhooks') }}</span></a>
+                @endif
+
                 @if (auth()->user()->hasPermission('system.view'))
                     <a href="{{ route('system.index') }}" class="fm-nav-link {{ request()->routeIs('system.*') ? 'active' : '' }}">
                         <i class="bi bi-activity"></i>
@@ -201,7 +240,7 @@
 
             <div class="fm-sidebar-footer">
                 <div>FlowManager</div>
-                <small>{{ __('Portfolio build v0.9') }}</small>
+                <small>{{ __('Portfolio build v0.13') }}</small>
             </div>
         </aside>
 
@@ -234,6 +273,7 @@
                 </form>
 
                 <div class="fm-header-actions">
+                    <button type="button" class="fm-icon-button d-none d-md-inline-flex" data-command-palette-open title="{{ __('Command palette') }}" aria-label="{{ __('Command palette') }}"><i class="bi bi-command"></i></button>
                     <div class="dropdown">
                         <button class="fm-icon-button position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ __('Notifications') }}">
                             <i class="bi bi-bell"></i>
@@ -307,6 +347,9 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="{{ route('preferences.edit') }}" class="dropdown-item"><i class="bi bi-sliders me-2"></i>{{ __('Preferences') }}</a>
+                            </li>
+                            <li>
                                 <a href="{{ route('notifications.index') }}" class="dropdown-item">
                                     <i class="bi bi-bell me-2"></i>
                                     {{ __('Notifications') }}
@@ -346,5 +389,22 @@
             </section>
         </main>
     </div>
+
+
+    <script type="application/json" id="fm-table-preferences">@json($fmPreferences->table_preferences ?? [])</script>
+    <div class="fm-command-backdrop" data-command-palette hidden>
+        <div class="fm-command-dialog" role="dialog" aria-modal="true" aria-label="{{ __('Command palette') }}">
+            <div class="fm-command-search"><i class="bi bi-search"></i><input type="search" data-command-input placeholder="{{ __('Search commands or records...') }}" autocomplete="off"><kbd>Esc</kbd></div>
+            <div class="fm-command-results" data-command-results>
+                <a href="{{ route('projects.create') }}" class="fm-command-item"><span><i class="bi bi-plus-circle"></i> {{ __('New project') }}</span><small>{{ __('Command') }}</small></a>
+                <a href="{{ route('tasks.create') }}" class="fm-command-item"><span><i class="bi bi-check2-square"></i> {{ __('New task') }}</span><small>{{ __('Command') }}</small></a>
+                <a href="{{ route('tickets.create') }}" class="fm-command-item"><span><i class="bi bi-ticket"></i> {{ __('New ticket') }}</span><small>{{ __('Command') }}</small></a>
+                <a href="{{ route('calendar.index') }}" class="fm-command-item"><span><i class="bi bi-calendar3"></i> {{ __('Open calendar') }}</span><small>{{ __('Navigate') }}</small></a>
+                <a href="{{ route('analytics.index') }}" class="fm-command-item"><span><i class="bi bi-graph-up"></i> {{ __('Open analytics') }}</span><small>{{ __('Navigate') }}</small></a>
+            </div>
+            <div class="fm-command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> {{ __('navigate') }}</span><span><kbd>Enter</kbd> {{ __('open') }}</span><span><kbd>Esc</kbd> {{ __('close') }}</span></div>
+        </div>
+    </div>
+
 </body>
 </html>

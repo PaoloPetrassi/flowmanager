@@ -41,6 +41,7 @@
         </div>
     </div>
 
+    @if (in_array('stats', $dashboardWidgets, true))
     <div class="row g-4 mb-4">
         @foreach ($stats as $stat)
             <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
@@ -68,7 +69,9 @@
             </div>
         @endforeach
     </div>
+    @endif
 
+    @if (in_array('my_work', $dashboardWidgets, true))
     <div class="row g-4 mb-4">
         @can('viewAny', App\Models\Task::class)
             <div class="col-12 col-xl-6">
@@ -183,8 +186,10 @@
             </div>
         @endcan
     </div>
+    @endif
 
     <div class="row g-4">
+        @if (in_array('projects', $dashboardWidgets, true))
         @can('viewAny', App\Models\Project::class)
             <div class="col-12 col-xl-7">
                 <div class="card fm-card h-100">
@@ -236,7 +241,9 @@
                 </div>
             </div>
         @endcan
+        @endif
 
+        @if (in_array('access', $dashboardWidgets, true))
         <div class="col-12 col-xl-5">
             <div class="card fm-card mb-4">
                 <div class="card-body">
@@ -298,9 +305,11 @@
                 </div>
             @endif
         </div>
+        @endif
     </div>
 
 
+    @if (in_array('charts', $dashboardWidgets, true))
     <div class="row g-4 mt-1">
         @if (!empty($trendSeries['items']))
             <div class="col-12 col-xxl-6">
@@ -413,4 +422,5 @@
         </div>
     @endif
 
+    @endif
 @endsection

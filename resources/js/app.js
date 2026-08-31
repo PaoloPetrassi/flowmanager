@@ -306,3 +306,86 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+    // v0.11 command palette
+    const commandPalette = document.querySelector('[data-command-palette]');
+    const commandInput = document.querySelector('[data-command-input]');
+    const commandResults = document.querySelector('[data-command-results]');
+    let commandTimer = null;
+
+    const openCommandPalette = () => {
+        if (!commandPalette || !commandInput) return;
+        commandPalette.hidden = false;
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(() => commandInput.focus());
+    };
+    const closeCommandPalette = () => {
+        if (!commandPalette) return;
+        commandPalette.hidden = true;
+        document.body.style.overflow = '';
+        if (commandInput) commandInput.value = '';
+    };
+    document.querySelectorAll('[data-command-palette-open]').forEach((button) => button.addEventListener('click', openCommandPalette));
+    commandPalette?.addEventListener('click', (event) => { if (event.target === commandPalette) closeCommandPalette(); });
+    document.addEventListener('keydown', (event) => {
+        const editable = event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement || event.target?.isContentEditable;
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); openCommandPalette(); }
+        if (event.key === 'Escape' && commandPalette && !commandPalette.hidden) closeCommandPalette();
+        if (!editable && event.key.toLowerCase() === 'k' && !event.ctrlKey && !event.metaKey) { /* reserved */ }
+    });
+    commandInput?.addEventListener('input', () => {
+        clearTimeout(commandTimer);
+        const q = commandInput.value.trim();
+        if (q.length < 2) return;
+        commandTimer = setTimeout(async () => {
+            try {
+                const response = await fetch(`/command-palette?q=${encodeURIComponent(q)}`, { headers: { Accept: 'application/json' } });
+                if (!response.ok) return;
+                const data = await response.json();
+                if (!commandResults) return;
+                commandResults.innerHTML = (data.results || []).length
+                    ? data.results.map((item) => `<a class="fm-command-item" href="${item.url}"><span><i class="bi bi-arrow-return-right"></i>${escapeHtml(item.label)}</span><small>${escapeHtml(item.type)}</small></a>`).join('')
+                    : '<div class="p-4 text-center text-secondary">No matching records</div>';
+            } catch (_) {}
+        }, 180);
+    });
+    function escapeHtml(value) {
+        const div = document.createElement('div'); div.textContent = value ?? ''; return div.innerHTML;
+    }
+
+    // v0.10 bulk selection
+    document.querySelectorAll('[data-bulk-container]').forEach((container) => {
+        const toolbar = container.querySelector('[data-bulk-toolbar]');
+        const count = container.querySelector('[data-bulk-count]');
+        const form = container.querySelector('[data-bulk-form]');
+        const all = container.querySelector('[data-bulk-select-all]');
+        const boxes = () => Array.from(container.querySelectorAll('[data-bulk-checkbox]'));
+        const refresh = () => {
+            const selected = boxes().filter((box) => box.checked);
+            toolbar?.classList.toggle('is-visible', selected.length > 0);
+            if (count) count.textContent = String(selected.length);
+        };
+        all?.addEventListener('change', () => { boxes().forEach((box) => { box.checked = all.checked; }); refresh(); });
+        boxes().forEach((box) => box.addEventListener('change', refresh));
+        form?.addEventListener('submit', () => {
+            form.querySelectorAll('input[data-generated-id]').forEach((node) => node.remove());
+            boxes().filter((box) => box.checked).forEach((box) => {
+                const input = document.createElement('input'); input.type='hidden'; input.name='ids[]'; input.value=box.value; input.dataset.generatedId='1'; form.appendChild(input);
+            });
+        });
+    });
+
+    // v0.11 persisted table column preferences
+    const tablePreferenceNode = document.getElementById('fm-table-preferences');
+    if (tablePreferenceNode) {
+        try {
+            const tablePreferences = JSON.parse(tablePreferenceNode.textContent || '{}');
+            document.querySelectorAll('[data-table-resource]').forEach((table) => {
+                const visible = tablePreferences[table.dataset.tableResource];
+                if (!Array.isArray(visible)) return;
+                table.querySelectorAll('[data-column]').forEach((cell) => {
+                    cell.hidden = !visible.includes(cell.dataset.column);
+                });
+            });
+        } catch (_) {}
+    }

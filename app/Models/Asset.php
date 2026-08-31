@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasCollaboration;
+use App\Models\Concerns\HasExtensibleData;
 use App\Enums\AssetStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Asset extends Model
 {
     /** @use HasFactory<\Database\Factories\AssetFactory> */
-    use Auditable, HasCollaboration, HasFactory, SoftDeletes;
+    use Auditable, HasCollaboration, HasExtensibleData, HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.

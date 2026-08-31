@@ -115,27 +115,19 @@ unset($__errorArgs, $__bag); ?>
                         <?php echo csrf_field(); ?>
 
                         <label for="collaboration-file" class="form-label fw-semibold"><?php echo e(__('Upload file')); ?></label>
-                        <div class="input-group">
-                            <input
-                                id="collaboration-file"
-                                type="file"
-                                name="file"
-                                class="form-control <?php $__errorArgs = ['file'];
+                        <input id="collaboration-file" type="file" name="file" class="form-control <?php $__errorArgs = ['file'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>"
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg,.zip"
-                                required
-                            >
-                            <button type="submit" class="btn btn-outline-primary">
-                                <i class="bi bi-upload"></i>
-                                <span class="d-none d-sm-inline ms-1"><?php echo e(__('Upload')); ?></span>
-                            </button>
+unset($__errorArgs, $__bag); ?>" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.png,.jpg,.jpeg,.zip" required>
+                        <div class="row g-2 mt-1">
+                            <div class="col-sm-7"><input name="document_category" class="form-control form-control-sm" maxlength="60" placeholder="<?php echo e(__('Document category')); ?>"></div>
+                            <div class="col-sm-5"><input name="expires_at" type="date" class="form-control form-control-sm" title="<?php echo e(__('Expiration date')); ?>"></div>
                         </div>
+                        <div class="d-flex justify-content-end mt-2"><button type="submit" class="btn btn-outline-primary btn-sm"><i class="bi bi-upload"></i><span class="ms-1"><?php echo e(__('Upload')); ?></span></button></div>
 
                         <?php $__errorArgs = ['file'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -166,8 +158,7 @@ unset($__errorArgs, $__bag); ?>
 
                             </a>
                             <div class="small text-secondary">
-                                <?php echo e($attachment->formattedSize()); ?>
-
+                                <?php echo e($attachment->formattedSize()); ?> · v<?php echo e($attachment->version); ?> <?php if($attachment->document_category): ?> · <?php echo e($attachment->document_category); ?> <?php endif; ?>
                                 · <?php echo e($attachment->user?->name ?: __('Deleted user')); ?>
 
                                 · <?php echo e($attachment->created_at->format('d/m/Y H:i')); ?>

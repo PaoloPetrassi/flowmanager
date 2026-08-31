@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class CalendarController extends Controller
 {
@@ -94,6 +95,43 @@ class CalendarController extends Controller
             'previousMonth' => $month->subMonth()->format('Y-m'),
             'nextMonth' => $month->addMonth()->format('Y-m'),
             'eventCount' => $events->count(),
+        ]);
+    }
+
+    public function ics(): Response
+    {
+        $events = collect();
+
+        if (Gate::allows('viewAny', Project::class)) {
+            Project::query()->operational()->whereNotNull('due_date')->get()->each(function (Project $project) use ($events): void {
+                $events->push(['uid' => 'project-'.$project->id, 'date' => $project->due_date, 'summary' => $project->code.' - '.$project->name, 'url' => route('projects.show', $project)]);
+            });
+        }
+
+        if (Gate::allows('viewAny', Task::class)) {
+            Task::query()->operational()->whereNotNull('due_date')->get()->each(function (Task $task) use ($events): void {
+                $events->push(['uid' => 'task-'.$task->id, 'date' => $task->due_date, 'summary' => $task->title, 'url' => route('tasks.show', $task)]);
+            });
+        }
+
+        $escape = fn (string $value) => str_replace(["\\", ";", ",", "\n", "\r"], ["\\\\", "\\;", "\\,", "\\n", ''], $value);
+        $lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//FlowManager//Calendar//EN', 'CALSCALE:GREGORIAN'];
+
+        foreach ($events as $event) {
+            $lines[] = 'BEGIN:VEVENT';
+            $lines[] = 'UID:'.$event['uid'].'@flowmanager';
+            $lines[] = 'DTSTAMP:'.now()->utc()->format('Ymd\\THis\\Z');
+            $lines[] = 'DTSTART;VALUE=DATE:'.$event['date']->format('Ymd');
+            $lines[] = 'SUMMARY:'.$escape($event['summary']);
+            $lines[] = 'URL:'.$event['url'];
+            $lines[] = 'END:VEVENT';
+        }
+
+        $lines[] = 'END:VCALENDAR';
+
+        return response(implode("\r\n", $lines)."\r\n", 200, [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="flowmanager-calendar.ics"',
         ]);
     }
 

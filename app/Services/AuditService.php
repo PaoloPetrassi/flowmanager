@@ -78,6 +78,10 @@ class AuditService
                 ? mb_substr((string) $request->userAgent(), 0, 500)
                 : null,
         ]);
+
+        if (in_array($event, ['created', 'updated', 'deleted', 'permanently_deleted'], true)) {
+            WebhookService::dispatch($event === 'permanently_deleted' ? 'deleted' : $event, $model, $newValues);
+        }
     }
 
     private static function sanitize(array $values): array

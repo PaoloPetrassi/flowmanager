@@ -44,6 +44,7 @@
         </div>
     </div>
 
+    <?php if(in_array('stats', $dashboardWidgets, true)): ?>
     <div class="row g-4 mb-4">
         <?php $__currentLoopData = $stats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $stat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-12 col-sm-6 col-xl-4 col-xxl-2">
@@ -71,7 +72,9 @@
             </div>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
+    <?php endif; ?>
 
+    <?php if(in_array('my_work', $dashboardWidgets, true)): ?>
     <div class="row g-4 mb-4">
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('viewAny', App\Models\Task::class)): ?>
             <div class="col-12 col-xl-6">
@@ -197,8 +200,10 @@
             </div>
         <?php endif; ?>
     </div>
+    <?php endif; ?>
 
     <div class="row g-4">
+        <?php if(in_array('projects', $dashboardWidgets, true)): ?>
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('viewAny', App\Models\Project::class)): ?>
             <div class="col-12 col-xl-7">
                 <div class="card fm-card h-100">
@@ -253,7 +258,9 @@
                 </div>
             </div>
         <?php endif; ?>
+        <?php endif; ?>
 
+        <?php if(in_array('access', $dashboardWidgets, true)): ?>
         <div class="col-12 col-xl-5">
             <div class="card fm-card mb-4">
                 <div class="card-body">
@@ -316,9 +323,11 @@
                 </div>
             <?php endif; ?>
         </div>
+        <?php endif; ?>
     </div>
 
 
+    <?php if(in_array('charts', $dashboardWidgets, true)): ?>
     <div class="row g-4 mt-1">
         <?php if(!empty($trendSeries['items'])): ?>
             <div class="col-12 col-xxl-6">
@@ -432,6 +441,7 @@
         </div>
     <?php endif; ?>
 
+    <?php endif; ?>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Projects\flowmanager\resources\views/dashboard/index.blade.php ENDPATH**/ ?>

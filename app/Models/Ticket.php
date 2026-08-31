@@ -7,6 +7,7 @@ use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasCollaboration;
+use App\Models\Concerns\HasExtensibleData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Ticket extends Model
 {
     /** @use HasFactory<\Database\Factories\TicketFactory> */
-    use Auditable, HasCollaboration, HasFactory, SoftDeletes;
+    use Auditable, HasCollaboration, HasExtensibleData, HasFactory, SoftDeletes;
 
     protected $fillable = [
         'company_id',

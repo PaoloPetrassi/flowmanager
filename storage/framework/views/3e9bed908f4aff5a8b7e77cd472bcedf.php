@@ -13,7 +13,7 @@
                 </div>
                 <a href="<?php echo e(route('calendar.index', ['month' => $nextMonth])); ?>" class="btn btn-sm btn-outline-secondary" aria-label="<?php echo e(__('Next month')); ?>"><i class="bi bi-chevron-right"></i></a>
             </div>
-            <a href="<?php echo e(route('calendar.index', ['month' => now()->format('Y-m')])); ?>" class="btn btn-sm btn-outline-primary"><?php echo e(__('Today')); ?></a>
+            <div class="d-flex gap-2"><a href="<?php echo e(route('calendar.ics')); ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-calendar-plus me-1"></i><?php echo e(__('Export iCalendar')); ?></a><a href="<?php echo e(route('calendar.index', ['month' => now()->format('Y-m')])); ?>" class="btn btn-sm btn-outline-primary"><?php echo e(__('Today')); ?></a></div>
         </div>
 
         <div class="fm-calendar-scroll">
@@ -23,8 +23,10 @@
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                 <?php $__currentLoopData = $days; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $day): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <?php ($dateKey = $day->toDateString()); ?>
-                    <?php ($dayEvents = $eventsByDate->get($dateKey, collect())); ?>
+                    <?php
+                        $dateKey = $day->toDateString();
+                        $dayEvents = $eventsByDate->get($dateKey, collect());
+                    ?>
                     <div class="fm-calendar-day <?php echo e($day->month !== $month->month ? 'is-outside' : ''); ?> <?php echo e($day->isToday() ? 'is-today' : ''); ?>" role="gridcell">
                         <div class="fm-calendar-day-number"><?php echo e($day->day); ?></div>
                         <div class="fm-calendar-events">

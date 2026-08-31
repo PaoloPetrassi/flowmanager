@@ -86,5 +86,8 @@
         @forelse($project->tasks as $task)<div class="list-group-item py-3"><div class="d-flex justify-content-between gap-3"><div class="min-w-0"><a class="fw-semibold text-dark" href="{{ route('tasks.show',$task) }}">{{ $task->title }}</a><div class="small text-secondary">{{ $task->assignee?->name ?: __('Unassigned') }} · {{ $task->due_date?->format('d/m/Y') ?: __('No due date') }}</div></div><span class="badge text-bg-light align-self-start">{{ $task->status->label() }}</span></div>@if($task->subtasks->isNotEmpty())<div class="fm-subtask-list mt-2">@foreach($task->subtasks as $subtask)<a href="{{ route('tasks.show',$subtask) }}"><i class="bi bi-arrow-return-right me-1"></i>{{ $subtask->title }} <span>{{ $subtask->status->label() }}</span></a>@endforeach</div>@endif</div>@empty<div class="p-4 text-secondary">{{ __('No tasks yet.') }}</div>@endforelse
     </div></div>
 
-    @include('partials.collaboration-panel', ['collaborationTarget' => $project])
+    
+@include('partials.extensible-summary', ['resourceModel' => $project])
+@include('partials.document-generation', ['resourceModel' => $project])
+@include('partials.collaboration-panel', ['collaborationTarget' => $project])
 @endsection

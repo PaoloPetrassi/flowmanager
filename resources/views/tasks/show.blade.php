@@ -53,5 +53,8 @@
         </div>
     </div>
 
-    @include('partials.collaboration-panel', ['collaborationTarget' => $task])
+    
+@include('partials.extensible-summary', ['resourceModel' => $task])
+@include('partials.document-generation', ['resourceModel' => $task])
+@include('partials.collaboration-panel', ['collaborationTarget' => $task])
 @endsection

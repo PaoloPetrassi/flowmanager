@@ -20,3 +20,4 @@
     <div class="col-12"><label for="description" class="form-label fw-semibold">{{ __('Description') }}</label><textarea id="description" name="description" rows="6" class="form-control @error('description') is-invalid @enderror" required>{{ old('description', $ticket->description) }}</textarea>@error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
     <div class="col-12"><label for="resolution" class="form-label fw-semibold">{{ __('Resolution') }}</label><textarea id="resolution" name="resolution" rows="4" class="form-control @error('resolution') is-invalid @enderror">{{ old('resolution', $ticket->resolution) }}</textarea><div class="form-text">{{ __('Use this field when the ticket is resolved or closed.') }}</div>@error('resolution')<div class="invalid-feedback">{{ $message }}</div>@enderror</div>
 </div>
+@include('partials.extensible-fields', ['resourceModel' => $ticket])

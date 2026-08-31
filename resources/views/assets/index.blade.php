@@ -14,6 +14,8 @@
         <div class="col-6 col-md-3 col-lg-2"><label for="direction" class="form-label fw-semibold">{{ __('Order') }}</label><select id="direction" name="direction" class="form-select"><option value="asc" @selected($filters['direction'] === 'asc')>{{ __('Ascending') }}</option><option value="desc" @selected($filters['direction'] === 'desc')>{{ __('Descending') }}</option></select></div>
     </div><div class="d-flex justify-content-end gap-2 mt-3"><a href="{{ route('assets.index') }}" class="btn btn-outline-secondary">{{ __('Reset') }}</a><button class="btn btn-primary">{{ __('Apply filters') }}</button></div></form></div></div>
 
+
+    @include('partials.saved-filters', ['filterResource' => 'assets', 'filterRoute' => 'assets.index'])
     <div class="card fm-card"><div class="table-responsive"><table class="table align-middle mb-0 fm-table"><thead><tr><th>{{ __('Asset') }}</th><th>{{ __('Category') }}</th><th>{{ __('Company') }}</th><th>{{ __('Assigned to') }}</th><th>{{ __('Status') }}</th><th>{{ __('Serial') }}</th><th class="text-end">{{ __('Actions') }}</th></tr></thead><tbody>
         @forelse ($assets as $asset)
             @php $statusClass = match ($asset->status->value) {'available' => 'text-bg-success', 'assigned' => 'text-bg-primary', 'maintenance' => 'text-bg-warning', 'lost' => 'text-bg-danger', default => 'text-bg-secondary'}; @endphp
