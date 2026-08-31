@@ -3,13 +3,12 @@
 namespace Database\Factories;
 
 use App\Enums\AssetStatus;
-use App\Models\Asset;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Asset>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Asset>
  */
 class AssetFactory extends Factory
 {

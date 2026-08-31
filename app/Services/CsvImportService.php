@@ -9,10 +9,13 @@ use App\Models\Task;
 use App\Models\Ticket;
 use Illuminate\Support\Str;
 use RuntimeException;
+use SimpleXMLElement;
 use ZipArchive;
 
 class CsvImportService
 {
+    private const SPREADSHEET_NAMESPACE = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+
     public function resources(): array
     {
         return [
@@ -43,7 +46,10 @@ class CsvImportService
     {
         [$headers, $rows] = $this->readRows($path, 8);
 
-        return ['headers' => $headers, 'rows' => $rows];
+        return [
+            'headers' => $headers,
+            'rows' => $rows,
+        ];
     }
 
     public function import(
@@ -167,54 +173,46 @@ class CsvImportService
             throw new RuntimeException('The PHP ZIP extension is required to import XLSX files.');
         }
 
-        $zip = new ZipArchive;
+        if (! function_exists('simplexml_load_string')) {
+            throw new RuntimeException('The PHP SimpleXML extension is required to import XLSX files.');
+        }
+
+        $zip = new ZipArchive();
 
         if ($zip->open($path) !== true) {
             throw new RuntimeException('Unable to open XLSX file.');
         }
 
-        $sharedStrings = [];
-        $sharedXml = $zip->getFromName('xl/sharedStrings.xml');
-
-        if ($sharedXml !== false) {
-            $xml = simplexml_load_string($sharedXml);
-
-            foreach ($xml?->si ?? [] as $item) {
-                $sharedStrings[] = isset($item->t)
-                    ? (string) $item->t
-                    : collect($item->r ?? [])
-                        ->map(fn ($run) => (string) $run->t)
-                        ->implode('');
-            }
+        try {
+            $sharedStrings = $this->readSharedStrings($zip);
+            $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
+        } finally {
+            $zip->close();
         }
-
-        $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
-        $zip->close();
 
         if ($sheetXml === false) {
             throw new RuntimeException('The first XLSX worksheet could not be read.');
         }
 
-        $xml = simplexml_load_string($sheetXml);
+        $xml = $this->loadXml($sheetXml, 'The first XLSX worksheet contains invalid XML.');
+        $worksheet = $xml->children(self::SPREADSHEET_NAMESPACE);
         $matrix = [];
 
-        foreach ($xml?->sheetData?->row ?? [] as $row) {
+        foreach ($worksheet->sheetData->row ?? [] as $row) {
             $values = [];
+            $rowChildren = $row->children(self::SPREADSHEET_NAMESPACE);
+            $fallbackColumn = 0;
 
-            foreach ($row->c as $cell) {
-                $reference = (string) $cell['r'];
-                preg_match('/^[A-Z]+/', $reference, $match);
-                $column = $this->columnIndex($match[0] ?? 'A');
-                $type = (string) $cell['t'];
+            foreach ($rowChildren->c ?? [] as $cell) {
+                $reference = $this->xlsxAttribute($cell, 'r');
+                $column = $fallbackColumn;
 
-                $value = match ($type) {
-                    's' => $sharedStrings[(int) $cell->v] ?? '',
-                    'inlineStr' => (string) $cell->is->t,
-                    'b' => (string) ((int) $cell->v),
-                    default => (string) $cell->v,
-                };
+                if (preg_match('/^([A-Z]+)/', strtoupper($reference), $match) === 1) {
+                    $column = $this->columnIndex($match[1]);
+                }
 
-                $values[$column] = $value;
+                $values[$column] = $this->xlsxCellValue($cell, $sharedStrings);
+                $fallbackColumn = max($fallbackColumn + 1, $column + 1);
             }
 
             if ($values === []) {
@@ -237,6 +235,10 @@ class CsvImportService
             array_shift($matrix) ?: [],
         );
 
+        if ($headers === []) {
+            throw new RuntimeException('No header row could be read from the XLSX file.');
+        }
+
         $rows = collect($matrix)
             ->map(function (array $row) use ($headers) {
                 $row = array_pad($row, count($headers), null);
@@ -249,6 +251,94 @@ class CsvImportService
             ->all();
 
         return [$headers, $rows];
+    }
+
+    private function readSharedStrings(ZipArchive $zip): array
+    {
+        $sharedXml = $zip->getFromName('xl/sharedStrings.xml');
+
+        if ($sharedXml === false || trim($sharedXml) === '') {
+            return [];
+        }
+
+        $xml = $this->loadXml($sharedXml, 'The XLSX shared string table contains invalid XML.');
+        $root = $xml->children(self::SPREADSHEET_NAMESPACE);
+        $sharedStrings = [];
+
+        foreach ($root->si ?? [] as $item) {
+            $sharedStrings[] = $this->xlsxText($item);
+        }
+
+        return $sharedStrings;
+    }
+
+    private function xlsxCellValue(SimpleXMLElement $cell, array $sharedStrings): string
+    {
+        $children = $cell->children(self::SPREADSHEET_NAMESPACE);
+        $type = $this->xlsxAttribute($cell, 't');
+
+        return match ($type) {
+            's' => $sharedStrings[(int) ($children->v ?? 0)] ?? '',
+            'inlineStr' => isset($children->is) ? $this->xlsxText($children->is) : '',
+            'b' => ((int) ($children->v ?? 0)) === 1 ? '1' : '0',
+            'str' => (string) ($children->v ?? ''),
+            default => (string) ($children->v ?? ''),
+        };
+    }
+
+    private function xlsxAttribute(SimpleXMLElement $node, string $name): string
+    {
+        $attributes = $node->attributes();
+
+        if ($attributes !== null && isset($attributes[$name])) {
+            return (string) $attributes[$name];
+        }
+
+        foreach ($node->getNamespaces(true) as $namespace) {
+            $attributes = $node->attributes($namespace);
+
+            if ($attributes !== null && isset($attributes[$name])) {
+                return (string) $attributes[$name];
+            }
+        }
+
+        return '';
+    }
+
+    private function xlsxText(SimpleXMLElement $node): string
+    {
+        $children = $node->children(self::SPREADSHEET_NAMESPACE);
+
+        if (isset($children->t)) {
+            return (string) $children->t;
+        }
+
+        $text = '';
+
+        foreach ($children->r ?? [] as $run) {
+            $runChildren = $run->children(self::SPREADSHEET_NAMESPACE);
+            $text .= (string) ($runChildren->t ?? '');
+        }
+
+        return $text;
+    }
+
+    private function loadXml(string $xml, string $errorMessage): SimpleXMLElement
+    {
+        $previous = libxml_use_internal_errors(true);
+
+        try {
+            $element = simplexml_load_string($xml);
+
+            if ($element === false) {
+                throw new RuntimeException($errorMessage);
+            }
+
+            return $element;
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
     }
 
     private function columnIndex(string $letters): int

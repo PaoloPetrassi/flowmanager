@@ -103,6 +103,7 @@ test('administrator can delete another account', function () {
     $this->assertDatabaseMissing('users', ['id' => $user->id]);
 });
 
+
 test('last administrator cannot lose the administrator role', function () {
     $administrator = createUserManagementTestUser('administrator');
     $viewerRole = Role::query()->where('slug', 'viewer')->firstOrFail();

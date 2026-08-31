@@ -6,12 +6,11 @@ use App\Enums\TicketCategory;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Models\Company;
-use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Ticket>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Ticket>
  */
 class TicketFactory extends Factory
 {

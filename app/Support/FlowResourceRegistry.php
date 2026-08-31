@@ -7,10 +7,10 @@ use App\Models\AuditLog;
 use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Project;
-use App\Models\Role;
 use App\Models\Task;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -58,7 +58,7 @@ class FlowResourceRegistry
         $class = self::RESOURCES[$type] ?? null;
 
         if (! $class) {
-            throw (new ModelNotFoundException)->setModel(Model::class, [$id]);
+            throw (new ModelNotFoundException())->setModel(Model::class, [$id]);
         }
 
         $query = $class::query();
@@ -77,7 +77,7 @@ class FlowResourceRegistry
         $class = self::RESOURCES[$type] ?? null;
 
         if (! $class) {
-            throw (new ModelNotFoundException)->setModel(Model::class, [$id]);
+            throw (new ModelNotFoundException())->setModel(Model::class, [$id]);
         }
 
         return $class::onlyTrashed()->findOrFail($id);

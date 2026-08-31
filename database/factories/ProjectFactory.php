@@ -5,12 +5,11 @@ namespace Database\Factories;
 use App\Enums\ProjectPriority;
 use App\Enums\ProjectStatus;
 use App\Models\Company;
-use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Project>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Project>
  */
 class ProjectFactory extends Factory
 {

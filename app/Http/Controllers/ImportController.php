@@ -14,7 +14,9 @@ use Illuminate\View\View;
 
 class ImportController extends Controller
 {
-    public function __construct(private CsvImportService $service) {}
+    public function __construct(private CsvImportService $service)
+    {
+    }
 
     public function index(): View
     {

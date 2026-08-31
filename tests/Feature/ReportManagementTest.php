@@ -44,6 +44,7 @@ test('manager can export reports as csv and excel', function () {
         ->assertOk()
         ->assertHeader('content-type', 'application/vnd.ms-excel; charset=UTF-8');
 
+
     $this->get(route('reports.pdf', ['type' => 'projects']))
         ->assertOk()
         ->assertHeader('content-type', 'application/pdf');

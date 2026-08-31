@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Cache;
 class FlowManagerHeartbeatCommand extends Command
 {
     protected $signature = 'flowmanager:heartbeat';
-
     protected $description = 'Record the FlowManager scheduler heartbeat.';
 
     public function handle(): int

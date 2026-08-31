@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Role extends Model
 {
     use Auditable;
-
     /**
      * The attributes that are mass assignable.
      *

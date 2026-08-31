@@ -8,7 +8,6 @@ use Illuminate\Console\Command;
 class SendRemindersCommand extends Command
 {
     protected $signature = 'flowmanager:reminders';
-
     protected $description = 'Send due date and SLA reminders.';
 
     public function handle(ReminderService $reminders): int

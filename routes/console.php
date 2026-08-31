@@ -13,7 +13,7 @@ Schedule::command('flowmanager:heartbeat')
     ->everyMinute()
     ->withoutOverlapping();
 
-Schedule::job(new QueueHeartbeatJob)
+Schedule::job(new QueueHeartbeatJob())
     ->everyMinute();
 
 Schedule::command('flowmanager:reminders')

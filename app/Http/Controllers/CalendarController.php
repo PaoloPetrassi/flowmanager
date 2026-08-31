@@ -114,7 +114,7 @@ class CalendarController extends Controller
             });
         }
 
-        $escape = fn (string $value) => str_replace(['\\', ';', ',', "\n", "\r"], ['\\\\', '\\;', '\\,', '\\n', ''], $value);
+        $escape = fn (string $value) => str_replace(["\\", ";", ",", "\n", "\r"], ["\\\\", "\\;", "\\,", "\\n", ''], $value);
         $lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//FlowManager//Calendar//EN', 'CALSCALE:GREGORIAN'];
 
         foreach ($events as $event) {

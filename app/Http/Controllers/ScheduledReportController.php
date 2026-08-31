@@ -44,7 +44,6 @@ class ScheduledReportController extends Controller
     {
         abort_unless($scheduledReport->user_id === auth()->id() || auth()->user()->hasRole('administrator'), 403);
         $scheduledReport->delete();
-
         return back()->with('status', __('Scheduled report deleted.'));
     }
 }

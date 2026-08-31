@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TaskStatus;
+use App\Models\Attachment;
 use App\Models\Company;
 use App\Models\Project;
 use App\Models\Role;
@@ -12,15 +13,12 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-beforeEach(function () {
-    $this->seed(RolePermissionSeeder::class);
-});
+beforeEach(function () { $this->seed(RolePermissionSeeder::class); });
 
 function v013DataUser(string $role = 'administrator'): User
 {
     $user = User::factory()->create();
     $user->roles()->attach(Role::where('slug', $role)->firstOrFail());
-
     return $user;
 }
 

@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\HomeController;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -68,5 +67,5 @@ test('demo reset is blocked in production environments', function () {
 test('v101 reports the expected release version and cacheable home action', function () {
     expect(config('flowmanager.version'))->toBe('1.0.1')
         ->and(Route::getRoutes()->getByName('home')?->getActionName())
-        ->toBe(HomeController::class);
+        ->toBe(App\Http\Controllers\HomeController::class);
 });

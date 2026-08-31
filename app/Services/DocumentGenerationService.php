@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class DocumentGenerationService
 {
@@ -69,7 +70,7 @@ class DocumentGenerationService
             $commands[] = $this->text(8, 500, 28, ($pageIndex + 1).' / '.$pages->count());
             $stream = implode("\n", $commands);
             $objects[$pageId] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents {$contentId} 0 R >>";
-            $objects[$contentId] = '<< /Length '.strlen($stream)." >>\nstream\n{$stream}\nendstream";
+            $objects[$contentId] = "<< /Length ".strlen($stream)." >>\nstream\n{$stream}\nendstream";
         }
 
         $objects[2] = '<< /Type /Pages /Kids ['.implode(' ', $pageRefs).'] /Count '.count($pageRefs).' >>';
@@ -92,7 +93,6 @@ class DocumentGenerationService
         $encoded = function_exists('iconv') ? iconv('UTF-8', 'Windows-1252//TRANSLIT//IGNORE', $value) : $value;
         $encoded = $encoded === false ? $value : $encoded;
         $escaped = str_replace(['\\', '(', ')', "\r", "\n"], ['\\\\', '\\(', '\\)', ' ', ' '], $encoded);
-
         return sprintf('BT /F1 %.1F Tf 1 0 0 1 %.2F %.2F Tm (%s) Tj ET', $size, $x, $y, $escaped);
     }
 

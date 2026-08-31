@@ -6,8 +6,8 @@ use App\Enums\CompanyStatus;
 use App\Enums\CompanyType;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
-use App\Models\Asset;
 use App\Models\Company;
+use App\Models\Asset;
 use App\Models\Contact;
 use App\Models\Project;
 use App\Models\Ticket;
@@ -111,7 +111,7 @@ class CompanyController extends Controller
         Gate::authorize('create', Company::class);
 
         return view('companies.create', [
-            'company' => new Company,
+            'company' => new Company(),
             'types' => CompanyType::cases(),
             'statuses' => CompanyStatus::cases(),
         ]);

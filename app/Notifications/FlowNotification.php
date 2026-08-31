@@ -18,7 +18,8 @@ class FlowNotification extends Notification
         private readonly string $routeName,
         private readonly array $routeParameters,
         private readonly string $icon = 'bi-bell'
-    ) {}
+    ) {
+    }
 
     public function via(object $notifiable): array
     {
@@ -33,7 +34,7 @@ class FlowNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject(__($this->titleKey))
             ->line(__($this->messageKey, $this->parameters))
             ->action(__('Open in FlowManager'), route($this->routeName, $this->routeParameters));

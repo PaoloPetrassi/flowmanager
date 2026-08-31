@@ -57,7 +57,6 @@ class BulkActionController extends Controller
 
                 if ($data['action'] === 'delete') {
                     $model->delete();
-
                     continue;
                 }
 

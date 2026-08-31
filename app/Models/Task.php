@@ -8,7 +8,6 @@ use App\Enums\TaskStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasCollaboration;
 use App\Models\Concerns\HasExtensibleData;
-use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
-    /** @use HasFactory<TaskFactory> */
+    /** @use HasFactory<\Database\Factories\TaskFactory> */
     use Auditable, HasCollaboration, HasExtensibleData, HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -122,6 +121,7 @@ class Task extends Model
     {
         return $this->hasMany(TimeEntry::class);
     }
+
 
     public function scopeOperational(Builder $query): Builder
     {

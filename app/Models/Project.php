@@ -4,11 +4,9 @@ namespace App\Models;
 
 use App\Enums\ProjectPriority;
 use App\Enums\ProjectStatus;
-use App\Enums\TaskStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasCollaboration;
 use App\Models\Concerns\HasExtensibleData;
-use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
-    /** @use HasFactory<ProjectFactory> */
+    /** @use HasFactory<\Database\Factories\ProjectFactory> */
     use Auditable, HasCollaboration, HasExtensibleData, HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -55,6 +53,7 @@ class Project extends Model
             'estimated_minutes' => 'integer',
         ];
     }
+
 
     public function scopeOperational(Builder $query): Builder
     {
@@ -125,7 +124,7 @@ class Project extends Model
         }
 
         $completed = $tasks->filter(
-            fn (Task $task) => $task->status === TaskStatus::Completed
+            fn (Task $task) => $task->status === \App\Enums\TaskStatus::Completed
         )->count();
 
         return (int) round(($completed / $tasks->count()) * 100);

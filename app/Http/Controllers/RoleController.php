@@ -48,7 +48,7 @@ class RoleController extends Controller
         Gate::authorize('create', Role::class);
 
         return view('roles.create', [
-            'role' => new Role,
+            'role' => new Role(),
             'permissionGroups' => $this->permissionGroups(),
             'selectedPermissions' => collect(),
         ]);
