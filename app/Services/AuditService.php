@@ -16,6 +16,7 @@ class AuditService
         'deleted_at',
         'password',
         'remember_token',
+        'two_factor_secret',
     ];
 
     public static function recordCreated(Model $model): void

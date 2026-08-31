@@ -90,6 +90,7 @@ class SearchController extends Controller
 
         if (Gate::allows('viewAny', Project::class)) {
             $items = Project::query()
+                ->operational()
                 ->with('company:id,name')
                 ->where(function (Builder $query) use ($search) {
                     $query
@@ -115,6 +116,7 @@ class SearchController extends Controller
 
         if (Gate::allows('viewAny', Task::class)) {
             $items = Task::query()
+                ->operational()
                 ->with('project:id,code,name')
                 ->where(function (Builder $query) use ($search) {
                     $query

@@ -47,6 +47,24 @@ return [
         'completed' => 'Completed',
         'cancelled' => 'Cancelled',
     ],
+    'task_recurrence' => [
+        'none' => 'Does not repeat',
+        'daily' => 'Daily',
+        'weekly' => 'Weekly',
+        'monthly' => 'Monthly',
+    ],
+    'automation_trigger' => [
+        'task_overdue' => 'Task overdue',
+        'task_due_soon' => 'Task due soon',
+        'ticket_sla_breached' => 'Ticket SLA breached',
+        'project_due_soon' => 'Project due soon',
+    ],
+    'automation_action' => [
+        'notify_assignee' => 'Notify assignee',
+        'notify_manager' => 'Notify project manager',
+        'notify_user' => 'Notify selected user',
+        'set_ticket_priority' => 'Set ticket priority',
+    ],
     'ticket_category' => [
         'general' => 'General',
         'technical' => 'Technical',

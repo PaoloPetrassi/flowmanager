@@ -108,6 +108,27 @@
                     </a>
                 @endif
 
+                @can('viewAny', App\Models\Project::class)
+                    <a href="{{ route('planning.gantt') }}" class="fm-nav-link {{ request()->routeIs('planning.gantt') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-steps"></i>
+                        <span>{{ __('Gantt') }}</span>
+                    </a>
+                @endcan
+
+                @if (auth()->user()->hasPermission('workload.view'))
+                    <a href="{{ route('planning.workload') }}" class="fm-nav-link {{ request()->routeIs('planning.workload') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>{{ __('Workload') }}</span>
+                    </a>
+                @endif
+
+                @can('create', App\Models\Project::class)
+                    <a href="{{ route('project-templates.index') }}" class="fm-nav-link {{ request()->routeIs('project-templates.*') ? 'active' : '' }}">
+                        <i class="bi bi-copy"></i>
+                        <span>{{ __('Project templates') }}</span>
+                    </a>
+                @endcan
+
                 @if (
                     auth()->user()->can('viewAny', App\Models\Task::class)
                     || auth()->user()->can('viewAny', App\Models\Ticket::class)
@@ -125,11 +146,19 @@
                     </a>
                 @endif
 
+                @if (auth()->user()->hasPermission('automations.view'))
+                    <a href="{{ route('automations.index') }}" class="fm-nav-link {{ request()->routeIs('automations.*') ? 'active' : '' }}">
+                        <i class="bi bi-lightning-charge"></i>
+                        <span>{{ __('Automations') }}</span>
+                    </a>
+                @endif
+
                 @if (
                     auth()->user()->can('viewAny', App\Models\User::class)
                     || auth()->user()->can('viewAny', App\Models\Role::class)
                     || auth()->user()->hasPermission('audit.view')
                     || auth()->user()->hasPermission('trash.view')
+                    || auth()->user()->hasPermission('system.view')
                 )
                     <div class="fm-nav-section">{{ __('Administration') }}</div>
                 @endif
@@ -161,11 +190,18 @@
                         <span>{{ __('Trash') }}</span>
                     </a>
                 @endif
+
+                @if (auth()->user()->hasPermission('system.view'))
+                    <a href="{{ route('system.index') }}" class="fm-nav-link {{ request()->routeIs('system.*') ? 'active' : '' }}">
+                        <i class="bi bi-activity"></i>
+                        <span>{{ __('System') }}</span>
+                    </a>
+                @endif
             </nav>
 
             <div class="fm-sidebar-footer">
                 <div>FlowManager</div>
-                <small>{{ __('Portfolio build v0.6') }}</small>
+                <small>{{ __('Portfolio build v0.9') }}</small>
             </div>
         </aside>
 
@@ -264,6 +300,12 @@
                                 <small class="text-secondary">{{ auth()->user()->email }}</small>
                             </li>
                             <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a href="{{ route('security.index') }}" class="dropdown-item">
+                                    <i class="bi bi-shield-check me-2"></i>
+                                    {{ __('Security') }}
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('notifications.index') }}" class="dropdown-item">
                                     <i class="bi bi-bell me-2"></i>

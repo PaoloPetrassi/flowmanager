@@ -58,6 +58,7 @@ class DashboardController extends Controller
             [
                 'label' => __('Active projects'),
                 'value' => Project::query()
+                    ->operational()
                     ->where('status', ProjectStatus::Active->value)
                     ->count(),
                 'icon' => 'bi-kanban',
@@ -67,7 +68,7 @@ class DashboardController extends Controller
             ],
             [
                 'label' => __('Open tasks'),
-                'value' => Task::query()->open()->count(),
+                'value' => Task::query()->operational()->open()->count(),
                 'icon' => 'bi-check2-square',
                 'url' => Gate::allows('viewAny', Task::class)
                     ? route('tasks.index')
@@ -100,11 +101,13 @@ class DashboardController extends Controller
 
         if (Gate::allows('viewAny', Task::class)) {
             $overdueTaskCount = Task::query()
+                ->operational()
                 ->overdue()
                 ->where('assigned_to', $currentUser->id)
                 ->count();
 
             $myTasks = Task::query()
+                ->operational()
                 ->open()
                 ->where('assigned_to', $currentUser->id)
                 ->with(['project:id,code,name,company_id', 'project.company:id,name'])
@@ -126,6 +129,7 @@ class DashboardController extends Controller
 
         if (Gate::allows('viewAny', Project::class)) {
             $managedProjects = Project::query()
+                ->operational()
                 ->where('manager_id', $currentUser->id)
                 ->whereNotIn('status', [
                     ProjectStatus::Completed->value,
@@ -192,6 +196,7 @@ class DashboardController extends Controller
         }
 
         $counts = Task::query()
+            ->operational()
             ->selectRaw('status, COUNT(*) as aggregate')
             ->groupBy('status')
             ->pluck('aggregate', 'status');
@@ -237,6 +242,7 @@ class DashboardController extends Controller
 
         $completedTasks = Gate::allows('viewAny', Task::class)
             ? Task::query()
+                ->operational()
                 ->whereNotNull('completed_at')
                 ->whereBetween('completed_at', [$start, $end])
                 ->get(['completed_at'])

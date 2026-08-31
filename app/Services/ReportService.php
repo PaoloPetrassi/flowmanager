@@ -97,6 +97,7 @@ class ReportService
     private function projectRows(?string $dateFrom, ?string $dateTo): Collection
     {
         return Project::query()
+            ->operational()
             ->with(['company:id,name', 'manager:id,name'])
             ->when($dateFrom, fn (Builder $query) => $query->whereDate('created_at', '>=', $dateFrom))
             ->when($dateTo, fn (Builder $query) => $query->whereDate('created_at', '<=', $dateTo))
@@ -120,6 +121,7 @@ class ReportService
     private function taskRows(?string $dateFrom, ?string $dateTo): Collection
     {
         return Task::query()
+            ->operational()
             ->with(['project:id,code,name,company_id', 'project.company:id,name', 'assignee:id,name'])
             ->when($dateFrom, fn (Builder $query) => $query->whereDate('created_at', '>=', $dateFrom))
             ->when($dateTo, fn (Builder $query) => $query->whereDate('created_at', '<=', $dateTo))

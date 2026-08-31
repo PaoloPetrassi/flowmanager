@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class FlowNotification extends Notification
@@ -22,7 +23,21 @@ class FlowNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        $channels = ['database'];
+
+        if (config('flowmanager.notifications.mail_enabled')) {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage())
+            ->subject(__($this->titleKey))
+            ->line(__($this->messageKey, $this->parameters))
+            ->action(__('Open in FlowManager'), route($this->routeName, $this->routeParameters));
     }
 
     public function toArray(object $notifiable): array

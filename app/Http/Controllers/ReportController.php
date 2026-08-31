@@ -188,9 +188,9 @@ class ReportController extends Controller
     private function summary(): array
     {
         return [
-            'projects_active' => Project::query()->where('status', ProjectStatus::Active->value)->count(),
-            'tasks_open' => Task::query()->whereNotIn('status', [TaskStatus::Completed->value, TaskStatus::Cancelled->value])->count(),
-            'tasks_overdue' => Task::query()->overdue()->count(),
+            'projects_active' => Project::query()->operational()->where('status', ProjectStatus::Active->value)->count(),
+            'tasks_open' => Task::query()->operational()->whereNotIn('status', [TaskStatus::Completed->value, TaskStatus::Cancelled->value])->count(),
+            'tasks_overdue' => Task::query()->operational()->overdue()->count(),
             'tickets_open' => Ticket::query()->whereNotIn('status', [TicketStatus::Resolved->value, TicketStatus::Closed->value])->count(),
             'assets_active' => Asset::query()->where('status', '!=', AssetStatus::Retired->value)->count(),
         ];

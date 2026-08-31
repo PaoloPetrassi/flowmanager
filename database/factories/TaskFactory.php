@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\TaskPriority;
+use App\Enums\TaskRecurrence;
 use App\Enums\TaskStatus;
 use App\Models\Project;
 use App\Models\User;
@@ -26,6 +27,9 @@ class TaskFactory extends Factory
             'title' => fake()->sentence(5),
             'status' => $status,
             'priority' => fake()->randomElement(TaskPriority::cases()),
+            'recurrence' => TaskRecurrence::None,
+            'recurrence_interval' => 1,
+            'recurrence_ends_at' => null,
             'due_date' => fake()->optional(0.85)->dateTimeBetween('-2 months', '+5 months'),
             'completed_at' => $status === TaskStatus::Completed ? now() : null,
             'description' => fake()->optional(0.8)->paragraph(),

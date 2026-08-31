@@ -47,6 +47,24 @@ return [
         'completed' => 'Completata',
         'cancelled' => 'Annullata',
     ],
+    'task_recurrence' => [
+        'none' => 'Non si ripete',
+        'daily' => 'Giornaliera',
+        'weekly' => 'Settimanale',
+        'monthly' => 'Mensile',
+    ],
+    'automation_trigger' => [
+        'task_overdue' => 'Attività scaduta',
+        'task_due_soon' => 'Attività in scadenza',
+        'ticket_sla_breached' => 'SLA ticket superato',
+        'project_due_soon' => 'Progetto in scadenza',
+    ],
+    'automation_action' => [
+        'notify_assignee' => 'Notifica assegnatario',
+        'notify_manager' => 'Notifica responsabile progetto',
+        'notify_user' => 'Notifica utente selezionato',
+        'set_ticket_priority' => 'Imposta priorità ticket',
+    ],
     'ticket_category' => [
         'general' => 'Generale',
         'technical' => 'Tecnico',

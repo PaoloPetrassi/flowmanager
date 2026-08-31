@@ -45,6 +45,7 @@ class BoardController extends Controller
             );
 
             $items = Task::query()
+                ->operational()
                 ->with(['project:id,code,name', 'assignee:id,name'])
                 ->when($assigneeId, fn ($query) => $query->where('assigned_to', $assigneeId))
                 ->orderByRaw('due_date is null')

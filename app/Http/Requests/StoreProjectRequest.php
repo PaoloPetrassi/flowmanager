@@ -25,25 +25,16 @@ class StoreProjectRequest extends FormRequest
             'contact_id' => $this->filled('contact_id') ? $this->input('contact_id') : null,
             'manager_id' => $this->filled('manager_id') ? $this->input('manager_id') : null,
             'budget' => $this->filled('budget') ? $this->input('budget') : null,
+            'estimated_minutes' => $this->filled('estimated_minutes') ? $this->input('estimated_minutes') : null,
+            'progress_override' => $this->filled('progress_override') ? $this->input('progress_override') : null,
         ]);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function rules(): array
     {
         return [
-            'company_id' => [
-                'required',
-                'integer',
-                Rule::exists('companies', 'id')->whereNull('deleted_at'),
-            ],
-            'contact_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('contacts', 'id')->whereNull('deleted_at'),
-            ],
+            'company_id' => ['required', 'integer', Rule::exists('companies', 'id')->whereNull('deleted_at')],
+            'contact_id' => ['nullable', 'integer', Rule::exists('contacts', 'id')->whereNull('deleted_at')],
             'manager_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
             'code' => ['required', 'string', 'max:50', Rule::unique('projects', 'code')],
             'name' => ['required', 'string', 'max:180'],
@@ -52,6 +43,8 @@ class StoreProjectRequest extends FormRequest
             'start_date' => ['nullable', 'date'],
             'due_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'budget' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+            'estimated_minutes' => ['nullable', 'integer', 'min:0', 'max:10000000'],
+            'progress_override' => ['nullable', 'integer', 'between:0,100'],
             'description' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
         ];
@@ -73,10 +66,7 @@ class StoreProjectRequest extends FormRequest
                 ->exists();
 
             if (! $matches) {
-                $validator->errors()->add(
-                    'contact_id',
-                    __('The selected contact must belong to the selected company.')
-                );
+                $validator->errors()->add('contact_id', __('The selected contact must belong to the selected company.'));
             }
         });
     }

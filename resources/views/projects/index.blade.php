@@ -58,7 +58,7 @@
     <div class="card fm-card">
         <div class="table-responsive">
             <table class="table align-middle mb-0 fm-table">
-                <thead><tr><th>{{ __('Project') }}</th><th>{{ __('Company') }}</th><th>{{ __('Status') }}</th><th>{{ __('Priority') }}</th><th>{{ __('Manager') }}</th><th>{{ __('Due date') }}</th><th>{{ __('Tasks') }}</th><th class="text-end">{{ __('Actions') }}</th></tr></thead>
+                <thead><tr><th>{{ __('Project') }}</th><th>{{ __('Company') }}</th><th>{{ __('Status') }}</th><th>{{ __('Priority') }}</th><th>{{ __('Manager') }}</th><th>{{ __('Due date') }}</th><th>{{ __('Progress') }}</th><th>{{ __('Tasks') }}</th><th class="text-end">{{ __('Actions') }}</th></tr></thead>
                 <tbody>
                     @forelse ($projects as $project)
                         @php
@@ -79,11 +79,12 @@
                             <td><span class="badge {{ $priorityClass }}">{{ $project->priority->label() }}</span></td>
                             <td>{{ $project->manager?->name ?: '—' }}</td>
                             <td>{{ $project->due_date?->format('d/m/Y') ?: '—' }}</td>
+                            <td style="min-width:120px"><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1" style="height:6px"><div class="progress-bar" style="width: {{ $project->progressPercentage() }}%"></div></div><span class="small">{{ $project->progressPercentage() }}%</span></div></td>
                             <td>{{ $project->tasks_count }}</td>
                             <td class="text-end"><div class="btn-group"><a href="{{ route('projects.show', $project) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('View') }}"><i class="bi bi-eye"></i></a>@can('update', $project)<a href="{{ route('projects.edit', $project) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></a>@endcan @can('delete', $project)<form method="POST" action="{{ route('projects.destroy', $project) }}" onsubmit="return confirm(@js(__('Delete this project?')));">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger rounded-start-0" title="{{ __('Delete') }}"><i class="bi bi-trash"></i></button></form>@endcan</div></td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="text-center py-5"><i class="bi bi-kanban fs-1 text-secondary"></i><div class="fw-semibold mt-3">{{ __('No projects found') }}</div><div class="text-secondary">{{ __('Create a project or change the active filters.') }}</div></td></tr>
+                        <tr><td colspan="9" class="text-center py-5"><i class="bi bi-kanban fs-1 text-secondary"></i><div class="fw-semibold mt-3">{{ __('No projects found') }}</div><div class="text-secondary">{{ __('Create a project or change the active filters.') }}</div></td></tr>
                     @endforelse
                 </tbody>
             </table>

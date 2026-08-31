@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -73,6 +74,8 @@ class UserController extends Controller
             $roles = $data['roles'] ?? [];
             unset($data['roles']);
 
+            $data['password_changed_at'] = now();
+
             $user = User::create($data);
             $user->roles()->sync($roles);
 
@@ -91,6 +94,14 @@ class UserController extends Controller
 
             return $user;
         });
+
+        if (config('flowmanager.security.require_email_verification', false)) {
+            try {
+                $user->sendEmailVerificationNotification();
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
 
         return redirect()
             ->route('users.show', $user)
@@ -138,12 +149,21 @@ class UserController extends Controller
                 ->all();
 
             $passwordChanged = ! empty($data['password']);
+            $emailChanged = strtolower((string) $user->email) !== strtolower((string) $data['email']);
 
             if (! $passwordChanged) {
                 unset($data['password']);
+            } else {
+                $data['password_changed_at'] = now();
             }
 
-            $user->update($data);
+            $user->fill($data);
+
+            if ($emailChanged) {
+                $user->email_verified_at = null;
+            }
+
+            $user->save();
             $user->roles()->sync($roles);
 
             $newRoles = Role::query()

@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\Auditable;
-use App\Models\Concerns\HasCollaboration;
 use App\Enums\TicketCategory;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Models\Concerns\Auditable;
+use App\Models\Concerns\HasCollaboration;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,11 +18,6 @@ class Ticket extends Model
     /** @use HasFactory<\Database\Factories\TicketFactory> */
     use Auditable, HasCollaboration, HasFactory, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'company_id',
         'contact_id',
@@ -32,23 +27,26 @@ class Ticket extends Model
         'category',
         'status',
         'priority',
+        'sla_due_at',
+        'sla_breached_at',
+        'sla_reminder_sent_at',
+        'first_response_at',
         'description',
         'resolution',
         'resolved_at',
         'created_by',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'category' => TicketCategory::class,
             'status' => TicketStatus::class,
             'priority' => TicketPriority::class,
+            'sla_due_at' => 'datetime',
+            'sla_breached_at' => 'datetime',
+            'sla_reminder_sent_at' => 'datetime',
+            'first_response_at' => 'datetime',
             'resolved_at' => 'datetime',
         ];
     }
@@ -79,5 +77,11 @@ class Ticket extends Model
             TicketStatus::Resolved->value,
             TicketStatus::Closed->value,
         ]);
+    }
+
+    public function isSlaBreached(): bool
+    {
+        return $this->sla_breached_at !== null
+            || ($this->sla_due_at !== null && $this->sla_due_at->isPast() && $this->resolved_at === null);
     }
 }

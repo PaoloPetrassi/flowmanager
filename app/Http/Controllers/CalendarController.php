@@ -22,6 +22,7 @@ class CalendarController extends Controller
 
         if (Gate::allows('viewAny', Project::class)) {
             Project::query()
+                ->operational()
                 ->whereBetween('due_date', [$start->toDateString(), $end->toDateString()])
                 ->with('company:id,name')
                 ->orderBy('due_date')
@@ -40,6 +41,7 @@ class CalendarController extends Controller
 
         if (Gate::allows('viewAny', Task::class)) {
             Task::query()
+                ->operational()
                 ->whereBetween('due_date', [$start->toDateString(), $end->toDateString()])
                 ->with('project:id,code,name')
                 ->orderBy('due_date')

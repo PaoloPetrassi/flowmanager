@@ -136,6 +136,10 @@
                     {{ __('Sign in') }}
                 </button>
 
+                <div class="text-center mt-3">
+                    <a href="{{ route('password.request') }}" class="small text-decoration-none">{{ __('Forgot your password?') }}</a>
+                </div>
+
             </form>
 
         </div>

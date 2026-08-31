@@ -1,96 +1,163 @@
 # FlowManager
 
-FlowManager is a Laravel management application that combines CRM, projects, tasks, assets, support, collaboration, auditability, analytics and role-based administration in one responsive bilingual interface.
+FlowManager is a Laravel management application that combines CRM, projects, tasks, assets, support, collaboration, auditability, workflow automation, planning and administration in a responsive bilingual interface.
 
-Current application version: **v0.6 — Analytics & Planning**, including the complete **v0.5 — Collaboration & Audit** layer.
+Current application version: **v0.9 — Production, Automation & Advanced Project Management**.
 
-## Modules
+## Core modules
 
-- **Dashboard** — KPIs, personal work queues, managed projects, six-month throughput, status/priority charts and team workload.
-- **Companies** — company registry plus related contacts, projects, assets and tickets.
-- **Contacts** — company contacts, primary-contact handling and related operational records.
-- **Projects** — company projects, contacts, managers, priorities, dates, budgets and task progress.
-- **Tasks** — project work, assignments, priorities, deadlines and quick complete/reopen actions.
-- **Assets** — inventory, company ownership, lifecycle, warranty and user assignment.
-- **Tickets** — support requests, assignment, category, priority, resolution and quick resolve/reopen actions.
-- **Calendar** — unified monthly deadlines for projects, tasks and asset warranties.
-- **Kanban** — task and ticket workflow boards with status forms and desktop drag-and-drop.
-- **Reports** — filterable datasets with CSV, Excel and print/PDF output.
-- **Users / Roles** — users, system roles and database-backed permissions.
+- **Dashboard** — operational KPIs, personal queues, throughput, workload and status analytics.
+- **Companies / Contacts** — CRM registry and cross-module relationships.
+- **Projects** — companies, contacts, managers, team members, milestones, templates, progress and planning.
+- **Tasks** — assignments, subtasks, dependencies, recurring tasks, estimates, time tracking and deadlines.
+- **Assets** — inventory, lifecycle, warranty and assignment.
+- **Tickets** — support workflow, priorities, SLA tracking and assignments.
+- **Collaboration** — comments and private authenticated attachments.
+- **Activity / Audit** — before/after history for relevant operations.
+- **Notifications** — in-app alerts for assignments, comments, reminders and workflow events.
+- **Planning** — calendar, Kanban, Gantt and workload views.
+- **Automations** — rule-based reminders, notifications, escalations and SLA actions.
+- **Reports** — CSV, SpreadsheetML Excel, native PDF and print views.
+- **Administration** — users, roles, trash/restore and system health.
 
-## v0.5 — Collaboration & Audit
+## v0.7 — Production Readiness
 
-### Audit log
+### Authentication and account security
 
-Authenticated create, update, delete, restore and permanent-delete activity is automatically recorded for operational records, users and roles. Manual audit events also cover role/permission changes, comments and attachments.
+- password reset flow;
+- optional email verification;
+- TOTP two-factor authentication without an external package;
+- optional mandatory 2FA for Administrators;
+- password change from the Security page;
+- active database-session listing and termination;
+- login success/failure/lockout history;
+- login rate limiting;
+- last-login timestamp and IP;
+- custom FlowManager 403, 404, 419 and 500 pages.
 
-Audit entries can contain actor, date/time, resource, event, before/after values, IP address and user agent. Passwords and remember tokens are excluded from audit values.
+The sensitive TOTP secret is encrypted at rest and excluded from audit values.
 
-### Comments and private attachments
+### System Health
 
-Companies, contacts, projects, tasks, assets and tickets share one polymorphic collaboration layer.
+Administrators can open **Administration → System** to inspect:
 
-Allowed attachments: PDF, DOC/DOCX, XLS/XLSX, CSV/TXT, PNG/JPG/JPEG and ZIP, up to 10 MB.
+- application environment and debug state;
+- database connectivity;
+- writable storage;
+- scheduler heartbeat;
+- queued and failed jobs;
+- active sessions;
+- available database backups;
+- recent login activity.
 
-Files are stored on Laravel's private `local` disk and downloaded only through an authenticated, authorized controller route. `php artisan storage:link` is not required.
+### Portable backup / restore
 
-### Notifications
+FlowManager provides application-level database backups that do not require `mysqldump`. The backup manifest includes the FlowManager tables and a snapshot of private collaboration attachments.
 
-The header includes an unread badge, recent notification dropdown and complete notification center. Current automatic notifications include assignments/reassignments and relevant comments.
+Create and verify a backup:
 
-### Global search
+```bash
+php artisan flowmanager:backup --verify
+```
 
-The global search bar searches companies, contacts, projects, tasks, assets, tickets and users, while respecting the current user's permissions. On desktop, `/` focuses the search field when no editable control is active.
+Restore is intentionally CLI-only:
 
-### Trash and restore
+```bash
+php artisan flowmanager:restore flowmanager-YYYYMMDD-HHMMSS-xxxxxx.json --force
+```
 
-Soft-deleted operational records can be filtered, restored and, with the required permission, permanently deleted. Destructive operations are blocked when dependent records would make permanent deletion unsafe.
+The System page permits authorized creation, verification-aware download and deletion, but not browser-based restore.
 
-## v0.6 — Analytics & Planning
+## v0.8 — Automation & Workflow
 
-### Advanced dashboard
+### Ticket SLA
 
-The dashboard adds:
+Ticket SLA deadlines are calculated from priority. Defaults are configurable through `.env`:
 
-- six-month completed-task vs resolved-ticket throughput;
-- task distribution by status;
-- open-ticket distribution by priority;
-- team workload based on assigned open tasks and tickets.
+```env
+FLOWMANAGER_SLA_URGENT_HOURS=4
+FLOWMANAGER_SLA_HIGH_HOURS=8
+FLOWMANAGER_SLA_MEDIUM_HOURS=24
+FLOWMANAGER_SLA_LOW_HOURS=48
+```
 
-All charts are rendered with local HTML/CSS and require no external chart service.
+FlowManager records SLA due time, breach time, reminder state and first response.
 
-### Reports and exports
+### Recurring tasks
 
-The Reports area provides Projects, Tasks, Tickets and Assets datasets with optional creation-date filters.
+Tasks can recur:
 
-Exports include:
+- daily;
+- weekly;
+- monthly;
+- at a configurable interval;
+- optionally until an end date.
 
-- UTF-8 CSV;
-- Excel-compatible SpreadsheetML (`.xls`);
-- native downloadable PDF reports generated by FlowManager;
-- a print-friendly browser view for physical printing or browser PDF output.
+Completing a recurring task creates the next occurrence only once. The same behavior applies whether completion occurs from the edit form, quick action or Kanban.
 
-No additional spreadsheet/PDF Composer package is required.
+### Dependencies and workflow protection
 
-### Unified calendar
+A task cannot be completed while one of its dependencies is still open. Circular parent hierarchies and circular dependency graphs are rejected during validation.
 
-The monthly calendar combines:
+### Automation rules
 
-- project due dates;
-- task due dates;
-- asset warranty expiration dates.
+Rules can react to:
 
-Calendar entries link directly to their records.
+- overdue tasks;
+- tasks due soon;
+- breached ticket SLA;
+- projects due soon.
 
-### Kanban boards
+Actions include notifying an assignee, notifying a manager, notifying a selected user or changing ticket priority for SLA rules. Automation executions are recorded in `automation_runs`.
 
-Tasks and Tickets have separate workflow boards. Authorized users can move records by changing the status selector or dragging cards between columns on pointer-enabled desktop browsers. Status updates continue to pass through existing policies and model audit hooks.
+## v0.9 — Advanced Project Management
 
-## Languages and responsive design
+### Project teams and milestones
 
-FlowManager supports English and Italian. The selected locale is stored in session and a one-year cookie.
+Projects support multiple team members with project-specific roles, while retaining one project manager. Milestones can be created and completed from the project workspace.
 
-The interface is desktop-first but remains usable on tablets and phones. The sidebar becomes off-canvas on smaller screens, controls reflow and large tables/calendar/kanban surfaces use local horizontal scrolling instead of hiding operational information.
+### Subtasks and dependencies
+
+Tasks support:
+
+- parent / child hierarchy;
+- milestones;
+- task-to-task dependencies;
+- loop prevention;
+- dependency-aware completion.
+
+### Time tracking and estimates
+
+Tasks and projects can store estimates. Users can:
+
+- start and stop a timer;
+- enter time manually;
+- see tracked minutes on tasks and projects;
+- compare tracked work against estimates.
+
+### Project progress
+
+Project progress can be calculated automatically from completed tasks or overridden manually when required.
+
+### Templates and duplication
+
+Projects can be saved as reusable templates. Template instantiation preserves task hierarchy and dependency topology while resetting operational dates and completion state. Existing projects can also be duplicated with their team, milestones, tasks and dependencies.
+
+Templates are excluded from operational dashboards, reports, search, calendar, workload, reminders and automation queries.
+
+### Gantt and workload
+
+The planning area includes:
+
+- a date-range Gantt view for project/task planning;
+- team workload based on open assigned work;
+- permission-controlled access to workload information.
+
+## Localization and responsive design
+
+FlowManager supports **English and Italian**. Locale selection is persisted in session and cookie.
+
+The interface is desktop-first but remains usable on tablets and phones. Dense operational surfaces such as large tables, Kanban and Gantt use local horizontal scrolling rather than silently hiding information.
 
 ## Requirements
 
@@ -108,11 +175,13 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Configure the database in `.env`, then run:
+Configure the database in `.env`, then:
 
 ```bash
 php artisan migrate
 php artisan db:seed
+php artisan optimize:clear
+php artisan test
 ```
 
 Run the application in two terminals:
@@ -125,11 +194,17 @@ npm run dev
 php artisan serve
 ```
 
+For scheduled reminders, automations, heartbeat and backups during local development, use a third terminal:
+
+```bash
+php artisan schedule:work
+```
+
 Open `http://127.0.0.1:8000`.
 
-## Upgrade from v0.4.x to v0.6
+## Upgrade from v0.6.1 to v0.9
 
-After copying the v0.6 files over the current project:
+After copying the v0.9 update over the existing project:
 
 ```bash
 php artisan migrate
@@ -138,16 +213,60 @@ php artisan optimize:clear
 php artisan test
 ```
 
-The v0.5 migrations create:
+For a local/demo installation you can additionally enrich existing demo records with v0.9 data:
 
-1. `audit_logs`
-2. `comments`
-3. `attachments`
-4. `notifications`
+```bash
+php artisan db:seed --class=V09DemoSeeder
+```
 
-v0.6 adds no additional database tables. Re-running `RolePermissionSeeder` is required so the current system roles receive audit, collaboration, trash and report permissions.
+`V09DemoSeeder` refuses to run outside `local` or `testing` environments.
 
-No operational records are replaced by this upgrade.
+No additional Composer or npm dependency is required by v0.7–v0.9.
+
+## Scheduler
+
+The scheduler is required for v0.8 background behavior.
+
+Local development:
+
+```bash
+php artisan schedule:work
+```
+
+Typical Linux production cron entry:
+
+```cron
+* * * * * cd /path/to/flowmanager && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Scheduled jobs include:
+
+- scheduler heartbeat every minute;
+- reminders hourly;
+- automation rules every 15 minutes;
+- verified backup every day at 02:15.
+
+Manual execution is also available:
+
+```bash
+php artisan flowmanager:heartbeat
+php artisan flowmanager:reminders
+php artisan flowmanager:automations
+php artisan flowmanager:backup --verify
+```
+
+## Security configuration
+
+Important optional `.env` values:
+
+```env
+FLOWMANAGER_2FA_REQUIRED_FOR_ADMINS=false
+FLOWMANAGER_REQUIRE_EMAIL_VERIFICATION=false
+FLOWMANAGER_MAIL_NOTIFICATIONS=false
+FLOWMANAGER_BACKUPS_KEEP=14
+```
+
+Both mandatory Administrator 2FA and mandatory email verification are **off by default**, so an upgrade does not lock existing users out. Configure a working Laravel mailer before enabling email verification or mail notifications in production.
 
 ## Tests
 
@@ -155,29 +274,26 @@ No operational records are replaced by this upgrade.
 php artisan test
 ```
 
-The feature suite contains **87 declared tests** covering authentication, localization, permissions, CRUD workflows, relationships, dashboard work queues and analytics, audit logging, collaboration, attachments, notifications, global search, trash/restore, reports/exports, calendar and Kanban status changes.
+The feature suite contains **111 declared tests** after v0.9.
 
 Useful focused runs:
 
 ```bash
-php artisan test --filter=AuditLogTest
-php artisan test --filter=CollaborationTest
-php artisan test --filter=NotificationCenterTest
-php artisan test --filter=GlobalSearchTest
-php artisan test --filter=TrashManagementTest
-php artisan test --filter=ReportManagementTest
+php artisan test --filter=SecurityFeaturesTest
+php artisan test --filter=ProductionReadinessTest
+php artisan test --filter=AutomationWorkflowTest
+php artisan test --filter=AdvancedProjectManagementTest
 php artisan test --filter=PlanningToolsTest
-php artisan test --filter=DashboardAnalyticsTest
 ```
 
 ## Access model
 
 | Role | Typical access |
 | --- | --- |
-| Administrator | Full operational, collaboration, audit, trash, reporting and administration access |
-| Manager | Operational management, audit, collaboration, restore and report export |
-| Operator | Daily CRM/task/ticket work, comments, attachment upload and report viewing |
-| Viewer | Read-only operational, calendar, Kanban and report viewing |
+| Administrator | Full operational, security, system, automation, audit and administration access |
+| Manager | Operational management, collaboration, planning, workload and automation access |
+| Operator | Daily CRM, project/task/ticket work, time tracking and collaboration |
+| Viewer | Read-only operational and planning access |
 
 Permissions remain database-backed and configurable through Roles.
 
@@ -193,4 +309,4 @@ git commit -m "Describe the change"
 git push origin main
 ```
 
-See `docs/DEVELOPMENT_COMMANDS.md` for the Artisan scaffolding used by each module and cross-cutting feature.
+See `docs/DEVELOPMENT_COMMANDS.md` for historical scaffolding and `docs/V09_OPERATIONS.md` for production/scheduler/backup operations.

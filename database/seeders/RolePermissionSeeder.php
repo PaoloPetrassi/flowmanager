@@ -95,6 +95,12 @@ class RolePermissionSeeder extends Seeder
 
             ['name' => 'View reports', 'slug' => 'reports.view'],
             ['name' => 'Export reports', 'slug' => 'reports.export'],
+
+            ['name' => 'View system health', 'slug' => 'system.view'],
+            ['name' => 'Manage system', 'slug' => 'system.manage'],
+            ['name' => 'View automations', 'slug' => 'automations.view'],
+            ['name' => 'Manage automations', 'slug' => 'automations.manage'],
+            ['name' => 'View team workload', 'slug' => 'workload.view'],
         ];
 
         foreach ($permissions as $permission) {
@@ -119,6 +125,8 @@ class RolePermissionSeeder extends Seeder
                     'users.manage',
                     'roles.manage',
                     'trash.delete',
+                    'system.view',
+                    'system.manage',
                 ])
                 ->pluck('id')
         );

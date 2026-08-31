@@ -7,6 +7,8 @@ use App\Models\Company;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Ticket;
+use App\Observers\TaskWorkflowObserver;
+use App\Observers\TicketWorkflowObserver;
 use App\Observers\WorkAssignmentObserver;
 use App\Policies\CompanyPolicy;
 use Illuminate\Pagination\Paginator;
@@ -19,28 +21,21 @@ use Illuminate\View\View as IlluminateView;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        Gate::policy(
-            Company::class,
-            CompanyPolicy::class
-        );
+        Gate::policy(Company::class, CompanyPolicy::class);
 
         Project::observe(WorkAssignmentObserver::class);
         Task::observe(WorkAssignmentObserver::class);
+        Task::observe(TaskWorkflowObserver::class);
         Asset::observe(WorkAssignmentObserver::class);
         Ticket::observe(WorkAssignmentObserver::class);
+        Ticket::observe(TicketWorkflowObserver::class);
 
         Paginator::useBootstrapFive();
 
@@ -57,33 +52,20 @@ class AppServiceProvider extends ServiceProvider
 
             $headerNotifications = collect();
             $unreadNotificationCount = 0;
-
             $hasNotificationsTable ??= Schema::hasTable('notifications');
 
             if ($hasNotificationsTable) {
-                $headerNotifications = $user->notifications()
-                    ->latest()
-                    ->limit(6)
-                    ->get();
-
-                $unreadNotificationCount = $user
-                    ->unreadNotifications()
-                    ->count();
+                $headerNotifications = $user->notifications()->latest()->limit(6)->get();
+                $unreadNotificationCount = $user->unreadNotifications()->count();
             }
 
             $view->with([
                 'sidebarWorkCounts' => [
                     'tasks' => $user->hasPermission('tasks.view')
-                        ? Task::query()
-                            ->open()
-                            ->where('assigned_to', $user->id)
-                            ->count()
+                        ? Task::query()->operational()->open()->where('assigned_to', $user->id)->count()
                         : 0,
                     'tickets' => $user->hasPermission('tickets.view')
-                        ? Ticket::query()
-                            ->open()
-                            ->where('assigned_to', $user->id)
-                            ->count()
+                        ? Ticket::query()->open()->where('assigned_to', $user->id)->count()
                         : 0,
                 ],
                 'headerNotifications' => $headerNotifications,

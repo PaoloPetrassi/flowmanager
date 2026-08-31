@@ -1,38 +1,59 @@
 # FlowManager Changelog
 
+## v0.9 — Production, Automation & Advanced Project Management
+
+### v0.7 — Production Readiness
+
+- Password reset flow and optional email verification.
+- Native TOTP two-factor authentication with optional mandatory Administrator 2FA.
+- Security page for password, 2FA and active database sessions.
+- Login success/failure/lockout activity and login throttling.
+- Last-login timestamp/IP tracking.
+- FlowManager error pages for 403, 404, 419 and 500 responses.
+- System Health administration page.
+- Scheduler heartbeat and status visibility.
+- Portable application-level database backup, private attachment snapshot, verification, retention and CLI restore.
+- Performance indexes for common project/task/ticket/audit queries.
+
+### v0.8 — Automation & Workflow
+
+- Priority-based Ticket SLA due dates, reminders, breach tracking and first-response timestamp.
+- Daily, weekly and monthly recurring tasks with interval/end-date support.
+- Central task workflow observer so recurrence and dependency rules also apply to Kanban/quick actions.
+- Task dependencies with completion protection.
+- Automation rule engine with execution history.
+- Automation triggers for overdue tasks, upcoming tasks, breached SLA and upcoming projects.
+- Automation actions for assignee/manager/specific-user notification and SLA ticket priority changes.
+- Scheduled reminder and automation Artisan commands.
+- Optional email delivery for FlowManager notifications.
+
+### v0.9 — Advanced Project Management
+
+- Project teams with project-specific roles.
+- Milestones and milestone completion.
+- Subtasks and nested task hierarchy.
+- Circular hierarchy/dependency validation.
+- Time estimates and time tracking with live timers and manual entries.
+- Automatic or manually overridden project progress.
+- Project templates and instantiation.
+- Full project duplication including team, milestones, task hierarchy and dependency topology.
+- Gantt planning view.
+- Permission-controlled team workload view.
+- Operational-query isolation so templates do not affect dashboard, reports, reminders, automation or planning statistics.
+- v0.9 demo seeder for local/testing installations.
+
 ## v0.6 — Analytics & Planning
 
-- Advanced dashboard analytics with six-month throughput, task status, ticket priority and team workload views.
+- Advanced dashboard analytics with throughput, task status, ticket priority and team workload views.
 - Unified monthly calendar for project deadlines, task deadlines and asset warranty expiry.
 - Task and Ticket Kanban boards with policy-protected status updates and drag-and-drop enhancement.
-- Reports hub for Projects, Tasks, Tickets and Assets.
-- UTF-8 CSV exports.
-- Excel-compatible SpreadsheetML exports.
-- Native downloadable PDF report generation without an additional Composer dependency.
-- Print-friendly report view.
-- Responsive styling for analytics, calendar and Kanban surfaces.
-- New report/planning/dashboard feature tests.
+- Reports hub with CSV, SpreadsheetML, native PDF and print output.
 
 ## v0.5 — Collaboration & Audit
 
 - Automatic audit trail for operational resources, users and roles.
 - Global Activity Log with search and filters.
-- Polymorphic comments on Companies, Contacts, Projects, Tasks, Assets and Tickets.
-- Private authenticated attachments on the same operational records.
-- Database notification center with unread badge and assignment/comment notifications.
+- Polymorphic comments and private attachments.
+- Database notification center.
 - Permission-aware global search.
-- Trash, restore and protected permanent deletion for soft-deleted operational records.
-- New audit, comments, attachments and notifications database migrations.
-- New collaboration, audit and trash permissions.
-- Feature tests for all v0.5 subsystems.
-
-## Upgrade commands from v0.4.x
-
-```bash
-php artisan migrate
-php artisan db:seed --class=RolePermissionSeeder
-php artisan optimize:clear
-php artisan test
-```
-
-No v0.6-specific migration is required. The migration command applies the four v0.5 tables.
+- Trash, restore and protected permanent deletion.

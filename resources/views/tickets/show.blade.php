@@ -1,81 +1,38 @@
 @extends('layouts.app')
-
 @section('title', $ticket->reference)
 @section('page-title', $ticket->subject)
 @section('page-subtitle'){{ $ticket->reference }} · {{ $ticket->category->label() }}@endsection
-
 @section('content')
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-        <a href="{{ route('tickets.index') }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i>
-            {{ __('Tickets') }}
-        </a>
-
-        <div class="d-flex flex-wrap gap-2">
-            @can('update', $ticket)
-                @if (in_array($ticket->status->value, ['resolved', 'closed'], true))
-                    <form method="POST" action="{{ route('tickets.reopen', $ticket) }}">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i>
-                            {{ __('Reopen') }}
-                        </button>
-                    </form>
-                @else
-                    <form method="POST" action="{{ route('tickets.resolve', $ticket) }}">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="btn btn-outline-success">
-                            <i class="bi bi-check-lg me-1"></i>
-                            {{ __('Mark resolved') }}
-                        </button>
-                    </form>
-                @endif
-
-                <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-primary">
-                    <i class="bi bi-pencil me-1"></i>
-                    {{ __('Edit ticket') }}
-                </a>
-            @endcan
-        </div>
+        <a href="{{ route('tickets.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>{{ __('Tickets') }}</a>
+        <div class="d-flex flex-wrap gap-2">@can('update',$ticket)@if(in_array($ticket->status->value,['resolved','closed'],true))<form method="POST" action="{{ route('tickets.reopen',$ticket) }}">@csrf @method('PATCH')<button type="submit" class="btn btn-outline-primary"><i class="bi bi-arrow-counterclockwise me-1"></i>{{ __('Reopen') }}</button></form>@else<form method="POST" action="{{ route('tickets.resolve',$ticket) }}">@csrf @method('PATCH')<button type="submit" class="btn btn-outline-success"><i class="bi bi-check-lg me-1"></i>{{ __('Mark resolved') }}</button></form>@endif<a href="{{ route('tickets.edit',$ticket) }}" class="btn btn-primary"><i class="bi bi-pencil me-1"></i>{{ __('Edit ticket') }}</a>@endcan</div>
     </div>
+
+    @if($ticket->sla_due_at)
+        <div class="fm-sla-banner {{ $ticket->isSlaBreached() ? 'is-breached' : ($ticket->sla_due_at->diffInHours(now(), false) > -2 ? 'is-warning' : 'is-ok') }} mb-4">
+            <span class="fm-sla-icon"><i class="bi bi-stopwatch"></i></span>
+            <div class="flex-grow-1"><div class="fw-semibold">{{ $ticket->isSlaBreached() ? __('SLA breached') : __('SLA response target') }}</div><div class="small">{{ __('Target: :date', ['date'=>$ticket->sla_due_at->format('d/m/Y H:i')]) }} · {{ $ticket->sla_due_at->diffForHumans() }}</div></div>
+            @if($ticket->first_response_at)<span class="badge text-bg-light">{{ __('First response') }} {{ $ticket->first_response_at->format('d/m H:i') }}</span>@endif
+        </div>
+    @endif
 
     <div class="row g-4">
         <div class="col-12 col-xl-8">
-            <div class="card fm-card mb-4">
-                <div class="card-header fm-card-header">
-                    <div><h2 class="fm-card-title">{{ __('Ticket details') }}</h2><p class="fm-card-subtitle">{{ __('Request context and current ownership') }}</p></div>
-                </div>
-                <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-6 col-md-3"><div class="small text-secondary">{{ __('Status') }}</div><div class="fw-semibold">{{ $ticket->status->label() }}</div></div>
-                        <div class="col-6 col-md-3"><div class="small text-secondary">{{ __('Priority') }}</div><div class="fw-semibold">{{ $ticket->priority->label() }}</div></div>
-                        <div class="col-6 col-md-3"><div class="small text-secondary">{{ __('Category') }}</div><div class="fw-semibold">{{ $ticket->category->label() }}</div></div>
-                        <div class="col-6 col-md-3"><div class="small text-secondary">{{ __('Resolved') }}</div><div class="fw-semibold">{{ $ticket->resolved_at?->format('d/m/Y H:i') ?: '—' }}</div></div>
-                        <div class="col-12 col-md-6"><div class="small text-secondary">{{ __('Company') }}</div>@if ($ticket->company)<a class="fw-semibold" href="{{ route('companies.show', $ticket->company) }}">{{ $ticket->company->name }}</a>@else<div class="fw-semibold">—</div>@endif</div>
-                        <div class="col-12 col-md-6"><div class="small text-secondary">{{ __('Contact') }}</div>@if ($ticket->contact)<a class="fw-semibold" href="{{ route('contacts.show', $ticket->contact) }}">{{ $ticket->contact->full_name }}</a>@else<div class="fw-semibold">—</div>@endif</div>
-                        <div class="col-12 col-md-6"><div class="small text-secondary">{{ __('Assigned operator') }}</div><div class="fw-semibold">{{ $ticket->assignee?->name ?: __('Unassigned') }}</div></div>
-                        <div class="col-12"><div class="small text-secondary mb-1">{{ __('Description') }}</div><div class="border rounded p-3">{{ $ticket->description }}</div></div>
-                        @if ($ticket->resolution)
-                            <div class="col-12"><div class="small text-secondary mb-1">{{ __('Resolution') }}</div><div class="border rounded p-3 bg-light">{{ $ticket->resolution }}</div></div>
-                        @endif
-                    </div>
-                </div>
-            </div>
+            <div class="card fm-card mb-4"><div class="card-header fm-card-header"><div><h2 class="fm-card-title">{{ __('Ticket details') }}</h2><p class="fm-card-subtitle">{{ __('Request context and current ownership') }}</p></div></div><div class="card-body"><div class="row g-4">
+                <div class="col-6 col-md-3"><div class="small text-secondary">{{ __('Status') }}</div><div class="fw-semibold">{{ $ticket->status->label() }}</div></div>
+                <div class="col-6 col-md-3"><div class="small text-secondary">{{ __('Priority') }}</div><div class="fw-semibold">{{ $ticket->priority->label() }}</div></div>
+                <div class="col-6 col-md-3"><div class="small text-secondary">{{ __('Category') }}</div><div class="fw-semibold">{{ $ticket->category->label() }}</div></div>
+                <div class="col-6 col-md-3"><div class="small text-secondary">{{ __('Resolved') }}</div><div class="fw-semibold">{{ $ticket->resolved_at?->format('d/m/Y H:i') ?: '—' }}</div></div>
+                <div class="col-12 col-md-6"><div class="small text-secondary">{{ __('Company') }}</div>@if($ticket->company)<a class="fw-semibold" href="{{ route('companies.show',$ticket->company) }}">{{ $ticket->company->name }}</a>@else<div class="fw-semibold">—</div>@endif</div>
+                <div class="col-12 col-md-6"><div class="small text-secondary">{{ __('Contact') }}</div>@if($ticket->contact)<a class="fw-semibold" href="{{ route('contacts.show',$ticket->contact) }}">{{ $ticket->contact->full_name }}</a>@else<div class="fw-semibold">—</div>@endif</div>
+                <div class="col-12 col-md-6"><div class="small text-secondary">{{ __('Assigned operator') }}</div><div class="fw-semibold">{{ $ticket->assignee?->name ?: __('Unassigned') }}</div></div>
+                <div class="col-12"><div class="small text-secondary mb-1">{{ __('Description') }}</div><div class="border rounded p-3">{!! nl2br(e($ticket->description)) !!}</div></div>
+                @if($ticket->resolution)<div class="col-12"><div class="small text-secondary mb-1">{{ __('Resolution') }}</div><div class="border rounded p-3 bg-light">{!! nl2br(e($ticket->resolution)) !!}</div></div>@endif
+            </div></div></div>
         </div>
-
         <div class="col-12 col-xl-4">
-            <div class="card fm-card">
-                <div class="card-body">
-                    <h2 class="fm-card-title mb-3">{{ __('Record information') }}</h2>
-                    <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">{{ __('Created by') }}</span><strong>{{ $ticket->creator?->name ?: __('System') }}</strong></div>
-                    <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">{{ __('Created') }}</span><strong>{{ $ticket->created_at->format('d/m/Y H:i') }}</strong></div>
-                    <div class="d-flex justify-content-between pt-2"><span class="text-secondary">{{ __('Updated') }}</span><strong>{{ $ticket->updated_at->format('d/m/Y H:i') }}</strong></div>
-                </div>
-            </div>
+            <div class="card fm-card"><div class="card-body"><h2 class="fm-card-title mb-3">{{ __('Record information') }}</h2><div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">{{ __('Created by') }}</span><strong>{{ $ticket->creator?->name ?: __('System') }}</strong></div><div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">{{ __('Created') }}</span><strong>{{ $ticket->created_at->format('d/m/Y H:i') }}</strong></div><div class="d-flex justify-content-between py-2 border-bottom"><span class="text-secondary">{{ __('SLA due') }}</span><strong>{{ $ticket->sla_due_at?->format('d/m/Y H:i') ?: '—' }}</strong></div><div class="d-flex justify-content-between pt-2"><span class="text-secondary">{{ __('Updated') }}</span><strong>{{ $ticket->updated_at->format('d/m/Y H:i') }}</strong></div></div></div>
         </div>
     </div>
-
     @include('partials.collaboration-panel', ['collaborationTarget' => $ticket])
 @endsection
