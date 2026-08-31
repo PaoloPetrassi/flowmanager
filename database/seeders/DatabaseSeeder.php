@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             AssetSeeder::class,
             TicketSeeder::class,
             V09DemoSeeder::class,
+            V013DemoSeeder::class,
         ]);
     }
 }

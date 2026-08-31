@@ -1,102 +1,152 @@
 # FlowManager
 
-FlowManager is a Laravel management application combining CRM, projects, tasks, assets, support, collaboration, auditability, automation, planning, document management, integrations and business intelligence in a responsive bilingual interface.
+FlowManager is a Laravel management application combining CRM, project management, support, assets, collaboration, automation, document management, integrations and business intelligence in a responsive bilingual interface.
 
-Current application version: **v0.13 — Integration, Advanced UX, Documents & Business Intelligence**.
+Current application version: **v1.0.0 — Production & Quality (local release)**.
 
-## Core modules
+The v1.0 release is intentionally validated and operated locally for now. The application is structured so a later production deployment does not require an architectural rewrite, but no automatic or remote deployment is enabled in this repository.
+
+## Main capabilities
 
 - **Dashboard** — operational KPIs, personal queues, throughput, workload and status analytics.
-- **Companies / Contacts** — CRM registry and cross-module relationships.
-- **Projects / Tasks** — teams, milestones, dependencies, recurring work, estimates, time tracking, templates, Gantt and workload.
+- **Companies / Contacts** — CRM registry, relations, tags and custom fields.
+- **Projects / Tasks** — teams, milestones, subtasks, dependencies, recurring work, estimates, time tracking, templates, Gantt and workload.
 - **Assets / Tickets** — inventory lifecycle, assignments, support workflow and SLA tracking.
-- **Collaboration** — comments, private attachments, notifications and audit history.
+- **Collaboration** — comments, private attachments, notifications, audit history and trash/restore.
 - **Planning** — calendar, iCalendar export, Kanban, Gantt and workload.
-- **Automation** — scheduled reminders, recurring work, SLA escalation and configurable rules.
-- **Documents** — document registry, categories, expiry, versions, approval/rejection and templates.
+- **Automation** — reminders, recurring tasks, SLA escalation and configurable automation rules.
+- **Documents** — registry, categories, expiry, versions, approval/rejection and document templates.
 - **Analytics** — KPIs, saved reports and scheduled CSV reports.
-- **Integration** — CSV/XLSX imports, scoped API tokens, inbound ticket API and signed webhooks.
-- **Administration** — users, roles, extensibility, trash/restore, security, backups and system health.
+- **Integrations** — CSV/XLSX imports, scoped API tokens, inbound ticket API and signed webhooks.
+- **Administration** — users, roles, extensibility, security, backups, System Health and Background Jobs.
 
-## v0.10 — CRM & Integration
+## v1.0 — Production & Quality
 
-- Guided **CSV/XLSX import** with preview, column mapping, validation and error summary.
-- Bulk operations for Projects, Tasks and Tickets.
-- Saved filters for the main operational registries.
-- Cross-module tags.
-- Administrator-defined custom fields.
-- Scoped bearer API tokens.
-- Read API for supported resources and a write-scoped inbound Ticket endpoint.
-- Signed outbound webhooks with delivery history.
-- iCalendar export for project and task deadlines.
+v1.0 focuses on reliability and maintainability rather than adding another business module.
 
-XLSX import uses PHP's `ZipArchive`; CSV import has no additional PHP extension requirement beyond the normal Laravel stack.
+### Background processing
 
-## v0.11 — Advanced UX
+Long-running or network-bound operations now use Laravel Queue:
 
-- **Ctrl/Cmd + K Command Palette** for navigation, actions and record search.
-- Persisted user appearance and density preferences.
-- Light, dark and system themes.
-- Comfortable and compact information density.
-- Per-user table-column visibility for Projects, Tasks and Tickets.
-- Persisted dashboard-widget visibility.
-- Responsive behavior retained across the new tools.
+- guided imports;
+- web-triggered backups;
+- outbound webhook deliveries;
+- scheduled report deliveries;
+- queue-worker heartbeat checks.
 
-## v0.12 — Document Management
+A new **Administration → Background jobs** workspace shows:
 
-Private attachments now support:
+- pending / processing / completed / failed tracked jobs;
+- progress and attempt count;
+- queue name and initiating user;
+- Laravel failed jobs;
+- retry and forget operations for failed jobs;
+- cleanup of old completed tracking records.
 
-- document categories and status;
-- version chains;
-- expiry dates;
-- SHA-256 checksum;
-- approval/rejection with approver and timestamp;
-- protected download routes.
+Local queue connection remains configurable through normal Laravel environment settings. The default project configuration uses the database queue.
 
-A central Documents registry provides filtering and expiry visibility. Document Templates can generate:
+### System Health 2.0
 
-- native FlowManager PDF output;
-- Word-compatible `.doc` output;
-- placeholders such as `{{name}}`, `{{code}}` and nested model paths such as `{{company.name}}`.
+System Health now reports:
 
-Document approval is an audited application workflow; it is **not a cryptographic digital signature**.
+- FlowManager version;
+- PHP and Laravel versions;
+- application environment and debug mode;
+- database connectivity and latency;
+- storage writability and disk usage;
+- scheduler heartbeat;
+- queue-worker heartbeat;
+- current queue connection;
+- pending/tracked/failed job counts;
+- active sessions;
+- XLSX support;
+- verified backup inventory;
+- recent authentication activity.
 
-## v0.13 — Business Intelligence
+The CLI diagnostic command is:
 
-- Business Intelligence dashboard with six-month throughput metrics.
-- Project/task/ticket distribution analytics.
-- Tracked-hours reporting.
-- Saved analytics reports.
-- Scheduled CSV reports delivered through the configured Laravel mail transport.
-- Daily, weekly and monthly scheduling with execution/error tracking.
+```bash
+php artisan flowmanager:doctor
+```
 
-## Existing production and workflow capabilities
+For CI environments, runtime worker heartbeats are intentionally skipped:
 
-FlowManager also includes the features introduced in v0.7–v0.9:
+```bash
+php artisan flowmanager:doctor --ci
+```
 
-- password reset, optional email verification and TOTP 2FA;
-- active sessions and login history;
-- System Health, scheduler heartbeat and portable backup/restore;
-- ticket SLA, recurring tasks, task dependencies and automation rules;
-- project teams, milestones, subtasks and time tracking;
-- project templates, duplication, Gantt and workload;
-- audit log, comments, notifications, global search and trash/restore;
-- CSV/Excel/PDF reports, calendar and Kanban.
+### Security hardening
 
-## Localization and responsive design
+Every web response receives baseline security headers:
 
-FlowManager supports **English and Italian**. Locale selection is persisted in session and cookie.
+- `X-Content-Type-Options: nosniff`;
+- `X-Frame-Options: SAMEORIGIN`;
+- strict referrer policy;
+- restrictive browser permissions policy.
 
-The interface is desktop-first but remains usable on tablets and phones. Dense surfaces use local horizontal scrolling rather than hiding operational information.
+Existing security features remain available:
+
+- password reset;
+- optional email verification;
+- TOTP 2FA;
+- session management;
+- login history;
+- failed-login tracking;
+- rate limiting;
+- permission-based RBAC.
+
+### Backup coverage
+
+Portable FlowManager backups now include the application data introduced through v0.13 as well as private attachments, including:
+
+- tags and custom fields;
+- user preferences and saved filters;
+- API tokens and webhooks;
+- import history;
+- document templates;
+- saved/scheduled reports;
+- background-job history.
+
+Restore remains CLI-only by design.
+
+### Quality automation
+
+The repository contains a non-deploying GitHub Actions workflow for pushes and pull requests to `main`.
+
+It validates:
+
+- Composer configuration;
+- PHP dependency installation;
+- Node dependency installation;
+- migrations on SQLite;
+- `flowmanager:doctor --ci`;
+- PHP syntax;
+- Laravel Pint formatting;
+- Pest feature tests;
+- Vite production build;
+- route registration.
+
+There is **no deployment step** in the v1.0 workflow.
+
+Local quality commands:
+
+```bash
+composer lint
+composer doctor
+composer quality
+```
+
+`composer quality` runs the local release gate: cache cleanup, PHP syntax, Pint check, Pest tests and frontend build.
 
 ## Requirements
 
 - PHP 8.3+
 - Composer
-- Node.js and npm
+- Node.js 22+ recommended
+- npm
 - MySQL/MariaDB or another Laravel-supported database
-- PHP `zip` extension when importing XLSX files
-- a configured Laravel mail transport when scheduled reports or email notifications are enabled
+- PHP `zip` + SimpleXML when importing XLSX files
+- a configured Laravel mail transport when email notifications or scheduled reports are enabled
 
 ## Fresh local setup
 
@@ -111,25 +161,43 @@ php artisan optimize:clear
 php artisan test
 ```
 
-Development normally uses three terminals:
+Open `http://127.0.0.1:8000` after starting the runtime processes below.
+
+## Local runtime
+
+Full v1.0 functionality is easiest to test with four terminals.
+
+### Terminal 1 — Vite
 
 ```bash
 npm run dev
 ```
 
+### Terminal 2 — Laravel web server
+
 ```bash
 php artisan serve
 ```
+
+### Terminal 3 — Scheduler
 
 ```bash
 php artisan schedule:work
 ```
 
-Open `http://127.0.0.1:8000`.
+### Terminal 4 — Queue worker
 
-## Upgrade from v0.9.1 to v0.13
+```bash
+php artisan queue:work --queue=system,imports,reports,webhooks,default --tries=3 --timeout=300
+```
 
-After copying the incremental v0.13 update over the existing project:
+The queue worker is required for background imports, web backups, webhook delivery, scheduled reports and the queue-worker health heartbeat.
+
+After changing application code, restart `queue:work` because queue workers are long-lived processes.
+
+## Upgrade from v0.13 to v1.0
+
+After copying the incremental v1.0 update over the existing project:
 
 ```bash
 php artisan migrate
@@ -138,41 +206,64 @@ php artisan optimize:clear
 php artisan test
 ```
 
-No new Composer or npm package is required by v0.10–v0.13.
+No new Composer or npm dependency is introduced by v1.0.
+
+Then start/restart:
+
+```bash
+npm run dev
+php artisan serve
+php artisan schedule:work
+php artisan queue:work --queue=system,imports,reports,webhooks,default --tries=3 --timeout=300
+```
+
+Run the local readiness check:
+
+```bash
+php artisan flowmanager:doctor
+```
 
 ## Scheduler
 
-Local development:
+The local scheduler runs:
 
-```bash
-php artisan schedule:work
-```
+- scheduler heartbeat every minute;
+- queue-worker heartbeat dispatch every minute;
+- reminders hourly;
+- automations every 15 minutes;
+- queued backup daily at 02:15;
+- scheduled-report discovery hourly;
+- queue batch, failed-job and FlowManager background-history pruning daily.
 
-Typical Linux production cron entry:
-
-```cron
-* * * * * cd /path/to/flowmanager && php artisan schedule:run >> /dev/null 2>&1
-```
-
-Scheduled work includes heartbeat, reminders, automation rules, verified backups and due scheduled reports.
-
-Useful manual commands include:
+Useful manual commands:
 
 ```bash
 php artisan flowmanager:heartbeat
 php artisan flowmanager:reminders
 php artisan flowmanager:automations
 php artisan flowmanager:backup --verify
+php artisan flowmanager:queue-backup
 php artisan flowmanager:scheduled-reports
+php artisan flowmanager:doctor
+php artisan flowmanager:prune-jobs
+php artisan schedule:list
 ```
 
-## API
+## XLSX support check
 
-Bearer tokens are created from **Administration → API tokens** and store only the token hash.
+On Windows / Git Bash, avoid piping `php -m` if the local PHP executable produces TTY errors. Use:
 
-Standard resource API endpoints are read-oriented and require the `read` ability. The inbound-ticket endpoint requires `write`. This is intentionally not advertised as an unrestricted CRUD API.
+```bash
+php -r "echo class_exists('ZipArchive') ? 'ZipArchive OK'.PHP_EOL : 'ZipArchive MISSING'.PHP_EOL;"
+```
 
-Outbound webhook requests contain an HMAC SHA-256 signature in `X-FlowManager-Signature` and are recorded in the delivery log.
+and:
+
+```bash
+php --ri zip
+```
+
+CSV imports do not require `ZipArchive`.
 
 ## Tests
 
@@ -180,39 +271,41 @@ Outbound webhook requests contain an HMAC SHA-256 signature in `X-FlowManager-Si
 php artisan test
 ```
 
-The feature suite contains **123 declared tests** after v0.13.
+The v1.0 feature suite contains **134 declared tests**, including dedicated production-quality and background-job coverage.
 
 Useful focused runs:
 
 ```bash
-php artisan test --filter=ExtensibilityIntegrationTest
-php artisan test --filter=DataExperienceTest
-php artisan test --filter=AdvancedProjectManagementTest
-php artisan test --filter=AutomationWorkflowTest
+php artisan test --filter=V100ProductionQualityTest
 php artisan test --filter=ProductionReadinessTest
+php artisan test --filter=SecurityFeaturesTest
+php artisan test --filter=ExtensibilityIntegrationTest
+php artisan test --filter=AdvancedProjectManagementTest
 ```
-
-## Access model
-
-| Role | Typical access |
-| --- | --- |
-| Administrator | Full operational, integration, document, security, system and administration access |
-| Manager | Operational management, collaboration, planning, imports, documents and analytics |
-| Operator | Daily CRM/project/support work, collaboration, document viewing and analytics |
-| Viewer | Read-only operational, planning, document and analytics access |
-
-Permissions remain database-backed and configurable through Roles.
 
 ## Development workflow
 
 Development is performed directly on `main`.
 
 ```bash
-php artisan test
+composer quality
 git status
 git add .
 git commit -m "Describe the change"
 git push origin main
 ```
 
-See `docs/DEVELOPMENT_COMMANDS.md`, `docs/V09_OPERATIONS.md` and `docs/V013_FEATURES.md` for additional implementation and operational notes.
+A push to `main` starts the GitHub Actions quality pipeline, but **does not deploy FlowManager anywhere**.
+
+## Production deployment
+
+Production deployment is intentionally postponed after v1.0. No credentials, server configuration or automatic deployment action is included.
+
+When deployment is requested, use `docs/V1_LOCAL_RELEASE.md` as the validated local baseline and create a separate production deployment plan for the chosen server/environment.
+
+## Documentation
+
+- `docs/DEVELOPMENT_COMMANDS.md`
+- `docs/V09_OPERATIONS.md`
+- `docs/V013_FEATURES.md`
+- `docs/V1_LOCAL_RELEASE.md`

@@ -16,11 +16,26 @@ class CsvImportService
     public function resources(): array
     {
         return [
-            'companies' => ['model' => Company::class, 'fields' => ['name', 'vat_number', 'email', 'phone', 'website', 'address', 'city', 'country']],
-            'contacts' => ['model' => Contact::class, 'fields' => ['first_name', 'last_name', 'email', 'phone', 'job_title', 'department']],
-            'projects' => ['model' => Project::class, 'fields' => ['code', 'name', 'description', 'budget']],
-            'tasks' => ['model' => Task::class, 'fields' => ['title', 'description']],
-            'tickets' => ['model' => Ticket::class, 'fields' => ['subject', 'description']],
+            'companies' => [
+                'model' => Company::class,
+                'fields' => ['name', 'vat_number', 'email', 'phone', 'website', 'address', 'city', 'country'],
+            ],
+            'contacts' => [
+                'model' => Contact::class,
+                'fields' => ['first_name', 'last_name', 'email', 'phone', 'job_title', 'department'],
+            ],
+            'projects' => [
+                'model' => Project::class,
+                'fields' => ['code', 'name', 'description', 'budget'],
+            ],
+            'tasks' => [
+                'model' => Task::class,
+                'fields' => ['title', 'description'],
+            ],
+            'tickets' => [
+                'model' => Ticket::class,
+                'fields' => ['subject', 'description'],
+            ],
         ];
     }
 
@@ -31,12 +46,16 @@ class CsvImportService
         return ['headers' => $headers, 'rows' => $rows];
     }
 
-    public function import(string $resource, string $path, array $mapping): array
-    {
+    public function import(
+        string $resource,
+        string $path,
+        array $mapping,
+        ?int $actorId = null,
+    ): array {
         $config = $this->resources()[$resource] ?? null;
         abort_unless($config, 404);
 
-        [$headers, $rows] = $this->readRows($path);
+        [, $rows] = $this->readRows($path);
         $imported = 0;
         $failed = 0;
         $errors = [];
@@ -51,14 +70,17 @@ class CsvImportService
                     }
                 }
 
-                $data = $this->defaults($resource, $data);
+                $data = $this->defaults($resource, $data, $actorId ?? auth()->id());
                 $config['model']::create($data);
                 $imported++;
             } catch (\Throwable $exception) {
                 $failed++;
 
                 if (count($errors) < 50) {
-                    $errors[] = ['row' => $index + 2, 'message' => $exception->getMessage()];
+                    $errors[] = [
+                        'row' => $index + 2,
+                        'message' => $exception->getMessage(),
+                    ];
                 }
             }
         }
@@ -71,14 +93,38 @@ class CsvImportService
         ];
     }
 
-    private function defaults(string $resource, array $data): array
+    private function defaults(string $resource, array $data, ?int $actorId): array
     {
         return match ($resource) {
-            'companies' => $data + ['type' => 'customer', 'status' => 'active', 'created_by' => auth()->id()],
-            'contacts' => $data + ['is_primary' => false, 'created_by' => auth()->id()],
-            'projects' => $data + ['status' => 'planned', 'priority' => 'medium', 'is_template' => false, 'created_by' => auth()->id()],
-            'tasks' => $data + ['status' => 'todo', 'priority' => 'medium', 'recurrence' => 'none', 'recurrence_interval' => 1, 'created_by' => auth()->id()],
-            'tickets' => $data + ['reference' => 'TKT-'.now()->format('Y').'-'.strtoupper(Str::random(6)), 'status' => 'open', 'priority' => 'medium', 'category' => 'other', 'created_by' => auth()->id()],
+            'companies' => $data + [
+                'type' => 'customer',
+                'status' => 'active',
+                'created_by' => $actorId,
+            ],
+            'contacts' => $data + [
+                'is_primary' => false,
+                'created_by' => $actorId,
+            ],
+            'projects' => $data + [
+                'status' => 'planned',
+                'priority' => 'medium',
+                'is_template' => false,
+                'created_by' => $actorId,
+            ],
+            'tasks' => $data + [
+                'status' => 'todo',
+                'priority' => 'medium',
+                'recurrence' => 'none',
+                'recurrence_interval' => 1,
+                'created_by' => $actorId,
+            ],
+            'tickets' => $data + [
+                'reference' => 'TKT-'.now()->format('Y').'-'.strtoupper(Str::random(6)),
+                'status' => 'open',
+                'priority' => 'medium',
+                'category' => 'other',
+                'created_by' => $actorId,
+            ],
             default => $data,
         };
     }
@@ -132,10 +178,13 @@ class CsvImportService
 
         if ($sharedXml !== false) {
             $xml = simplexml_load_string($sharedXml);
+
             foreach ($xml?->si ?? [] as $item) {
                 $sharedStrings[] = isset($item->t)
                     ? (string) $item->t
-                    : collect($item->r ?? [])->map(fn ($run) => (string) $run->t)->implode('');
+                    : collect($item->r ?? [])
+                        ->map(fn ($run) => (string) $run->t)
+                        ->implode('');
             }
         }
 
@@ -173,18 +222,29 @@ class CsvImportService
             }
 
             $max = max(array_keys($values));
-            $matrix[] = array_map(fn ($index) => $values[$index] ?? null, range(0, $max));
+            $matrix[] = array_map(
+                fn ($index) => $values[$index] ?? null,
+                range(0, $max),
+            );
 
             if ($limit !== null && count($matrix) >= $limit + 1) {
                 break;
             }
         }
 
-        $headers = array_map(fn ($value) => trim((string) $value), array_shift($matrix) ?: []);
+        $headers = array_map(
+            fn ($value) => trim((string) $value),
+            array_shift($matrix) ?: [],
+        );
+
         $rows = collect($matrix)
             ->map(function (array $row) use ($headers) {
                 $row = array_pad($row, count($headers), null);
-                return array_combine($headers, array_slice($row, 0, count($headers))) ?: [];
+
+                return array_combine(
+                    $headers,
+                    array_slice($row, 0, count($headers)),
+                ) ?: [];
             })
             ->all();
 
@@ -194,9 +254,11 @@ class CsvImportService
     private function columnIndex(string $letters): int
     {
         $index = 0;
+
         foreach (str_split($letters) as $letter) {
             $index = ($index * 26) + (ord($letter) - 64);
         }
+
         return $index - 1;
     }
 }

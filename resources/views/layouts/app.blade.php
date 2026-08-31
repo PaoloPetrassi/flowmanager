@@ -231,7 +231,12 @@
                 @endif
 
                 @if (auth()->user()->hasPermission('system.view'))
-                    <a href="{{ route('system.index') }}" class="fm-nav-link {{ request()->routeIs('system.*') ? 'active' : '' }}">
+                    <a href="{{ route('system.jobs.index') }}" class="fm-nav-link {{ request()->routeIs('system.jobs.*') ? 'active' : '' }}">
+                        <i class="bi bi-stack"></i>
+                        <span>{{ __('Background jobs') }}</span>
+                    </a>
+
+                    <a href="{{ route('system.index') }}" class="fm-nav-link {{ request()->routeIs('system.*') && ! request()->routeIs('system.jobs.*') ? 'active' : '' }}">
                         <i class="bi bi-activity"></i>
                         <span>{{ __('System') }}</span>
                     </a>
@@ -240,7 +245,7 @@
 
             <div class="fm-sidebar-footer">
                 <div>FlowManager</div>
-                <small>{{ __('Portfolio build v0.13') }}</small>
+                <small>{{ __('Version :version', ['version' => config('flowmanager.version')]) }}</small>
             </div>
         </aside>
 

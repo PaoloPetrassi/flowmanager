@@ -53,6 +53,24 @@
             "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
+        "lint": [
+            "@php scripts/lint.php"
+        ],
+        "doctor": [
+            "@php artisan flowmanager:doctor"
+        ],
+        "quality": [
+            "@php artisan optimize:clear",
+            "@lint",
+            "@php vendor/bin/pint --test",
+            "@php artisan test",
+            "npm run build"
+        ],
+        "quality:fix": [
+            "@php vendor/bin/pint",
+            "@php artisan test",
+            "npm run build"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

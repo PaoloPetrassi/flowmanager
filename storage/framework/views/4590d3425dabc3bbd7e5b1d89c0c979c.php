@@ -231,7 +231,12 @@
                 <?php endif; ?>
 
                 <?php if(auth()->user()->hasPermission('system.view')): ?>
-                    <a href="<?php echo e(route('system.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('system.*') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route('system.jobs.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('system.jobs.*') ? 'active' : ''); ?>">
+                        <i class="bi bi-stack"></i>
+                        <span><?php echo e(__('Background jobs')); ?></span>
+                    </a>
+
+                    <a href="<?php echo e(route('system.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('system.*') && ! request()->routeIs('system.jobs.*') ? 'active' : ''); ?>">
                         <i class="bi bi-activity"></i>
                         <span><?php echo e(__('System')); ?></span>
                     </a>
@@ -240,7 +245,7 @@
 
             <div class="fm-sidebar-footer">
                 <div>FlowManager</div>
-                <small><?php echo e(__('Portfolio build v0.13')); ?></small>
+                <small><?php echo e(__('Version :version', ['version' => config('flowmanager.version')])); ?></small>
             </div>
         </aside>
 

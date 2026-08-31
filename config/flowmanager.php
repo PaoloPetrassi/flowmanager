@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'version' => env('FLOWMANAGER_VERSION', '1.0.0'),
+
     'admin' => [
         'name' => env('FLOWMANAGER_ADMIN_NAME', 'FlowManager Administrator'),
         'email' => env('FLOWMANAGER_ADMIN_EMAIL', 'admin@flowmanager.test'),
@@ -27,5 +29,16 @@ return [
 
     'backups' => [
         'keep' => (int) env('FLOWMANAGER_BACKUPS_KEEP', 14),
+    ],
+
+    'jobs' => [
+        'history_days' => (int) env('FLOWMANAGER_JOB_HISTORY_DAYS', 30),
+    ],
+
+    'queues' => [
+        'imports' => env('FLOWMANAGER_QUEUE_IMPORTS', 'imports'),
+        'webhooks' => env('FLOWMANAGER_QUEUE_WEBHOOKS', 'webhooks'),
+        'reports' => env('FLOWMANAGER_QUEUE_REPORTS', 'reports'),
+        'system' => env('FLOWMANAGER_QUEUE_SYSTEM', 'system'),
     ],
 ];

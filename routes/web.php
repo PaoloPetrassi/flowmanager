@@ -40,6 +40,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ScheduledReportController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\SystemController;
+use App\Http\Controllers\SystemJobsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TimeEntryController;
@@ -167,6 +168,10 @@ Route::middleware([
     Route::post('/automations/run', [AutomationController::class, 'run'])->name('automations.run');
 
     Route::get('/system', [SystemController::class, 'index'])->name('system.index');
+    Route::get('/system/jobs', [SystemJobsController::class, 'index'])->name('system.jobs.index');
+    Route::post('/system/jobs/failed/{uuid}/retry', [SystemJobsController::class, 'retry'])->name('system.jobs.retry');
+    Route::delete('/system/jobs/failed/{uuid}', [SystemJobsController::class, 'forget'])->name('system.jobs.forget');
+    Route::delete('/system/jobs/completed', [SystemJobsController::class, 'clearCompleted'])->name('system.jobs.clear-completed');
     Route::post('/system/backups', [SystemController::class, 'createBackup'])->name('system.backups.store');
     Route::get('/system/backups/{filename}', [SystemController::class, 'downloadBackup'])->name('system.backups.download');
     Route::delete('/system/backups/{filename}', [SystemController::class, 'deleteBackup'])->name('system.backups.destroy');

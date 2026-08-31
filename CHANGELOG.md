@@ -1,5 +1,22 @@
 # FlowManager Changelog
 
+## v1.0.0 — Production & Quality (local release)
+
+- Added tracked Laravel Queue processing for imports, web-triggered backups, outbound webhooks and scheduled reports.
+- Added Administration → Background Jobs with queue counts, progress, execution history, failed jobs, retry/forget controls and history cleanup.
+- Added queue-worker heartbeat and integrated it into System Health.
+- Expanded System Health with database latency, disk capacity, queue connection, tracked jobs, failed jobs, version and XLSX support.
+- Added `flowmanager:doctor` local/CI readiness diagnostics.
+- Added baseline security response headers.
+- Changed database/Redis queue connections to dispatch after database commit.
+- Expanded portable backups to include v0.10–v0.13 application tables and v1.0 background-job history.
+- Added indexes for notification unread checks, import history, webhook delivery status and due scheduled reports.
+- Added cross-platform PHP syntax check script and Composer `lint`, `doctor`, `quality` and `quality:fix` scripts.
+- Added GitHub Actions CI for Composer validation, migration validation, diagnostics, syntax, Pint, Pest, Vite build and route integrity.
+- Restored persistent Laravel runtime directories required after a clean source checkout.
+- Updated local runtime documentation to include a database queue worker.
+- Production deployment remains intentionally disabled/postponed.
+
 ## v0.13 — Integration, Advanced UX, Documents & Business Intelligence
 
 ### v0.10 — CRM & Integration
