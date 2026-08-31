@@ -22,7 +22,7 @@ class DocumentController extends Controller
             $q->whereBetween('expires_at', [today(), today()->addDays(30)]);
         }
 
-return view('documents.index', ['documents' => $q->paginate(25)->withQueryString()]);
+        return view('documents.index', ['documents' => $q->paginate(25)->withQueryString()]);
     }
 
     public function approve(Attachment $attachment): RedirectResponse
@@ -64,6 +64,6 @@ return view('documents.index', ['documents' => $q->paginate(25)->withQueryString
         $new->save();
         $attachment->update(['document_status' => 'superseded']);
 
-        return back()->with('status',__('New document version uploaded.'));
+        return back()->with('status', __('New document version uploaded.'));
     }
 }

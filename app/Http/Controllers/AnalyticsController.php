@@ -38,6 +38,6 @@ class AnalyticsController extends Controller
         abort_unless($savedReport->user_id === auth()->id() || auth()->user()->hasRole('administrator'), 403);
         $savedReport->delete();
 
-        return back()->with('status',__('Saved report deleted.'));
+        return back()->with('status', __('Saved report deleted.'));
     }
 }

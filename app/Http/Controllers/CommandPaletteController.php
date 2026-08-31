@@ -27,6 +27,6 @@ class CommandPaletteController extends Controller
             }
         }
 
-return response()->json(['results' => $results->values()->take(12)]);
+        return response()->json(['results' => $results->values()->take(12)]);
     }
 }

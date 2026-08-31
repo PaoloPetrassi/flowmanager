@@ -43,6 +43,6 @@ class Attachment extends Model
             return number_format($this->size / 1024, 1).' KB';
         }
 
-return number_format($this->size / 1048576, 1).' MB';
+        return number_format($this->size / 1048576, 1).' MB';
     }
 }
