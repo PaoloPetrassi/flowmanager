@@ -1,4 +1,0 @@
-<?php $__env->startSection('title', __('Access denied')); ?>
-<?php $__env->startSection('content'); ?><div class="card fm-login-card"><div class="card-body p-5 text-center"><div class="display-4 fw-bold text-primary mb-2">403</div><h1 class="h4"><?php echo e(__('Access denied')); ?></h1><p class="text-secondary"><?php echo e(__('You do not have permission to access this resource.')); ?></p><a href="<?php echo e(auth()->check() ? route('dashboard') : route('login')); ?>" class="btn btn-primary"><?php echo e(__('Return to FlowManager')); ?></a></div></div><?php $__env->stopSection(); ?>
-
-<?php echo $__env->make('layouts.guest', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Projects\flowmanager\resources\views/errors/403.blade.php ENDPATH**/ ?>
