@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\ProjectStatus;
 use App\Enums\TaskStatus;
 use App\Models\Project;
-use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -57,23 +56,23 @@ class ProjectPlanningController extends Controller
                 'assignedTasks as open_tasks_count' => fn ($query) => $query
                     ->whereHas('project', fn ($projectQuery) => $projectQuery->where('is_template', false))
                     ->whereNotIn('status', [
-                    TaskStatus::Completed->value,
-                    TaskStatus::Cancelled->value,
-                ]),
+                        TaskStatus::Completed->value,
+                        TaskStatus::Cancelled->value,
+                    ]),
                 'managedProjects as active_projects_count' => fn ($query) => $query
                     ->where('is_template', false)
                     ->whereNotIn('status', [
-                    ProjectStatus::Completed->value,
-                    ProjectStatus::Cancelled->value,
-                ]),
+                        ProjectStatus::Completed->value,
+                        ProjectStatus::Cancelled->value,
+                    ]),
             ])
             ->withSum([
                 'assignedTasks as estimated_minutes_sum' => fn ($query) => $query
                     ->whereHas('project', fn ($projectQuery) => $projectQuery->where('is_template', false))
                     ->whereNotIn('status', [
-                    TaskStatus::Completed->value,
-                    TaskStatus::Cancelled->value,
-                ]),
+                        TaskStatus::Completed->value,
+                        TaskStatus::Cancelled->value,
+                    ]),
             ], 'estimated_minutes')
             ->withSum('timeEntries as tracked_minutes_sum', 'minutes')
             ->orderByDesc('open_tasks_count')

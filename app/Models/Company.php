@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\CompanyStatus;
+use App\Enums\CompanyType;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasCollaboration;
 use App\Models\Concerns\HasExtensibleData;
-use App\Enums\CompanyStatus;
-use App\Enums\CompanyType;
+use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends Model
 {
-    /** @use HasFactory<\Database\Factories\CompanyFactory> */
+    /** @use HasFactory<CompanyFactory> */
     use Auditable, HasCollaboration, HasExtensibleData, HasFactory, SoftDeletes;
 
     /**

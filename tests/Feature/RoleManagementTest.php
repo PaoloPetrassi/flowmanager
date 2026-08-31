@@ -105,7 +105,6 @@ test('administrator can delete a custom role', function () {
     $this->assertDatabaseMissing('roles', ['id' => $role->id]);
 });
 
-
 test('administrator role cannot be edited through the role module', function () {
     $administrator = createRoleManagementTestUser('administrator');
     $administratorRole = Role::query()->where('slug', 'administrator')->firstOrFail();

@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class RunAutomationsCommand extends Command
 {
     protected $signature = 'flowmanager:automations';
+
     protected $description = 'Run active FlowManager automation rules.';
 
     public function handle(AutomationEngine $engine): int

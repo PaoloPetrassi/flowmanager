@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 class FlowManagerRestoreCommand extends Command
 {
     protected $signature = 'flowmanager:restore {file} {--force : Skip confirmation}';
+
     protected $description = 'Restore the application database from a FlowManager backup.';
 
     public function handle(BackupService $backups): int
@@ -16,6 +17,7 @@ class FlowManagerRestoreCommand extends Command
 
         if (! $backups->verify($file)) {
             $this->error('Backup not found or invalid.');
+
             return self::FAILURE;
         }
 

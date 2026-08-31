@@ -23,9 +23,7 @@ abstract class TrackedJob implements ShouldQueue
 
     public int $timeout = 300;
 
-    public function __construct(public string $trackingUuid)
-    {
-    }
+    public function __construct(public string $trackingUuid) {}
 
     protected function begin(?string $message = null): void
     {

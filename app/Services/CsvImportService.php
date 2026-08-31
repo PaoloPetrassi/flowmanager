@@ -167,7 +167,7 @@ class CsvImportService
             throw new RuntimeException('The PHP ZIP extension is required to import XLSX files.');
         }
 
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
 
         if ($zip->open($path) !== true) {
             throw new RuntimeException('Unable to open XLSX file.');

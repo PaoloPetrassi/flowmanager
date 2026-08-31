@@ -6,7 +6,6 @@ use App\Enums\AssetStatus;
 use App\Enums\ProjectStatus;
 use App\Enums\TaskStatus;
 use App\Enums\TicketPriority;
-use App\Enums\TicketStatus;
 use App\Models\Asset;
 use App\Models\Company;
 use App\Models\Contact;

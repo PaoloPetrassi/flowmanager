@@ -22,8 +22,7 @@ class ReportController extends Controller
     public function __construct(
         private readonly ReportService $reports,
         private readonly PdfReportService $pdfReports
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): View
     {

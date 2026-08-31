@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\AssetStatus;
 use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasCollaboration;
 use App\Models\Concerns\HasExtensibleData;
-use App\Enums\AssetStatus;
+use Database\Factories\AssetFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Asset extends Model
 {
-    /** @use HasFactory<\Database\Factories\AssetFactory> */
+    /** @use HasFactory<AssetFactory> */
     use Auditable, HasCollaboration, HasExtensibleData, HasFactory, SoftDeletes;
 
     /**

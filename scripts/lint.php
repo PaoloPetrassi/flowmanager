@@ -59,4 +59,4 @@ if ($failures !== []) {
     exit(1);
 }
 
-fwrite(STDOUT, sprintf("PHP syntax OK: %d files checked.%s", count($files), PHP_EOL));
+fwrite(STDOUT, sprintf('PHP syntax OK: %d files checked.%s', count($files), PHP_EOL));

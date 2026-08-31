@@ -112,6 +112,7 @@ class TaskController extends Controller
         $task = DB::transaction(function () use ($data, $dependencyIds) {
             $task = Task::create([...$data, 'created_by' => Auth::id()]);
             $task->dependencies()->sync($dependencyIds);
+
             return $task;
         });
 

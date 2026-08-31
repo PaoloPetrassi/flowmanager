@@ -4,11 +4,12 @@ namespace Database\Factories;
 
 use App\Enums\CompanyStatus;
 use App\Enums\CompanyType;
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Company>
+ * @extends Factory<Company>
  */
 class CompanyFactory extends Factory
 {
@@ -33,7 +34,7 @@ class CompanyFactory extends Factory
                 CompanyStatus::cases()
             ),
 
-            'vat_number' => 'IT' . fake()->unique()->numerify('###########'),
+            'vat_number' => 'IT'.fake()->unique()->numerify('###########'),
 
             'tax_code' => fake()->unique()->numerify('###########'),
 

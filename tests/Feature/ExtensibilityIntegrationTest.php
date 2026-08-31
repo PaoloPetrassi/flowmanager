@@ -21,6 +21,7 @@ function v013User(string $role = 'administrator'): User
 {
     $user = User::factory()->create();
     $user->roles()->attach(Role::where('slug', $role)->firstOrFail());
+
     return $user;
 }
 

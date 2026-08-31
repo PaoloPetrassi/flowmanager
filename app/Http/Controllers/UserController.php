@@ -59,7 +59,7 @@ class UserController extends Controller
         Gate::authorize('create', User::class);
 
         return view('users.create', [
-            'user' => new User(),
+            'user' => new User,
             'roles' => $this->roleOptions(),
             'selectedRoles' => collect(),
         ]);

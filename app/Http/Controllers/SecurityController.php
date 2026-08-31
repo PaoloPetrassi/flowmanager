@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LoginActivity;
 use App\Services\AuditService;
 use App\Services\TotpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
@@ -27,7 +26,8 @@ class SecurityController extends Controller
                 ->get()
                 ->map(function ($session) use ($request) {
                     $session->is_current = $session->id === $request->session()->getId();
-                    $session->last_active_at = \Illuminate\Support\Carbon::createFromTimestamp($session->last_activity);
+                    $session->last_active_at = Carbon::createFromTimestamp($session->last_activity);
+
                     return $session;
                 });
         }

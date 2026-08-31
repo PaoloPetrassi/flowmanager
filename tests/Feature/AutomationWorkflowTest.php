@@ -12,6 +12,7 @@ use App\Models\Role;
 use App\Models\Task;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\FlowNotification;
 use App\Services\AutomationEngine;
 use App\Services\ReminderService;
 use Database\Seeders\RolePermissionSeeder;
@@ -126,7 +127,7 @@ test('reminder service notifies task assignees and marks reminders as sent', fun
 
     expect($summary['tasks'])->toBe(1)
         ->and($task->fresh()->due_reminder_sent_at)->not->toBeNull();
-    Notification::assertSentTo($operator, App\Notifications\FlowNotification::class);
+    Notification::assertSentTo($operator, FlowNotification::class);
 
     Carbon::setTestNow();
 });

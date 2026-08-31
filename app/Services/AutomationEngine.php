@@ -33,11 +33,13 @@ class AutomationEngine
                 foreach ($this->subjectsFor($rule->trigger) as $subject) {
                     if (! $this->matches($subject, $rule->conditions ?? [])) {
                         $summary['skipped']++;
+
                         continue;
                     }
 
                     if ($this->alreadyRanToday($rule, $subject)) {
                         $summary['skipped']++;
+
                         continue;
                     }
 

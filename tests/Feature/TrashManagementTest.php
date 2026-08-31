@@ -87,7 +87,6 @@ test('viewer cannot access trash', function () {
         ->assertForbidden();
 });
 
-
 test('trash routes cannot permanently delete an active record', function () {
     $administrator = createTrashTestUser('administrator');
     $asset = Asset::factory()->create([

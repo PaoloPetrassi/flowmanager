@@ -6,7 +6,6 @@ use App\Enums\TicketCategory;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Ticket;
 use Illuminate\Http\JsonResponse;

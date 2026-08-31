@@ -7,11 +7,17 @@ use Illuminate\Support\Collection;
 class PdfReportService
 {
     private const PAGE_WIDTH = 842;
+
     private const PAGE_HEIGHT = 595;
+
     private const MARGIN_X = 34;
+
     private const HEADER_Y = 555;
+
     private const TABLE_TOP_Y = 520;
+
     private const ROW_HEIGHT = 18;
+
     private const ROWS_PER_PAGE = 25;
 
     public function render(
@@ -54,7 +60,7 @@ class PdfReportService
                 self::PAGE_HEIGHT,
                 $contentId
             );
-            $objects[$contentId] = "<< /Length ".strlen($content)." >>\nstream\n{$content}\nendstream";
+            $objects[$contentId] = '<< /Length '.strlen($content)." >>\nstream\n{$content}\nendstream";
             $pageNumber++;
         }
 
@@ -176,7 +182,7 @@ class PdfReportService
     }
 
     /**
-     * @param array<int, string> $objects
+     * @param  array<int, string>  $objects
      */
     private function assemble(array $objects): string
     {

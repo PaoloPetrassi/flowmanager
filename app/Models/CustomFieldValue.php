@@ -1,6 +1,22 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-class CustomFieldValue extends Model { protected $fillable=['custom_field_id','valued_type','valued_id','value']; public function field():BelongsTo{return $this->belongsTo(CustomField::class,'custom_field_id');} public function valued():MorphTo{return $this->morphTo();} }
+
+class CustomFieldValue extends Model
+{
+    protected $fillable = ['custom_field_id', 'valued_type', 'valued_id', 'value'];
+
+    public function field(): BelongsTo
+    {
+        return $this->belongsTo(CustomField::class, 'custom_field_id');
+    }
+
+    public function valued(): MorphTo
+    {
+        return $this->morphTo();
+    }
+}
