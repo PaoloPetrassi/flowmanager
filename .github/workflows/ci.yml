@@ -54,21 +54,34 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Prepare Laravel runtime directories
+        run: |
+          mkdir -p storage/app
+          mkdir -p storage/logs
+          mkdir -p storage/framework/cache/data
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p bootstrap/cache
+
+          chmod -R 775 storage
+          chmod -R 775 bootstrap/cache
+
       - name: Configure CI environment
         shell: bash
         run: |
           cp .env.example .env
-          php artisan key:generate
 
           touch database/database.sqlite
 
+          echo "APP_ENV=testing" >> .env
+          echo "APP_DEBUG=true" >> .env
           echo "DB_CONNECTION=sqlite" >> .env
           echo "DB_DATABASE=$(pwd)/database/database.sqlite" >> .env
+          echo "CACHE_STORE=array" >> .env
+          echo "SESSION_DRIVER=array" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
 
-          sed -i 's/^CACHE_STORE=.*/CACHE_STORE=array/' .env
-          sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=array/' .env
-          sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env
-
+          php artisan key:generate
           php artisan optimize:clear
 
       - name: Validate migrations
