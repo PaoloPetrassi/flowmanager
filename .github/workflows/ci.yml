@@ -2,9 +2,11 @@ name: FlowManager CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -27,10 +29,15 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
-          extensions: mbstring, dom, fileinfo, openssl, pdo_sqlite, sqlite3, simplexml, zip
+          php-version: '8.5'
+          extensions: mbstring, dom, fileinfo, intl, openssl, pdo_sqlite, sqlite3, simplexml, xml, xmlwriter, zip
           coverage: none
           tools: composer:v2
+
+      - name: Show runtime versions
+        run: |
+          php --version
+          composer --version
 
       - name: Validate Composer configuration
         run: composer validate --strict --no-check-publish
@@ -52,12 +59,16 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate
+
           touch database/database.sqlite
+
           echo "DB_CONNECTION=sqlite" >> .env
           echo "DB_DATABASE=$(pwd)/database/database.sqlite" >> .env
+
           sed -i 's/^CACHE_STORE=.*/CACHE_STORE=array/' .env
           sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=array/' .env
           sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env
+
           php artisan optimize:clear
 
       - name: Validate migrations
