@@ -64,7 +64,8 @@
             "@lint",
             "@php vendor/bin/pint --test",
             "@php artisan test",
-            "npm run build"
+            "npm run build",
+            "@php artisan flowmanager:doctor --ci"
         ],
         "quality:fix": [
             "@php vendor/bin/pint",
@@ -89,6 +90,17 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "demo:reset": [
+            "@php artisan flowmanager:demo-reset"
+        ],
+        "release:check": [
+            "@php artisan optimize:clear",
+            "@lint",
+            "@php vendor/bin/pint --test",
+            "@php artisan test",
+            "npm run build",
+            "@php artisan flowmanager:release-check --ci --build"
         ]
     },
     "extra": {

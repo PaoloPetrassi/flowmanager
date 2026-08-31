@@ -16,6 +16,8 @@
     $fmPreferences = auth()->user()->preference()->firstOrCreate([]);
 ?>
 <body data-theme="<?php echo e($fmPreferences->theme); ?>" data-density="<?php echo e($fmPreferences->density); ?>">
+    <a class="fm-skip-link" href="#fm-main-content"><?php echo e(__('Skip to main content')); ?></a>
+
     <div class="fm-app">
         <div class="fm-sidebar-backdrop" data-fm-sidebar-backdrop></div>
 
@@ -31,7 +33,7 @@
                 </button>
             </div>
 
-            <nav class="fm-sidebar-nav">
+            <nav class="fm-sidebar-nav" aria-label="<?php echo e(__('Primary navigation')); ?>">
                 <div class="fm-nav-section"><?php echo e(__('Overview')); ?></div>
 
                 <a href="<?php echo e(route('dashboard')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('dashboard') ? 'active' : ''); ?>">
@@ -329,7 +331,7 @@
                     <?php echo $__env->make('partials.language-switcher', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
                     <div class="dropdown">
-                        <button class="fm-user-menu" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="fm-user-menu" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="<?php echo e(__('User menu')); ?>">
                             <span class="fm-user-avatar"><?php echo e(strtoupper(substr(auth()->user()->name, 0, 1))); ?></span>
 
                             <span class="fm-user-info">
@@ -379,17 +381,19 @@
                 </div>
             </header>
 
-            <section class="fm-content">
-                <?php if(session('status')): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <?php echo e(session('status')); ?>
+            <section id="fm-main-content" class="fm-content" tabindex="-1">
+                <div class="fm-flash-region" aria-live="polite" aria-atomic="true">
+                    <?php if(session('status')): ?>
+                        <div class="alert alert-success alert-dismissible fade show" role="status">
+                            <?php echo e(session('status')); ?>
 
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="<?php echo e(__('Close')); ?>"></button>
-                    </div>
-                <?php endif; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="<?php echo e(__('Close')); ?>"></button>
+                        </div>
+                    <?php endif; ?>
+                </div>
 
                 <?php if(session('error')): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" aria-live="assertive">
                         <?php echo e(session('error')); ?>
 
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="<?php echo e(__('Close')); ?>"></button>
@@ -403,17 +407,85 @@
 
 
     <script type="application/json" id="fm-table-preferences"><?php echo json_encode($fmPreferences->table_preferences ?? [], 15, 512) ?></script>
+
     <div class="fm-command-backdrop" data-command-palette hidden>
-        <div class="fm-command-dialog" role="dialog" aria-modal="true" aria-label="<?php echo e(__('Command palette')); ?>">
-            <div class="fm-command-search"><i class="bi bi-search"></i><input type="search" data-command-input placeholder="<?php echo e(__('Search commands or records...')); ?>" autocomplete="off"><kbd>Esc</kbd></div>
-            <div class="fm-command-results" data-command-results>
-                <a href="<?php echo e(route('projects.create')); ?>" class="fm-command-item"><span><i class="bi bi-plus-circle"></i> <?php echo e(__('New project')); ?></span><small><?php echo e(__('Command')); ?></small></a>
-                <a href="<?php echo e(route('tasks.create')); ?>" class="fm-command-item"><span><i class="bi bi-check2-square"></i> <?php echo e(__('New task')); ?></span><small><?php echo e(__('Command')); ?></small></a>
-                <a href="<?php echo e(route('tickets.create')); ?>" class="fm-command-item"><span><i class="bi bi-ticket"></i> <?php echo e(__('New ticket')); ?></span><small><?php echo e(__('Command')); ?></small></a>
-                <a href="<?php echo e(route('calendar.index')); ?>" class="fm-command-item"><span><i class="bi bi-calendar3"></i> <?php echo e(__('Open calendar')); ?></span><small><?php echo e(__('Navigate')); ?></small></a>
-                <a href="<?php echo e(route('analytics.index')); ?>" class="fm-command-item"><span><i class="bi bi-graph-up"></i> <?php echo e(__('Open analytics')); ?></span><small><?php echo e(__('Navigate')); ?></small></a>
+        <div
+            class="fm-command-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fm-command-title"
+        >
+            <h2 id="fm-command-title" class="visually-hidden"><?php echo e(__('Command palette')); ?></h2>
+
+            <div class="fm-command-search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input
+                    type="search"
+                    data-command-input
+                    placeholder="<?php echo e(__('Search commands or records...')); ?>"
+                    autocomplete="off"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-controls="fm-command-results"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                >
+                <kbd>Esc</kbd>
             </div>
-            <div class="fm-command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> <?php echo e(__('navigate')); ?></span><span><kbd>Enter</kbd> <?php echo e(__('open')); ?></span><span><kbd>Esc</kbd> <?php echo e(__('close')); ?></span></div>
+
+            <div
+                id="fm-command-results"
+                class="fm-command-results"
+                data-command-results
+                data-empty-message="<?php echo e(__('No matching records were found.')); ?>"
+                role="listbox"
+                aria-label="<?php echo e(__('Command palette')); ?>"
+            >
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create', App\Models\Project::class)): ?>
+                    <a href="<?php echo e(route('projects.create')); ?>" class="fm-command-item" role="option">
+                        <span><i class="bi bi-plus-circle" aria-hidden="true"></i> <?php echo e(__('New project')); ?></span>
+                        <small><?php echo e(__('Command')); ?></small>
+                    </a>
+                <?php endif; ?>
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create', App\Models\Task::class)): ?>
+                    <a href="<?php echo e(route('tasks.create')); ?>" class="fm-command-item" role="option">
+                        <span><i class="bi bi-check2-square" aria-hidden="true"></i> <?php echo e(__('New task')); ?></span>
+                        <small><?php echo e(__('Command')); ?></small>
+                    </a>
+                <?php endif; ?>
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('create', App\Models\Ticket::class)): ?>
+                    <a href="<?php echo e(route('tickets.create')); ?>" class="fm-command-item" role="option">
+                        <span><i class="bi bi-ticket" aria-hidden="true"></i> <?php echo e(__('New ticket')); ?></span>
+                        <small><?php echo e(__('Command')); ?></small>
+                    </a>
+                <?php endif; ?>
+
+                <?php if(
+                    auth()->user()->can('viewAny', App\Models\Project::class)
+                    || auth()->user()->can('viewAny', App\Models\Task::class)
+                    || auth()->user()->can('viewAny', App\Models\Asset::class)
+                ): ?>
+                    <a href="<?php echo e(route('calendar.index')); ?>" class="fm-command-item" role="option">
+                        <span><i class="bi bi-calendar3" aria-hidden="true"></i> <?php echo e(__('Open calendar')); ?></span>
+                        <small><?php echo e(__('Navigate')); ?></small>
+                    </a>
+                <?php endif; ?>
+
+                <?php if(auth()->user()->hasPermission('analytics.view')): ?>
+                    <a href="<?php echo e(route('analytics.index')); ?>" class="fm-command-item" role="option">
+                        <span><i class="bi bi-graph-up" aria-hidden="true"></i> <?php echo e(__('Open analytics')); ?></span>
+                        <small><?php echo e(__('Navigate')); ?></small>
+                    </a>
+                <?php endif; ?>
+            </div>
+
+            <div class="fm-command-footer" aria-hidden="true">
+                <span><kbd>↑</kbd><kbd>↓</kbd> <?php echo e(__('navigate')); ?></span>
+                <span><kbd>Enter</kbd> <?php echo e(__('open')); ?></span>
+                <span><kbd>Esc</kbd> <?php echo e(__('close')); ?></span>
+            </div>
         </div>
     </div>
 

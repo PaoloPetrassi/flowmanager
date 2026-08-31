@@ -1076,5 +1076,8 @@
     "Guided CSV/XLSX import with preview, mapping and background processing": "Importazione guidata CSV/XLSX con anteprima, mapping ed elaborazione in background",
     "Background imports": "Importazioni in background",
     "No background imports yet.": "Nessuna importazione in background.",
-    "Completed import history": "Storico importazioni completate"
+    "Completed import history": "Storico importazioni completate",
+    "Skip to main content": "Vai al contenuto principale",
+    "Primary navigation": "Navigazione principale",
+    "User menu": "Menu utente"
 }

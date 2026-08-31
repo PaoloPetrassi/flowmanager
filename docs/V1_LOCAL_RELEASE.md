@@ -2,6 +2,8 @@
 
 FlowManager v1.0 is the first release treated as a release candidate rather than a feature bundle. It is intentionally kept local for now; remote deployment is postponed.
 
+> **v1.0.1 note:** the current local hardening checklist has moved to [`V1_0_1_QA_CHECKLIST.md`](V1_0_1_QA_CHECKLIST.md). The v1.0 runtime instructions below remain valid.
+
 ## Upgrade checklist from v0.13
 
 1. Stop `npm run dev`, `php artisan serve`, `php artisan schedule:work` and any existing queue worker.

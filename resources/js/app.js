@@ -2,7 +2,7 @@ import * as bootstrap from 'bootstrap';
 
 window.bootstrap = bootstrap;
 
-document.addEventListener('DOMContentLoaded', () => {
+const initializeFlowManager = () => {
     const sidebar = document.querySelector('[data-fm-sidebar]');
     const sidebarBackdrop = document.querySelector('[data-fm-sidebar-backdrop]');
     const sidebarToggles = document.querySelectorAll('[data-fm-sidebar-toggle]');
@@ -23,16 +23,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sidebarToggles.forEach((toggle) => {
         toggle.addEventListener('click', () => {
-            const isOpen = sidebar?.classList.contains('is-open');
-            setSidebarState(!isOpen);
+            setSidebarState(!sidebar?.classList.contains('is-open'));
         });
     });
 
-    sidebarBackdrop?.addEventListener('click', () => {
-        setSidebarState(false);
-    });
+    sidebarBackdrop?.addEventListener('click', () => setSidebarState(false));
 
     sidebar?.querySelectorAll('a.fm-nav-link').forEach((link) => {
+        if (link.classList.contains('active')) {
+            link.setAttribute('aria-current', 'page');
+        }
+
         link.addEventListener('click', () => {
             if (window.innerWidth < 992) {
                 setSidebarState(false);
@@ -305,87 +306,287 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-});
 
-    // v0.11 command palette
     const commandPalette = document.querySelector('[data-command-palette]');
+    const commandDialog = commandPalette?.querySelector('.fm-command-dialog');
     const commandInput = document.querySelector('[data-command-input]');
     const commandResults = document.querySelector('[data-command-results]');
+    const defaultCommandMarkup = commandResults?.innerHTML ?? '';
     let commandTimer = null;
+    let commandActiveIndex = -1;
+    let commandOpener = null;
 
-    const openCommandPalette = () => {
-        if (!commandPalette || !commandInput) return;
+    const commandItems = () => Array.from(commandResults?.querySelectorAll('.fm-command-item') ?? []);
+
+    const updateCommandSelection = (index) => {
+        const items = commandItems();
+
+        items.forEach((item, itemIndex) => {
+            const isActive = itemIndex === index;
+            item.classList.toggle('is-active', isActive);
+            item.setAttribute('aria-selected', isActive ? 'true' : 'false');
+
+            if (!item.id) {
+                item.id = `fm-command-option-${itemIndex}`;
+            }
+        });
+
+        commandActiveIndex = items.length === 0 ? -1 : Math.max(0, Math.min(index, items.length - 1));
+        const activeItem = items[commandActiveIndex];
+
+        commandInput?.setAttribute('aria-activedescendant', activeItem?.id ?? '');
+        activeItem?.scrollIntoView({ block: 'nearest' });
+    };
+
+    const resetCommandResults = () => {
+        if (!commandResults) {
+            return;
+        }
+
+        commandResults.innerHTML = defaultCommandMarkup;
+        updateCommandSelection(commandItems().length > 0 ? 0 : -1);
+    };
+
+    const openCommandPalette = (opener = null) => {
+        if (!commandPalette || !commandInput) {
+            return;
+        }
+
+        commandOpener = opener instanceof HTMLElement ? opener : document.activeElement;
         commandPalette.hidden = false;
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('fm-modal-open');
+        commandInput.setAttribute('aria-expanded', 'true');
+        resetCommandResults();
+
         requestAnimationFrame(() => commandInput.focus());
     };
+
     const closeCommandPalette = () => {
-        if (!commandPalette) return;
+        if (!commandPalette || commandPalette.hidden) {
+            return;
+        }
+
         commandPalette.hidden = true;
-        document.body.style.overflow = '';
-        if (commandInput) commandInput.value = '';
+        document.body.classList.remove('fm-modal-open');
+        commandInput?.setAttribute('aria-expanded', 'false');
+
+        if (commandInput) {
+            commandInput.value = '';
+            commandInput.removeAttribute('aria-activedescendant');
+        }
+
+        resetCommandResults();
+
+        if (commandOpener instanceof HTMLElement && document.contains(commandOpener)) {
+            commandOpener.focus();
+        }
+
+        commandOpener = null;
     };
-    document.querySelectorAll('[data-command-palette-open]').forEach((button) => button.addEventListener('click', openCommandPalette));
-    commandPalette?.addEventListener('click', (event) => { if (event.target === commandPalette) closeCommandPalette(); });
-    document.addEventListener('keydown', (event) => {
-        const editable = event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement || event.target?.isContentEditable;
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); openCommandPalette(); }
-        if (event.key === 'Escape' && commandPalette && !commandPalette.hidden) closeCommandPalette();
-        if (!editable && event.key.toLowerCase() === 'k' && !event.ctrlKey && !event.metaKey) { /* reserved */ }
+
+    document.querySelectorAll('[data-command-palette-open]').forEach((button) => {
+        button.addEventListener('click', () => openCommandPalette(button));
     });
+
+    commandPalette?.addEventListener('click', (event) => {
+        if (event.target === commandPalette) {
+            closeCommandPalette();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        const target = event.target;
+        const editable = target instanceof HTMLInputElement
+            || target instanceof HTMLTextAreaElement
+            || target instanceof HTMLSelectElement
+            || target?.isContentEditable;
+
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            openCommandPalette();
+            return;
+        }
+
+        if (event.key === 'Escape' && commandPalette && !commandPalette.hidden) {
+            event.preventDefault();
+            closeCommandPalette();
+            return;
+        }
+
+        if (!editable && event.key.toLowerCase() === 'k' && !event.ctrlKey && !event.metaKey) {
+            // Reserved for a future single-key command shortcut.
+        }
+    });
+
+    commandDialog?.addEventListener('keydown', (event) => {
+        if (event.key === 'Tab') {
+            const focusable = Array.from(commandDialog.querySelectorAll('input, a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+                .filter((element) => !element.hidden && element.getClientRects().length > 0);
+
+            if (focusable.length === 0) {
+                return;
+            }
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        }
+    });
+
+    commandInput?.addEventListener('keydown', (event) => {
+        const items = commandItems();
+
+        if (items.length === 0) {
+            return;
+        }
+
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            updateCommandSelection((commandActiveIndex + 1) % items.length);
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            updateCommandSelection((commandActiveIndex - 1 + items.length) % items.length);
+        } else if (event.key === 'Home') {
+            event.preventDefault();
+            updateCommandSelection(0);
+        } else if (event.key === 'End') {
+            event.preventDefault();
+            updateCommandSelection(items.length - 1);
+        } else if (event.key === 'Enter' && commandActiveIndex >= 0) {
+            event.preventDefault();
+            items[commandActiveIndex]?.click();
+        }
+    });
+
     commandInput?.addEventListener('input', () => {
         clearTimeout(commandTimer);
-        const q = commandInput.value.trim();
-        if (q.length < 2) return;
-        commandTimer = setTimeout(async () => {
+
+        const query = commandInput.value.trim();
+
+        if (query.length < 2) {
+            resetCommandResults();
+            return;
+        }
+
+        commandTimer = window.setTimeout(async () => {
             try {
-                const response = await fetch(`/command-palette?q=${encodeURIComponent(q)}`, { headers: { Accept: 'application/json' } });
-                if (!response.ok) return;
+                const response = await fetch(`/command-palette?q=${encodeURIComponent(query)}`, {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (!response.ok || !commandResults) {
+                    return;
+                }
+
                 const data = await response.json();
-                if (!commandResults) return;
-                commandResults.innerHTML = (data.results || []).length
-                    ? data.results.map((item) => `<a class="fm-command-item" href="${item.url}"><span><i class="bi bi-arrow-return-right"></i>${escapeHtml(item.label)}</span><small>${escapeHtml(item.type)}</small></a>`).join('')
-                    : '<div class="p-4 text-center text-secondary">No matching records</div>';
-            } catch (_) {}
+                const results = data.results || [];
+
+                commandResults.innerHTML = results.length > 0
+                    ? results.map((item) => `
+                        <a class="fm-command-item" role="option" href="${escapeHtml(item.url)}">
+                            <span><i class="bi bi-arrow-return-right" aria-hidden="true"></i>${escapeHtml(item.label)}</span>
+                            <small>${escapeHtml(item.type)}</small>
+                        </a>
+                    `).join('')
+                    : `<div class="p-4 text-center text-secondary" role="status">${escapeHtml(commandResults.dataset.emptyMessage || 'No matching records were found.')}</div>`;
+
+                updateCommandSelection(results.length > 0 ? 0 : -1);
+            } catch (_) {
+                // Keep the existing results when the request cannot be completed.
+            }
         }, 180);
     });
-    function escapeHtml(value) {
-        const div = document.createElement('div'); div.textContent = value ?? ''; return div.innerHTML;
-    }
 
-    // v0.10 bulk selection
     document.querySelectorAll('[data-bulk-container]').forEach((container) => {
         const toolbar = container.querySelector('[data-bulk-toolbar]');
         const count = container.querySelector('[data-bulk-count]');
         const form = container.querySelector('[data-bulk-form]');
-        const all = container.querySelector('[data-bulk-select-all]');
-        const boxes = () => Array.from(container.querySelectorAll('[data-bulk-checkbox]'));
-        const refresh = () => {
-            const selected = boxes().filter((box) => box.checked);
+        const selectAll = container.querySelector('[data-bulk-select-all]');
+        const checkboxes = () => Array.from(container.querySelectorAll('[data-bulk-checkbox]'));
+
+        const refreshBulkSelection = () => {
+            const boxes = checkboxes();
+            const selected = boxes.filter((box) => box.checked);
+
             toolbar?.classList.toggle('is-visible', selected.length > 0);
-            if (count) count.textContent = String(selected.length);
+
+            if (count) {
+                count.textContent = String(selected.length);
+            }
+
+            if (selectAll) {
+                selectAll.checked = boxes.length > 0 && selected.length === boxes.length;
+                selectAll.indeterminate = selected.length > 0 && selected.length < boxes.length;
+            }
         };
-        all?.addEventListener('change', () => { boxes().forEach((box) => { box.checked = all.checked; }); refresh(); });
-        boxes().forEach((box) => box.addEventListener('change', refresh));
+
+        selectAll?.addEventListener('change', () => {
+            checkboxes().forEach((box) => {
+                box.checked = selectAll.checked;
+            });
+            refreshBulkSelection();
+        });
+
+        checkboxes().forEach((box) => box.addEventListener('change', refreshBulkSelection));
+
         form?.addEventListener('submit', () => {
             form.querySelectorAll('input[data-generated-id]').forEach((node) => node.remove());
-            boxes().filter((box) => box.checked).forEach((box) => {
-                const input = document.createElement('input'); input.type='hidden'; input.name='ids[]'; input.value=box.value; input.dataset.generatedId='1'; form.appendChild(input);
+
+            checkboxes().filter((box) => box.checked).forEach((box) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'ids[]';
+                input.value = box.value;
+                input.dataset.generatedId = '1';
+                form.appendChild(input);
             });
         });
+
+        refreshBulkSelection();
     });
 
-    // v0.11 persisted table column preferences
     const tablePreferenceNode = document.getElementById('fm-table-preferences');
+
     if (tablePreferenceNode) {
         try {
             const tablePreferences = JSON.parse(tablePreferenceNode.textContent || '{}');
+
             document.querySelectorAll('[data-table-resource]').forEach((table) => {
                 const visible = tablePreferences[table.dataset.tableResource];
-                if (!Array.isArray(visible)) return;
+
+                if (!Array.isArray(visible)) {
+                    return;
+                }
+
                 table.querySelectorAll('[data-column]').forEach((cell) => {
                     cell.hidden = !visible.includes(cell.dataset.column);
                 });
             });
-        } catch (_) {}
+        } catch (_) {
+            // Ignore malformed preference data and preserve the default table layout.
+        }
     }
+};
+
+function escapeHtml(value) {
+    const div = document.createElement('div');
+    div.textContent = value ?? '';
+
+    return div.innerHTML;
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeFlowManager, { once: true });
+} else {
+    initializeFlowManager();
+}

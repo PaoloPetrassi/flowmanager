@@ -2,9 +2,9 @@
 
 FlowManager is a Laravel management application combining CRM, project management, support, assets, collaboration, automation, document management, integrations and business intelligence in a responsive bilingual interface.
 
-Current application version: **v1.0.0 — Production & Quality (local release)**.
+Current application version: **v1.0.1 — Polish & Release Hardening (local release)**.
 
-The v1.0 release is intentionally validated and operated locally for now. The application is structured so a later production deployment does not require an architectural rewrite, but no automatic or remote deployment is enabled in this repository.
+The v1.0.1 release is intentionally validated and operated locally for now. The application is structured so a later production deployment does not require an architectural rewrite, but no automatic or remote deployment is enabled in this repository.
 
 ## Main capabilities
 
@@ -19,6 +19,27 @@ The v1.0 release is intentionally validated and operated locally for now. The ap
 - **Analytics** — KPIs, saved reports and scheduled CSV reports.
 - **Integrations** — CSV/XLSX imports, scoped API tokens, inbound ticket API and signed webhooks.
 - **Administration** — users, roles, extensibility, security, backups, System Health and Background Jobs.
+
+## v1.0.1 — Polish & Release Hardening
+
+v1.0.1 freezes the v1.0 feature set and focuses on local release quality:
+
+- keyboard skip navigation and stronger application landmarks;
+- accessible live regions for success/error feedback;
+- a fully keyboard-navigable Command Palette with focus restoration and role-aware commands;
+- visible focus treatment and reduced-motion support;
+- local slow-query-budget diagnostics for performance QA;
+- additional dark/system-theme consistency across tables, Kanban, Gantt and planning surfaces;
+- a route-cacheable Home controller instead of a route action closure;
+- `flowmanager:demo-reset` for a reproducible local demo database;
+- `flowmanager:release-check` for non-deploying cache/readiness validation;
+- `composer release:check` as the complete local release rehearsal;
+- an expanded GitHub Actions release-readiness step;
+- a manual QA matrix for roles, responsiveness, appearance and accessibility.
+
+No production deployment is performed by any v1.0.1 command or workflow.
+
+Detailed QA instructions are in [`docs/V1_0_1_QA_CHECKLIST.md`](docs/V1_0_1_QA_CHECKLIST.md).
 
 ## v1.0 — Production & Quality
 
@@ -134,9 +155,10 @@ Local quality commands:
 composer lint
 composer doctor
 composer quality
+composer release:check
 ```
 
-`composer quality` runs the local release gate: cache cleanup, PHP syntax, Pint check, Pest tests and frontend build.
+`composer quality` runs the normal local gate: cache cleanup, PHP syntax, Pint, Pest, frontend build and FlowManager diagnostics. `composer release:check` adds cacheability and release-readiness validation.
 
 ## Requirements
 
@@ -246,6 +268,8 @@ php artisan flowmanager:queue-backup
 php artisan flowmanager:scheduled-reports
 php artisan flowmanager:doctor
 php artisan flowmanager:prune-jobs
+php artisan flowmanager:release-check --ci
+php artisan flowmanager:demo-reset
 php artisan schedule:list
 ```
 
@@ -271,7 +295,7 @@ CSV imports do not require `ZipArchive`.
 php artisan test
 ```
 
-The v1.0 feature suite contains **134 declared tests**, including dedicated production-quality and background-job coverage.
+The v1.0 baseline contains **133 passing tests**. v1.0.1 adds five polish/hardening checks for **138 declared feature tests**, including dedicated production-quality and background-job coverage.
 
 Useful focused runs:
 

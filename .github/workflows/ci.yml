@@ -78,5 +78,8 @@ jobs:
       - name: Frontend build
         run: npm run build
 
+      - name: Release readiness
+        run: php artisan flowmanager:release-check --ci --build
+
       - name: Route integrity
         run: php artisan route:list --except-vendor

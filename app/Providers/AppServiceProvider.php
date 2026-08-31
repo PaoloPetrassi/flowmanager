@@ -11,9 +11,13 @@ use App\Observers\TaskWorkflowObserver;
 use App\Observers\TicketWorkflowObserver;
 use App\Observers\WorkAssignmentObserver;
 use App\Policies\CompanyPolicy;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -38,6 +42,22 @@ class AppServiceProvider extends ServiceProvider
         Ticket::observe(TicketWorkflowObserver::class);
 
         Paginator::useBootstrapFive();
+
+        $slowQueryBudget = (int) config('flowmanager.diagnostics.slow_request_query_ms', 500);
+
+        if (app()->environment('local') && ! app()->runningInConsole() && $slowQueryBudget > 0) {
+            DB::whenQueryingForLongerThan(
+                $slowQueryBudget,
+                function (Connection $connection, QueryExecuted $event) use ($slowQueryBudget): void {
+                    Log::warning('FlowManager request exceeded the local database query budget.', [
+                        'connection' => $connection->getName(),
+                        'budget_ms' => $slowQueryBudget,
+                        'last_query_ms' => $event->time,
+                        'sql' => $event->sql,
+                    ]);
+                },
+            );
+        }
 
         View::composer('layouts.app', function (IlluminateView $view) {
             static $hasNotificationsTable = null;

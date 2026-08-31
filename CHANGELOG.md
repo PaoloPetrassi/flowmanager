@@ -1,5 +1,22 @@
 # FlowManager Changelog
 
+## v1.0.1 — Polish & Release Hardening (local release)
+
+- Added skip navigation, explicit navigation landmarks and accessible flash-message live regions.
+- Upgraded the Command Palette with role-aware default commands, arrow/Home/End/Enter navigation, focus trapping and focus restoration.
+- Added consistent `:focus-visible` treatment and reduced-motion support.
+- Added a local-only cumulative database query budget warning (`FLOWMANAGER_SLOW_QUERY_MS`) for performance QA without logging query bindings.
+- Improved dark/system-theme consistency across tables, Kanban, Gantt, planning cards and header controls.
+- Replaced the Home route action closure with a cacheable invokable controller.
+- Made the displayed FlowManager release version code-owned so stale local `.env` values cannot mask an application upgrade.
+- Added `flowmanager:demo-reset` for a reproducible local seeded environment, guarded against non-local execution.
+- Added `flowmanager:release-check` for doctor, config/route/view cacheability and optional production/build checks.
+- Added `composer release:check` and strengthened `composer quality` with FlowManager diagnostics.
+- Extended GitHub Actions with the same release-readiness validation without adding deployment.
+- Added a role/accessibility/responsive/manual QA checklist.
+- Corrected the documented v1.0 baseline from 134 to 133 passing tests; v1.0.1 declares 138 feature tests.
+- Production deployment remains intentionally postponed.
+
 ## v1.0.0 — Production & Quality (local release)
 
 - Added tracked Laravel Queue processing for imports, web-triggered backups, outbound webhooks and scheduled reports.

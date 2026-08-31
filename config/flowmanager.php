@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'version' => env('FLOWMANAGER_VERSION', '1.0.0'),
+    'version' => '1.0.1',
 
     'admin' => [
         'name' => env('FLOWMANAGER_ADMIN_NAME', 'FlowManager Administrator'),
@@ -33,6 +33,10 @@ return [
 
     'jobs' => [
         'history_days' => (int) env('FLOWMANAGER_JOB_HISTORY_DAYS', 30),
+    ],
+
+    'diagnostics' => [
+        'slow_request_query_ms' => (int) env('FLOWMANAGER_SLOW_QUERY_MS', 500),
     ],
 
     'queues' => [

@@ -16,6 +16,8 @@
     $fmPreferences = auth()->user()->preference()->firstOrCreate([]);
 @endphp
 <body data-theme="{{ $fmPreferences->theme }}" data-density="{{ $fmPreferences->density }}">
+    <a class="fm-skip-link" href="#fm-main-content">{{ __('Skip to main content') }}</a>
+
     <div class="fm-app">
         <div class="fm-sidebar-backdrop" data-fm-sidebar-backdrop></div>
 
@@ -31,7 +33,7 @@
                 </button>
             </div>
 
-            <nav class="fm-sidebar-nav">
+            <nav class="fm-sidebar-nav" aria-label="{{ __('Primary navigation') }}">
                 <div class="fm-nav-section">{{ __('Overview') }}</div>
 
                 <a href="{{ route('dashboard') }}" class="fm-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -328,7 +330,7 @@
                     @include('partials.language-switcher')
 
                     <div class="dropdown">
-                        <button class="fm-user-menu" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="fm-user-menu" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ __('User menu') }}">
                             <span class="fm-user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</span>
 
                             <span class="fm-user-info">
@@ -375,16 +377,18 @@
                 </div>
             </header>
 
-            <section class="fm-content">
-                @if (session('status'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('status') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
-                    </div>
-                @endif
+            <section id="fm-main-content" class="fm-content" tabindex="-1">
+                <div class="fm-flash-region" aria-live="polite" aria-atomic="true">
+                    @if (session('status'))
+                        <div class="alert alert-success alert-dismissible fade show" role="status">
+                            {{ session('status') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
+                        </div>
+                    @endif
+                </div>
 
                 @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" aria-live="assertive">
                         {{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
                     </div>
@@ -397,17 +401,85 @@
 
 
     <script type="application/json" id="fm-table-preferences">@json($fmPreferences->table_preferences ?? [])</script>
+
     <div class="fm-command-backdrop" data-command-palette hidden>
-        <div class="fm-command-dialog" role="dialog" aria-modal="true" aria-label="{{ __('Command palette') }}">
-            <div class="fm-command-search"><i class="bi bi-search"></i><input type="search" data-command-input placeholder="{{ __('Search commands or records...') }}" autocomplete="off"><kbd>Esc</kbd></div>
-            <div class="fm-command-results" data-command-results>
-                <a href="{{ route('projects.create') }}" class="fm-command-item"><span><i class="bi bi-plus-circle"></i> {{ __('New project') }}</span><small>{{ __('Command') }}</small></a>
-                <a href="{{ route('tasks.create') }}" class="fm-command-item"><span><i class="bi bi-check2-square"></i> {{ __('New task') }}</span><small>{{ __('Command') }}</small></a>
-                <a href="{{ route('tickets.create') }}" class="fm-command-item"><span><i class="bi bi-ticket"></i> {{ __('New ticket') }}</span><small>{{ __('Command') }}</small></a>
-                <a href="{{ route('calendar.index') }}" class="fm-command-item"><span><i class="bi bi-calendar3"></i> {{ __('Open calendar') }}</span><small>{{ __('Navigate') }}</small></a>
-                <a href="{{ route('analytics.index') }}" class="fm-command-item"><span><i class="bi bi-graph-up"></i> {{ __('Open analytics') }}</span><small>{{ __('Navigate') }}</small></a>
+        <div
+            class="fm-command-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fm-command-title"
+        >
+            <h2 id="fm-command-title" class="visually-hidden">{{ __('Command palette') }}</h2>
+
+            <div class="fm-command-search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input
+                    type="search"
+                    data-command-input
+                    placeholder="{{ __('Search commands or records...') }}"
+                    autocomplete="off"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-controls="fm-command-results"
+                    aria-haspopup="listbox"
+                    aria-expanded="false"
+                >
+                <kbd>Esc</kbd>
             </div>
-            <div class="fm-command-footer"><span><kbd>↑</kbd><kbd>↓</kbd> {{ __('navigate') }}</span><span><kbd>Enter</kbd> {{ __('open') }}</span><span><kbd>Esc</kbd> {{ __('close') }}</span></div>
+
+            <div
+                id="fm-command-results"
+                class="fm-command-results"
+                data-command-results
+                data-empty-message="{{ __('No matching records were found.') }}"
+                role="listbox"
+                aria-label="{{ __('Command palette') }}"
+            >
+                @can('create', App\Models\Project::class)
+                    <a href="{{ route('projects.create') }}" class="fm-command-item" role="option">
+                        <span><i class="bi bi-plus-circle" aria-hidden="true"></i> {{ __('New project') }}</span>
+                        <small>{{ __('Command') }}</small>
+                    </a>
+                @endcan
+
+                @can('create', App\Models\Task::class)
+                    <a href="{{ route('tasks.create') }}" class="fm-command-item" role="option">
+                        <span><i class="bi bi-check2-square" aria-hidden="true"></i> {{ __('New task') }}</span>
+                        <small>{{ __('Command') }}</small>
+                    </a>
+                @endcan
+
+                @can('create', App\Models\Ticket::class)
+                    <a href="{{ route('tickets.create') }}" class="fm-command-item" role="option">
+                        <span><i class="bi bi-ticket" aria-hidden="true"></i> {{ __('New ticket') }}</span>
+                        <small>{{ __('Command') }}</small>
+                    </a>
+                @endcan
+
+                @if (
+                    auth()->user()->can('viewAny', App\Models\Project::class)
+                    || auth()->user()->can('viewAny', App\Models\Task::class)
+                    || auth()->user()->can('viewAny', App\Models\Asset::class)
+                )
+                    <a href="{{ route('calendar.index') }}" class="fm-command-item" role="option">
+                        <span><i class="bi bi-calendar3" aria-hidden="true"></i> {{ __('Open calendar') }}</span>
+                        <small>{{ __('Navigate') }}</small>
+                    </a>
+                @endif
+
+                @if (auth()->user()->hasPermission('analytics.view'))
+                    <a href="{{ route('analytics.index') }}" class="fm-command-item" role="option">
+                        <span><i class="bi bi-graph-up" aria-hidden="true"></i> {{ __('Open analytics') }}</span>
+                        <small>{{ __('Navigate') }}</small>
+                    </a>
+                @endif
+            </div>
+
+            <div class="fm-command-footer" aria-hidden="true">
+                <span><kbd>↑</kbd><kbd>↓</kbd> {{ __('navigate') }}</span>
+                <span><kbd>Enter</kbd> {{ __('open') }}</span>
+                <span><kbd>Esc</kbd> {{ __('close') }}</span>
+            </div>
         </div>
     </div>
 
