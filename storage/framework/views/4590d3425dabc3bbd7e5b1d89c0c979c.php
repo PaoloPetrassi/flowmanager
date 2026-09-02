@@ -228,7 +228,8 @@
                     <a href="<?php echo e(route('custom-fields.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('custom-fields.*') ? 'active' : ''); ?>"><i class="bi bi-ui-checks-grid"></i><span><?php echo e(__('Custom fields')); ?></span></a>
                 <?php endif; ?>
                 <?php if(auth()->user()->hasPermission('integrations.manage')): ?>
-                    <a href="<?php echo e(route('integrations.api.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('integrations.api.*') ? 'active' : ''); ?>"><i class="bi bi-key"></i><span><?php echo e(__('API tokens')); ?></span></a>
+                    <a href="<?php echo e(route('integrations.api.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('integrations.api.index') ? 'active' : ''); ?>"><i class="bi bi-key"></i><span><?php echo e(__('API tokens')); ?></span></a>
+                    <a href="<?php echo e(route('integrations.api.docs')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('integrations.api.docs') ? 'active' : ''); ?>"><i class="bi bi-braces"></i><span><?php echo e(__('API documentation')); ?></span></a>
                     <a href="<?php echo e(route('integrations.webhooks.index')); ?>" class="fm-nav-link <?php echo e(request()->routeIs('integrations.webhooks.*') ? 'active' : ''); ?>"><i class="bi bi-broadcast-pin"></i><span><?php echo e(__('Webhooks')); ?></span></a>
                 <?php endif; ?>
 
@@ -382,6 +383,21 @@
             </header>
 
             <section id="fm-main-content" class="fm-content" tabindex="-1">
+                <?php if(auth()->user()->isDemoAccount()): ?>
+                    <div class="alert alert-primary d-flex align-items-start gap-3" role="status">
+                        <i class="bi bi-eye fs-5" aria-hidden="true"></i>
+                        <div>
+                            <strong><?php echo e(__('Demo mode')); ?></strong>
+                            <div class="small">
+                                <?php echo e(config('flowmanager.demo.read_only')
+                                    ? __('You can explore all available modules. Changes to business and administration data are disabled for this account.')
+                                    : __('You are using the seeded FlowManager demo account.')); ?>
+
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div class="fm-flash-region" aria-live="polite" aria-atomic="true">
                     <?php if(session('status')): ?>
                         <div class="alert alert-success alert-dismissible fade show" role="status">

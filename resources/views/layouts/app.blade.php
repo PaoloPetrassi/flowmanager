@@ -228,7 +228,8 @@
                     <a href="{{ route('custom-fields.index') }}" class="fm-nav-link {{ request()->routeIs('custom-fields.*') ? 'active' : '' }}"><i class="bi bi-ui-checks-grid"></i><span>{{ __('Custom fields') }}</span></a>
                 @endif
                 @if (auth()->user()->hasPermission('integrations.manage'))
-                    <a href="{{ route('integrations.api.index') }}" class="fm-nav-link {{ request()->routeIs('integrations.api.*') ? 'active' : '' }}"><i class="bi bi-key"></i><span>{{ __('API tokens') }}</span></a>
+                    <a href="{{ route('integrations.api.index') }}" class="fm-nav-link {{ request()->routeIs('integrations.api.index') ? 'active' : '' }}"><i class="bi bi-key"></i><span>{{ __('API tokens') }}</span></a>
+                    <a href="{{ route('integrations.api.docs') }}" class="fm-nav-link {{ request()->routeIs('integrations.api.docs') ? 'active' : '' }}"><i class="bi bi-braces"></i><span>{{ __('API documentation') }}</span></a>
                     <a href="{{ route('integrations.webhooks.index') }}" class="fm-nav-link {{ request()->routeIs('integrations.webhooks.*') ? 'active' : '' }}"><i class="bi bi-broadcast-pin"></i><span>{{ __('Webhooks') }}</span></a>
                 @endif
 
@@ -378,6 +379,20 @@
             </header>
 
             <section id="fm-main-content" class="fm-content" tabindex="-1">
+                @if (auth()->user()->isDemoAccount())
+                    <div class="alert alert-primary d-flex align-items-start gap-3" role="status">
+                        <i class="bi bi-eye fs-5" aria-hidden="true"></i>
+                        <div>
+                            <strong>{{ __('Demo mode') }}</strong>
+                            <div class="small">
+                                {{ config('flowmanager.demo.read_only')
+                                    ? __('You can explore all available modules. Changes to business and administration data are disabled for this account.')
+                                    : __('You are using the seeded FlowManager demo account.') }}
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="fm-flash-region" aria-live="polite" aria-atomic="true">
                     @if (session('status'))
                         <div class="alert alert-success alert-dismissible fade show" role="status">

@@ -19,6 +19,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'name',
         'email',
         'password',
+        'is_demo',
         'two_factor_secret',
         'two_factor_confirmed_at',
         'password_changed_at',
@@ -36,6 +37,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_demo' => 'boolean',
             'two_factor_secret' => 'encrypted',
             'two_factor_confirmed_at' => 'datetime',
             'password_changed_at' => 'datetime',
@@ -126,5 +128,10 @@ class User extends Authenticatable implements MustVerifyEmailContract
     {
         return $this->two_factor_confirmed_at !== null
             && filled($this->two_factor_secret);
+    }
+
+    public function isDemoAccount(): bool
+    {
+        return $this->is_demo && config('flowmanager.demo.enabled');
     }
 }

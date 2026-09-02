@@ -1,5 +1,31 @@
 # FlowManager Changelog
 
+## v1.3.0 — REST/OpenAPI & Webhooks (local release)
+
+- Added authenticated in-app API documentation and a public machine-readable OpenAPI 3.1 JSON specification.
+- Documented the read API, inbound Ticket endpoint, bearer-token abilities, permissions, pagination and response codes.
+- Added webhook pause/resume and queued test-delivery actions.
+- Added recent webhook delivery status and delivery identifiers to the administration UI.
+- Added UUID delivery IDs, delivery timestamps and HMAC-SHA256 signatures over `timestamp.rawBody`.
+- Added focused feature coverage for OpenAPI documentation and webhook delivery behavior.
+- Production deployment remains intentionally postponed.
+
+## v1.2.0 — Demo Mode (local release)
+
+- Added a dedicated seeded demo account with configurable identity and role.
+- Added one-click demo login from the guest sign-in page.
+- Added a persistent demo-mode banner in the authenticated application.
+- Added server-side read-only protection for state-changing demo requests while preserving harmless UI preferences and notification state.
+- Extended `flowmanager:demo-reset` with demo-account reporting and an optional temporary demo password.
+- Added focused feature coverage for demo authentication, access and write protection.
+
+## v1.1.0 — Clean Release Package (local release)
+
+- Added `flowmanager:package-release` and `composer release:package` to create sanitized source ZIP archives.
+- Release packages exclude `.env`, Git metadata, dependencies, local databases, logs, sessions, caches, backups and private runtime files.
+- Compiled `public/build` assets are retained when available.
+- Added dedicated clean-package documentation.
+
 ## v1.0.1 — Polish & Release Hardening (local release)
 
 - Added skip navigation, explicit navigation landmarks and accessible flash-message live regions.

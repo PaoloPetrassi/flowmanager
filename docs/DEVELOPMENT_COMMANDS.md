@@ -226,16 +226,19 @@ Then synchronize permissions and create demo data:
 php artisan db:seed
 ```
 
-`DatabaseSeeder` executes:
+`DatabaseSeeder` executes the authorization/user seeders first, then the business/demo dataset:
 
 1. `RolePermissionSeeder`
 2. `AdminUserSeeder`
-3. `CompanySeeder`
-4. `ContactSeeder`
-5. `ProjectSeeder`
-6. `TaskSeeder`
-7. `AssetSeeder`
-8. `TicketSeeder`
+3. `DemoUserSeeder` when demo mode is enabled
+4. `CompanySeeder`
+5. `ContactSeeder`
+6. `ProjectSeeder`
+7. `TaskSeeder`
+8. `AssetSeeder`
+9. `TicketSeeder`
+10. `V09DemoSeeder`
+11. `V013DemoSeeder`
 
 The demo module seeders return without creating duplicates when their target table already contains records.
 
@@ -601,3 +604,26 @@ php artisan db:seed --class=RolePermissionSeeder
 php artisan optimize:clear
 php artisan test
 ```
+
+## v1.1–v1.3 release and integration commands
+
+Rebuild the local demo dataset:
+
+```bash
+php artisan flowmanager:demo-reset --force --admin-password="YOUR_ADMIN_PASSWORD"
+```
+
+Create a clean source release ZIP after building the frontend:
+
+```bash
+npm run build
+php artisan flowmanager:package-release
+```
+
+Open the machine-readable API specification locally:
+
+```text
+http://127.0.0.1:8000/api/openapi.json
+```
+
+The authenticated human-readable documentation is available from **Administration → API documentation**.

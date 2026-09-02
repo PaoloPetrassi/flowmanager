@@ -32,6 +32,12 @@
                 </div>
             @endif
 
+            @error('demo')
+                <div class="alert alert-danger" role="alert">
+                    {{ $message }}
+                </div>
+            @enderror
+
             <form
                 method="POST"
                 action="{{ route('login.attempt') }}"
@@ -141,6 +147,29 @@
                 </div>
 
             </form>
+
+            @if (config('flowmanager.demo.enabled'))
+                <div class="border-top mt-4 pt-4">
+                    <div class="d-flex align-items-start gap-3 mb-3">
+                        <span class="badge text-bg-primary rounded-pill mt-1">{{ __('Demo') }}</span>
+                        <div>
+                            <div class="fw-semibold">{{ __('Explore FlowManager without credentials') }}</div>
+                            <div class="small text-secondary">
+                                {{ config('flowmanager.demo.read_only')
+                                    ? __('The demo account can browse all modules but cannot modify business or administration data.')
+                                    : __('The demo account uses the seeded local demo dataset.') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ route('demo.login') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-play-circle me-2"></i>{{ __('Enter demo mode') }}
+                        </button>
+                    </form>
+                </div>
+            @endif
 
         </div>
     </div>

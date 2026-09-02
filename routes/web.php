@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ApiDocumentationController;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\BulkActionController;
 use App\Http\Controllers\CustomFieldController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\Auth\DemoLoginController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -58,6 +60,7 @@ Route::get('/', HomeController::class)->name('home');
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.attempt');
+    Route::post('/demo-login', DemoLoginController::class)->name('demo.login');
 
     Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])->name('password.request');
     Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])->name('password.email');
@@ -103,10 +106,13 @@ Route::middleware([
     Route::delete('/custom-fields/{customField}', [CustomFieldController::class, 'destroy'])->name('custom-fields.destroy');
 
     Route::get('/integrations/api', [ApiTokenController::class, 'index'])->name('integrations.api.index');
+    Route::get('/integrations/api/docs', [ApiDocumentationController::class, 'index'])->name('integrations.api.docs');
     Route::post('/integrations/api', [ApiTokenController::class, 'store'])->name('integrations.api.store');
     Route::delete('/integrations/api/{apiToken}', [ApiTokenController::class, 'destroy'])->name('integrations.api.destroy');
     Route::get('/integrations/webhooks', [WebhookController::class, 'index'])->name('integrations.webhooks.index');
     Route::post('/integrations/webhooks', [WebhookController::class, 'store'])->name('integrations.webhooks.store');
+    Route::patch('/integrations/webhooks/{webhook}/toggle', [WebhookController::class, 'toggle'])->name('integrations.webhooks.toggle');
+    Route::post('/integrations/webhooks/{webhook}/test', [WebhookController::class, 'test'])->name('integrations.webhooks.test');
     Route::delete('/integrations/webhooks/{webhook}', [WebhookController::class, 'destroy'])->name('integrations.webhooks.destroy');
 
     Route::get('/document-templates', [DocumentTemplateController::class, 'index'])->name('document-templates.index');

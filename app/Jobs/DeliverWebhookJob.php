@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Webhook;
 use App\Models\WebhookDelivery;
 use Illuminate\Support\Facades\Http;
+use RuntimeException;
 
 class DeliverWebhookJob extends TrackedJob
 {
@@ -29,15 +30,28 @@ class DeliverWebhookJob extends TrackedJob
             return;
         }
 
-        $json = json_encode($this->payload, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        $json = json_encode(
+            $this->payload,
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR
+        );
+        $timestamp = now()->timestamp;
+        $signature = hash_hmac(
+            'sha256',
+            $timestamp.'.'.$json,
+            (string) $webhook->secret
+        );
+
         $response = Http::timeout(10)
             ->retry(2, 250)
             ->withHeaders([
                 'X-FlowManager-Event' => $this->event,
-                'X-FlowManager-Signature' => hash_hmac('sha256', $json, $webhook->secret ?? ''),
+                'X-FlowManager-Delivery' => (string) ($this->payload['delivery_id'] ?? ''),
+                'X-FlowManager-Timestamp' => (string) $timestamp,
+                'X-FlowManager-Signature' => 'sha256='.$signature,
                 'User-Agent' => 'FlowManager/'.config('flowmanager.version'),
             ])
-            ->post($webhook->url, $this->payload);
+            ->withBody($json, 'application/json')
+            ->post($webhook->url);
 
         WebhookDelivery::create([
             'webhook_id' => $webhook->id,
@@ -50,7 +64,7 @@ class DeliverWebhookJob extends TrackedJob
         ]);
 
         if (! $response->successful()) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Webhook returned HTTP '.$response->status().'.'
             );
         }

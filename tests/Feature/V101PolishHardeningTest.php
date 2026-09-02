@@ -64,8 +64,9 @@ test('demo reset is blocked in production environments', function () {
     ])->assertExitCode(1);
 });
 
-test('v101 reports the expected release version and cacheable home action', function () {
-    expect(config('flowmanager.version'))->toBe('1.0.1')
+test('v101 keeps a semantic release version and cacheable home action', function () {
+    expect((string) config('flowmanager.version'))
+        ->toMatch('/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/')
         ->and(Route::getRoutes()->getByName('home')?->getActionName())
         ->toBe(App\Http\Controllers\HomeController::class);
 });

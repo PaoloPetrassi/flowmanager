@@ -2,7 +2,7 @@
 
 FlowManager is a Laravel management application combining CRM, project management, support, assets, collaboration, automation, document management, integrations and business intelligence in a responsive bilingual interface.
 
-Current application version: **v1.0.1 — Polish & Release Hardening (local release)**.
+Current application version: **v1.3.0 — Clean Release, Demo Mode & Integration Documentation (local release)**.
 
 The v1.0.1 release is intentionally validated and operated locally for now. The application is structured so a later production deployment does not require an architectural rewrite, but no automatic or remote deployment is enabled in this repository.
 
@@ -19,6 +19,38 @@ The v1.0.1 release is intentionally validated and operated locally for now. The 
 - **Analytics** — KPIs, saved reports and scheduled CSV reports.
 - **Integrations** — CSV/XLSX imports, scoped API tokens, inbound ticket API and signed webhooks.
 - **Administration** — users, roles, extensibility, security, backups, System Health and Background Jobs.
+
+## v1.1–v1.3 — Distribution, Demo & Integrations
+
+The v1.1–v1.3 sequence improves how FlowManager is shared and demonstrated without changing the local-only deployment decision.
+
+### v1.1 — Clean release package
+
+- `flowmanager:package-release` builds a shareable ZIP without `.env`, Git history, dependencies, local databases, logs, sessions, caches, backups or private runtime data.
+- `composer release:package` provides the same packaging entry point.
+- Existing compiled `public/build` assets are included when present.
+
+See [`docs/V1_1_RELEASE_PACKAGE.md`](docs/V1_1_RELEASE_PACKAGE.md).
+
+### v1.2 — Demo mode
+
+- Dedicated seeded demo account with configurable role.
+- One-click **Enter demo mode** action on the login page.
+- Persistent demo banner inside the authenticated application.
+- Server-side read-only protection for state-changing business/administration requests while still allowing UI preferences, language and notification read state.
+- `flowmanager:demo-reset` reports and can temporarily override the demo credentials.
+
+See [`docs/V1_2_DEMO_MODE.md`](docs/V1_2_DEMO_MODE.md).
+
+### v1.3 — REST/OpenAPI & webhooks
+
+- In-app API documentation under **Administration → API documentation**.
+- Machine-readable OpenAPI 3.1 JSON at `/api/openapi.json`.
+- Documented scoped bearer authentication, pagination and inbound Ticket creation.
+- Webhook pause/resume, queued test deliveries and recent delivery history.
+- Signed webhook delivery IDs and timestamps with HMAC-SHA256 verification over the exact JSON body.
+
+See [`docs/V1_3_API_WEBHOOKS.md`](docs/V1_3_API_WEBHOOKS.md).
 
 ## v1.0.1 — Polish & Release Hardening
 
@@ -177,6 +209,7 @@ composer install
 npm install
 cp .env.example .env
 php artisan key:generate
+# Set FLOWMANAGER_ADMIN_PASSWORD in .env before seeding.
 php artisan migrate
 php artisan db:seed
 php artisan optimize:clear
@@ -230,6 +263,19 @@ php artisan test
 
 No new Composer or npm dependency is introduced by v1.0.
 
+## Upgrade from v1.0.1 to v1.3.0
+
+After copying the incremental v1.1–v1.3 update over the existing project:
+
+```bash
+php artisan optimize:clear
+php artisan migrate
+php artisan db:seed --class=DemoUserSeeder
+php artisan test
+```
+
+No new Composer or npm dependency is introduced by v1.1–v1.3. Restart the queue worker after the update so queued webhook jobs use the new delivery/signature logic.
+
 Then start/restart:
 
 ```bash
@@ -270,6 +316,7 @@ php artisan flowmanager:doctor
 php artisan flowmanager:prune-jobs
 php artisan flowmanager:release-check --ci
 php artisan flowmanager:demo-reset
+php artisan flowmanager:package-release
 php artisan schedule:list
 ```
 
@@ -295,7 +342,7 @@ CSV imports do not require `ZipArchive`.
 php artisan test
 ```
 
-The v1.0 baseline contains **133 passing tests**. v1.0.1 adds five polish/hardening checks for **138 declared feature tests**, including dedicated production-quality and background-job coverage.
+The v1.0 baseline contains **133 passing tests** and v1.0.1 raised the declared baseline to **138 feature tests**. v1.2–v1.3 add dedicated demo-mode, OpenAPI and webhook integration coverage.
 
 Useful focused runs:
 
@@ -333,3 +380,6 @@ When deployment is requested, use `docs/V1_LOCAL_RELEASE.md` as the validated lo
 - `docs/V09_OPERATIONS.md`
 - `docs/V013_FEATURES.md`
 - `docs/V1_LOCAL_RELEASE.md`
+- `docs/V1_1_RELEASE_PACKAGE.md`
+- `docs/V1_2_DEMO_MODE.md`
+- `docs/V1_3_API_WEBHOOKS.md`

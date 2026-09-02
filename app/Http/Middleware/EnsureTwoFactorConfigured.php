@@ -13,7 +13,8 @@ class EnsureTwoFactorConfigured
         $user = $request->user();
 
         if (
-            config('flowmanager.security.two_factor_required_for_administrators')
+            ! $user?->isDemoAccount()
+            && config('flowmanager.security.two_factor_required_for_administrators')
             && $user?->hasRole('administrator')
             && ! $user->hasTwoFactorEnabled()
             && ! $request->routeIs('security.*', 'logout')

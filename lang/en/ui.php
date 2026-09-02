@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'api_pagination' => 'Pagination',
+
     'overdue_tasks' => '{1} You have :count overdue task assigned to you.|[2,*] You have :count overdue tasks assigned to you.',
 
     'counts' => [

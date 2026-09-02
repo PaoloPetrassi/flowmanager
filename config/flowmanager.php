@@ -1,12 +1,24 @@
 <?php
 
 return [
-    'version' => '1.0.1',
+    'version' => '1.3.0',
 
     'admin' => [
         'name' => env('FLOWMANAGER_ADMIN_NAME', 'FlowManager Administrator'),
         'email' => env('FLOWMANAGER_ADMIN_EMAIL', 'admin@flowmanager.test'),
         'password' => env('FLOWMANAGER_ADMIN_PASSWORD'),
+    ],
+
+    'demo' => [
+        'enabled' => (bool) env(
+            'FLOWMANAGER_DEMO_ENABLED',
+            env('APP_ENV', 'production') === 'local'
+        ),
+        'name' => env('FLOWMANAGER_DEMO_NAME', 'FlowManager Demo'),
+        'email' => env('FLOWMANAGER_DEMO_EMAIL', 'demo@flowmanager.test'),
+        'password' => env('FLOWMANAGER_DEMO_PASSWORD', 'FlowManagerDemo!2026'),
+        'role' => env('FLOWMANAGER_DEMO_ROLE', 'administrator'),
+        'read_only' => (bool) env('FLOWMANAGER_DEMO_READ_ONLY', true),
     ],
 
     'security' => [
