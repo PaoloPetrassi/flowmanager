@@ -92,6 +92,7 @@ Route::middleware([
 
     Route::post('/bulk/{resource}', [BulkActionController::class, 'update'])->name('bulk.update');
     Route::post('/saved-filters', [SavedFilterController::class, 'store'])->name('saved-filters.store');
+    Route::patch('/saved-filters/{savedFilter}/default', [SavedFilterController::class, 'toggleDefault'])->name('saved-filters.default');
     Route::delete('/saved-filters/{savedFilter}', [SavedFilterController::class, 'destroy'])->name('saved-filters.destroy');
 
     Route::get('/preferences', [PreferenceController::class, 'edit'])->name('preferences.edit');
@@ -166,9 +167,12 @@ Route::middleware([
 
     Route::get('/automations', [AutomationController::class, 'index'])->name('automations.index');
     Route::post('/automations', [AutomationController::class, 'store'])->name('automations.store');
-    Route::put('/automations/{automation}', [AutomationController::class, 'update'])->name('automations.update');
-    Route::delete('/automations/{automation}', [AutomationController::class, 'destroy'])->name('automations.destroy');
     Route::post('/automations/run', [AutomationController::class, 'run'])->name('automations.run');
+    Route::put('/automations/{automation}', [AutomationController::class, 'update'])->name('automations.update');
+    Route::patch('/automations/{automation}/toggle', [AutomationController::class, 'toggle'])->name('automations.toggle');
+    Route::post('/automations/{automation}/run', [AutomationController::class, 'runOne'])->name('automations.run-one');
+    Route::post('/automations/{automation}/preview', [AutomationController::class, 'preview'])->name('automations.preview');
+    Route::delete('/automations/{automation}', [AutomationController::class, 'destroy'])->name('automations.destroy');
 
     Route::get('/system', [SystemController::class, 'index'])->name('system.index');
     Route::get('/system/jobs', [SystemJobsController::class, 'index'])->name('system.jobs.index');
@@ -189,6 +193,8 @@ Route::middleware([
     Route::get('/notifications/{notification}/open', [NotificationController::class, 'open'])->name('notifications.open');
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::patch('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::delete('/notifications/read', [NotificationController::class, 'clearRead'])->name('notifications.clear-read');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     Route::post('/collaboration/{type}/{id}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');

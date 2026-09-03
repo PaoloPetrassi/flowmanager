@@ -20,6 +20,7 @@ class AutomationRule extends Model
         'conditions',
         'action_config',
         'is_active',
+        'cooldown_minutes',
         'last_run_at',
         'created_by',
     ];
@@ -32,6 +33,7 @@ class AutomationRule extends Model
             'conditions' => 'array',
             'action_config' => 'array',
             'is_active' => 'boolean',
+            'cooldown_minutes' => 'integer',
             'last_run_at' => 'datetime',
         ];
     }

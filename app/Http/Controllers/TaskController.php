@@ -12,6 +12,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\CollaborationService;
+use App\Services\SavedFilterService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,9 +23,12 @@ use Illuminate\View\View;
 
 class TaskController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, SavedFilterService $savedFilters): View
     {
         Gate::authorize('viewAny', Task::class);
+
+        $savedFilters->applyDefault($request, 'tasks');
+        $perPage = $savedFilters->perPage($request);
 
         $search = trim((string) $request->query('search'));
         $projectId = (string) $request->query('project_id');
@@ -59,7 +63,7 @@ class TaskController extends Controller
             ->when($sort === 'due_date', fn (Builder $query) => $query->orderByRaw('due_date is null'))
             ->orderBy($sort, $direction)
             ->orderBy('id', 'desc')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('tasks.index', [
@@ -76,6 +80,7 @@ class TaskController extends Controller
                 'assigned_to' => $assigneeId,
                 'sort' => $sort,
                 'direction' => $direction,
+                'per_page' => $perPage,
             ],
         ]);
     }

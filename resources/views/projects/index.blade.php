@@ -57,8 +57,9 @@
 
 
     @include('partials.saved-filters', ['filterResource' => 'projects', 'filterRoute' => 'projects.index'])
+    <div class="d-flex justify-content-end mb-3">@include('partials.per-page', ['resourceName' => 'projects'])</div>
     <div data-bulk-container>
-        @include('partials.bulk-toolbar', ['bulkResource' => 'projects', 'statuses' => $statuses, 'priorities' => $priorities])
+        @include('partials.bulk-toolbar', ['bulkResource' => 'projects', 'statuses' => $statuses, 'priorities' => $priorities, 'users' => $managers])
 
     <div class="card fm-card">
         <div class="table-responsive">

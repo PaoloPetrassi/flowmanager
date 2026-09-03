@@ -30,6 +30,8 @@ class AutomationController extends Controller
             'actions' => AutomationAction::cases(),
             'users' => User::query()->orderBy('name')->get(['id', 'name', 'email']),
             'priorities' => TicketPriority::cases(),
+            'cooldowns' => $this->cooldownOptions(),
+            'preview' => session('automation_preview'),
         ]);
     }
 
@@ -65,58 +67,96 @@ class AutomationController extends Controller
         return back()->with('status', __('Automation rule deleted.'));
     }
 
+    public function toggle(Request $request, AutomationRule $automation): RedirectResponse
+    {
+        abort_unless($request->user()->hasPermission('automations.manage'), 403);
+
+        $automation->update(['is_active' => ! $automation->is_active]);
+
+        return back()->with('status', $automation->is_active
+            ? __('Automation rule resumed.')
+            : __('Automation rule paused.'));
+    }
+
     public function run(Request $request, AutomationEngine $engine): RedirectResponse
     {
         abort_unless($request->user()->hasPermission('automations.manage'), 403);
 
         $summary = $engine->run();
 
-        return back()->with('status', __('Automations completed: :executed executed, :failed failed.', [
-            'executed' => $summary['executed'],
-            'failed' => $summary['failed'],
-        ]));
+        return back()->with('status', $this->summaryMessage($summary));
+    }
+
+    public function runOne(Request $request, AutomationRule $automation, AutomationEngine $engine): RedirectResponse
+    {
+        abort_unless($request->user()->hasPermission('automations.manage'), 403);
+
+        if (! $automation->is_active) {
+            return back()->withErrors([
+                'automation' => __('Resume this automation rule before running it.'),
+            ]);
+        }
+
+        $summary = $engine->run($automation);
+
+        return back()->with('status', $this->summaryMessage($summary));
+    }
+
+    public function preview(Request $request, AutomationRule $automation, AutomationEngine $engine): RedirectResponse
+    {
+        abort_unless($request->user()->hasPermission('automations.manage'), 403);
+
+        return back()->with('automation_preview', [
+            'rule_id' => $automation->id,
+            'rule_name' => $automation->name,
+            ...$engine->preview($automation),
+        ]);
     }
 
     private function validated(Request $request): array
     {
+        $priorityValues = array_column(TicketPriority::cases(), 'value');
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'trigger' => ['required', Rule::enum(AutomationTrigger::class)],
             'action' => ['required', Rule::enum(AutomationAction::class)],
-            'condition_priority' => ['nullable', 'string', 'max:30'],
+            'condition_priority' => ['nullable', Rule::in($priorityValues)],
             'action_user_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
-            'action_priority' => ['nullable', Rule::enum(TicketPriority::class)],
+            'action_priority' => ['nullable', Rule::in($priorityValues)],
+            'cooldown_minutes' => ['required', 'integer', 'min:15', 'max:10080'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
         $trigger = AutomationTrigger::from($validated['trigger']);
         $action = AutomationAction::from($validated['action']);
 
-        if ($action === AutomationAction::NotifyUser && empty($validated['action_user_id'])) {
+        if (in_array($action, [AutomationAction::NotifyUser, AutomationAction::AssignUser], true)
+            && empty($validated['action_user_id'])) {
             throw ValidationException::withMessages([
                 'action_user_id' => __('A target user is required for this automation action.'),
             ]);
         }
 
-        if ($action === AutomationAction::SetTicketPriority && empty($validated['action_priority'])) {
+        if (in_array($action, [AutomationAction::SetTicketPriority, AutomationAction::SetTaskPriority], true)
+            && empty($validated['action_priority'])) {
             throw ValidationException::withMessages([
-                'action_priority' => __('A target ticket priority is required for this automation action.'),
+                'action_priority' => __('A target priority is required for this automation action.'),
             ]);
         }
 
-        if ($action === AutomationAction::SetTicketPriority && $trigger !== AutomationTrigger::TicketSlaBreached) {
+        $ticketTriggers = [AutomationTrigger::TicketSlaBreached, AutomationTrigger::TicketUnassigned];
+        $taskTriggers = [AutomationTrigger::TaskOverdue, AutomationTrigger::TaskDueSoon, AutomationTrigger::TaskUnassigned];
+
+        if ($action === AutomationAction::SetTicketPriority && ! in_array($trigger, $ticketTriggers, true)) {
             throw ValidationException::withMessages([
-                'action' => __('Ticket priority can only be changed by a ticket SLA automation.'),
+                'action' => __('Ticket priority can only be changed by a ticket automation.'),
             ]);
         }
 
-        if (! empty($validated['condition_priority']) && ! in_array($trigger, [
-            AutomationTrigger::TaskOverdue,
-            AutomationTrigger::TaskDueSoon,
-            AutomationTrigger::TicketSlaBreached,
-        ], true)) {
+        if ($action === AutomationAction::SetTaskPriority && ! in_array($trigger, $taskTriggers, true)) {
             throw ValidationException::withMessages([
-                'condition_priority' => __('Priority conditions are not supported by the selected trigger.'),
+                'action' => __('Task priority can only be changed by a task automation.'),
             ]);
         }
 
@@ -124,18 +164,49 @@ class AutomationController extends Controller
             'priority' => $validated['condition_priority'] ?? null,
         ], fn ($value) => filled($value));
 
-        $actionConfig = array_filter([
-            'user_id' => $validated['action_user_id'] ?? null,
-            'priority' => $validated['action_priority'] ?? null,
-        ], fn ($value) => filled($value));
+        $actionConfig = match ($action) {
+            AutomationAction::NotifyUser, AutomationAction::AssignUser => [
+                'user_id' => (int) $validated['action_user_id'],
+            ],
+            AutomationAction::SetTicketPriority, AutomationAction::SetTaskPriority => [
+                'priority' => $validated['action_priority'],
+            ],
+            default => null,
+        };
 
         return [
             'name' => $validated['name'],
             'trigger' => $validated['trigger'],
             'action' => $validated['action'],
             'conditions' => $conditions ?: null,
-            'action_config' => $actionConfig ?: null,
+            'action_config' => $actionConfig,
+            'cooldown_minutes' => (int) $validated['cooldown_minutes'],
             'is_active' => $request->boolean('is_active'),
+        ];
+    }
+
+    private function summaryMessage(array $summary): string
+    {
+        return __('Automations completed: :executed executed, :failed failed, :skipped skipped.', [
+            'executed' => $summary['executed'],
+            'failed' => $summary['failed'],
+            'skipped' => $summary['skipped'],
+        ]);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function cooldownOptions(): array
+    {
+        return [
+            15 => __('15 minutes'),
+            60 => __('1 hour'),
+            360 => __('6 hours'),
+            720 => __('12 hours'),
+            1440 => __('1 day'),
+            4320 => __('3 days'),
+            10080 => __('7 days'),
         ];
     }
 }

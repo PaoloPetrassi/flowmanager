@@ -15,8 +15,9 @@ use App\Models\Role;
 use App\Models\Task;
 use App\Models\Ticket;
 use App\Models\User;
-use Carbon\CarbonImmutable;
+use App\Services\DashboardAnalyticsService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
@@ -25,13 +26,19 @@ class DashboardController extends Controller
     /**
      * Display the application dashboard.
      */
-    public function index(): View
+    public function index(Request $request, DashboardAnalyticsService $analytics): View
     {
         $currentUser = Auth::user();
 
         $currentUser->loadMissing('roles.permissions');
 
-        $dashboardWidgets = $currentUser->preference()->firstOrCreate([])->dashboard_widgets ?: ['stats', 'my_work', 'projects', 'access', 'charts'];
+        $dashboardWidgets = $currentUser->preference()->firstOrCreate([])->dashboard_widgets ?: ['stats', 'my_work', 'projects', 'access', 'charts', 'activity'];
+
+        $period = $analytics->period(
+            (string) $request->query('period', '30d'),
+            $request->query('date_from'),
+            $request->query('date_to')
+        );
 
         $permissionCount = $currentUser->roles
             ->flatMap(function (Role $role) {
@@ -186,7 +193,10 @@ class DashboardController extends Controller
             'overdueTaskCount' => $overdueTaskCount,
             'taskStatusChart' => $this->taskStatusChart(),
             'ticketPriorityChart' => $this->ticketPriorityChart(),
-            'trendSeries' => $this->trendSeries(),
+            'trendSeries' => $analytics->trend($currentUser, $period),
+            'periodKpis' => $analytics->kpis($currentUser, $period),
+            'activityLogs' => $analytics->activity($currentUser, $period),
+            'period' => $period,
             'teamWorkload' => $teamWorkload,
             'dashboardWidgets' => $dashboardWidgets,
         ]);
@@ -232,56 +242,5 @@ class DashboardController extends Controller
                 'value' => (int) ($counts[$priority->value] ?? 0),
             ])
             ->all();
-    }
-
-    private function trendSeries(): array
-    {
-        $endMonth = CarbonImmutable::now()->startOfMonth();
-        $months = collect(range(5, 0))
-            ->map(fn (int $offset) => $endMonth->subMonths($offset));
-
-        $start = $months->first()->startOfMonth();
-        $end = $months->last()->endOfMonth();
-
-        $completedTasks = Gate::allows('viewAny', Task::class)
-            ? Task::query()
-                ->operational()
-                ->whereNotNull('completed_at')
-                ->whereBetween('completed_at', [$start, $end])
-                ->get(['completed_at'])
-                ->groupBy(fn (Task $task) => $task->completed_at->format('Y-m'))
-                ->map->count()
-            : collect();
-
-        $resolvedTickets = Gate::allows('viewAny', Ticket::class)
-            ? Ticket::query()
-                ->whereNotNull('resolved_at')
-                ->whereBetween('resolved_at', [$start, $end])
-                ->get(['resolved_at'])
-                ->groupBy(fn (Ticket $ticket) => $ticket->resolved_at->format('Y-m'))
-                ->map->count()
-            : collect();
-
-        $series = $months->map(function (CarbonImmutable $month) use ($completedTasks, $resolvedTickets) {
-            $key = $month->format('Y-m');
-
-            return [
-                'key' => $key,
-                'label' => $month->locale(app()->getLocale())->translatedFormat('M'),
-                'tasks' => (int) ($completedTasks[$key] ?? 0),
-                'tickets' => (int) ($resolvedTickets[$key] ?? 0),
-            ];
-        });
-
-        $max = max(
-            1,
-            (int) $series->max('tasks'),
-            (int) $series->max('tickets')
-        );
-
-        return [
-            'items' => $series->all(),
-            'max' => $max,
-        ];
     }
 }

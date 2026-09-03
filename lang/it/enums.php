@@ -56,14 +56,19 @@ return [
     'automation_trigger' => [
         'task_overdue' => 'Attività scaduta',
         'task_due_soon' => 'Attività in scadenza',
+        'task_unassigned' => 'Attività non assegnata',
         'ticket_sla_breached' => 'SLA ticket superato',
+        'ticket_unassigned' => 'Ticket non assegnato',
         'project_due_soon' => 'Progetto in scadenza',
+        'project_overdue' => 'Progetto scaduto',
     ],
     'automation_action' => [
         'notify_assignee' => 'Notifica assegnatario',
         'notify_manager' => 'Notifica responsabile progetto',
         'notify_user' => 'Notifica utente selezionato',
+        'assign_user' => 'Assegna utente selezionato',
         'set_ticket_priority' => 'Imposta priorità ticket',
+        'set_task_priority' => 'Imposta priorità attività',
     ],
     'ticket_category' => [
         'general' => 'Generale',

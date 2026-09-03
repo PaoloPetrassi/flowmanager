@@ -494,7 +494,13 @@ const initializeFlowManager = () => {
                 commandResults.innerHTML = results.length > 0
                     ? results.map((item) => `
                         <a class="fm-command-item" role="option" href="${escapeHtml(item.url)}">
-                            <span><i class="bi bi-arrow-return-right" aria-hidden="true"></i>${escapeHtml(item.label)}</span>
+                            <span class="fm-command-main">
+                                <i class="bi ${escapeHtml(item.icon || 'bi-arrow-return-right')}" aria-hidden="true"></i>
+                                <span class="min-w-0">
+                                    <strong>${escapeHtml(item.label)}</strong>
+                                    ${item.meta ? `<small class="fm-command-meta">${escapeHtml(item.meta)}</small>` : ''}
+                                </span>
+                            </span>
                             <small>${escapeHtml(item.type)}</small>
                         </a>
                     `).join('')
@@ -512,7 +518,38 @@ const initializeFlowManager = () => {
         const count = container.querySelector('[data-bulk-count]');
         const form = container.querySelector('[data-bulk-form]');
         const selectAll = container.querySelector('[data-bulk-select-all]');
+        const actionSelect = form?.querySelector('[data-bulk-action]');
+        const valueSelect = form?.querySelector('[data-bulk-value]');
         const checkboxes = () => Array.from(container.querySelectorAll('[data-bulk-checkbox]'));
+
+        const syncBulkActionControls = () => {
+            if (!actionSelect || !valueSelect) {
+                return;
+            }
+
+            const action = actionSelect.value;
+            const needsValue = action !== 'delete';
+
+            valueSelect.disabled = !needsValue;
+            valueSelect.hidden = !needsValue;
+
+            Array.from(valueSelect.querySelectorAll('optgroup')).forEach((group) => {
+                const enabled = group.dataset.bulkValueGroup === action;
+                group.disabled = !enabled;
+                group.hidden = !enabled;
+            });
+
+            if (needsValue) {
+                const selectedOption = valueSelect.selectedOptions[0];
+                const selectedGroup = selectedOption?.parentElement;
+
+                if (selectedGroup instanceof HTMLOptGroupElement && selectedGroup.disabled) {
+                    valueSelect.value = '';
+                }
+            } else {
+                valueSelect.value = '';
+            }
+        };
 
         const refreshBulkSelection = () => {
             const boxes = checkboxes();
@@ -538,8 +575,13 @@ const initializeFlowManager = () => {
         });
 
         checkboxes().forEach((box) => box.addEventListener('change', refreshBulkSelection));
+        actionSelect?.addEventListener('change', syncBulkActionControls);
 
-        form?.addEventListener('submit', () => {
+        form?.addEventListener('submit', (event) => {
+            if (actionSelect?.value === 'delete' && !window.confirm(form.dataset.deleteConfirm || 'Delete the selected records?')) {
+                event.preventDefault();
+                return;
+            }
             form.querySelectorAll('input[data-generated-id]').forEach((node) => node.remove());
 
             checkboxes().filter((box) => box.checked).forEach((box) => {
@@ -552,7 +594,64 @@ const initializeFlowManager = () => {
             });
         });
 
+        syncBulkActionControls();
         refreshBulkSelection();
+    });
+
+    document.querySelectorAll('[data-dashboard-period]').forEach((periodSelect) => {
+        const form = periodSelect.closest('form');
+        const customDates = Array.from(form?.querySelectorAll('[data-dashboard-custom-date]') || []);
+
+        const syncDashboardPeriod = () => {
+            const isCustom = periodSelect.value === 'custom';
+
+            customDates.forEach((input) => {
+                input.disabled = !isCustom;
+                input.required = isCustom;
+                input.closest('[data-dashboard-custom-field]')?.classList.toggle('opacity-50', !isCustom);
+            });
+        };
+
+        periodSelect.addEventListener('change', syncDashboardPeriod);
+        syncDashboardPeriod();
+    });
+
+    document.querySelectorAll('[data-automation-form]').forEach((form) => {
+        const actionSelect = form.querySelector('[data-automation-action]');
+        const userField = form.querySelector('[data-automation-user-field]');
+        const priorityField = form.querySelector('[data-automation-priority-field]');
+        const userSelect = userField?.querySelector('select');
+        const prioritySelect = priorityField?.querySelector('select');
+
+        const syncAutomationFields = () => {
+            if (!actionSelect) {
+                return;
+            }
+
+            const needsUser = ['notify_user', 'assign_user'].includes(actionSelect.value);
+            const needsPriority = ['set_ticket_priority', 'set_task_priority'].includes(actionSelect.value);
+
+            if (userField) {
+                userField.hidden = !needsUser;
+            }
+
+            if (userSelect) {
+                userSelect.disabled = !needsUser;
+                userSelect.required = needsUser;
+            }
+
+            if (priorityField) {
+                priorityField.hidden = !needsPriority;
+            }
+
+            if (prioritySelect) {
+                prioritySelect.disabled = !needsPriority;
+                prioritySelect.required = needsPriority;
+            }
+        };
+
+        actionSelect?.addEventListener('change', syncAutomationFields);
+        syncAutomationFields();
     });
 
     const tablePreferenceNode = document.getElementById('fm-table-preferences');

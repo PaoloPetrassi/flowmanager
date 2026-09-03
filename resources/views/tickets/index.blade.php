@@ -16,8 +16,9 @@
 
 
     @include('partials.saved-filters', ['filterResource' => 'tickets', 'filterRoute' => 'tickets.index'])
+    <div class="d-flex justify-content-end mb-3">@include('partials.per-page', ['resourceName' => 'tickets'])</div>
     <div data-bulk-container>
-        @include('partials.bulk-toolbar', ['bulkResource' => 'tickets', 'statuses' => $statuses, 'priorities' => $priorities])
+        @include('partials.bulk-toolbar', ['bulkResource' => 'tickets', 'statuses' => $statuses, 'priorities' => $priorities, 'users' => $users])
 
     <div class="card fm-card"><div class="table-responsive"><table class="table align-middle mb-0 fm-table" data-table-resource="tickets"><thead><tr><th style="width:42px"><input type="checkbox" class="form-check-input" data-bulk-select-all aria-label="{{ __('Select all') }}"></th><th>{{ __('Ticket') }}</th><th data-column="company">{{ __('Company / Contact') }}</th><th data-column="status">{{ __('Status') }}</th><th data-column="priority">{{ __('Priority') }}</th><th data-column="assignee">{{ __('Assigned to') }}</th><th data-column="sla">{{ __('SLA') }}</th><th data-column="created">{{ __('Created') }}</th><th class="text-end">{{ __('Actions') }}</th></tr></thead><tbody>
         @forelse ($tickets as $ticket)

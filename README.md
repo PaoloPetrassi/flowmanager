@@ -2,9 +2,9 @@
 
 FlowManager is a Laravel management application combining CRM, project management, support, assets, collaboration, automation, document management, integrations and business intelligence in a responsive bilingual interface.
 
-Current application version: **v1.3.0 — Clean Release, Demo Mode & Integration Documentation (local release)**.
+Current application version: **v1.6.0 — Productivity, Analytics & Automation 2.0 (local release)**.
 
-The v1.0.1 release is intentionally validated and operated locally for now. The application is structured so a later production deployment does not require an architectural rewrite, but no automatic or remote deployment is enabled in this repository.
+The v1.6.0 release is intentionally validated and operated locally for now. The application is structured so a later production deployment does not require an architectural rewrite, but no automatic or remote deployment is enabled in this repository.
 
 ## Main capabilities
 
@@ -19,6 +19,39 @@ The v1.0.1 release is intentionally validated and operated locally for now. The 
 - **Analytics** — KPIs, saved reports and scheduled CSV reports.
 - **Integrations** — CSV/XLSX imports, scoped API tokens, inbound ticket API and signed webhooks.
 - **Administration** — users, roles, extensibility, security, backups, System Health and Background Jobs.
+
+## v1.4–v1.6 — Productivity, Analytics & Automation 2.0
+
+The v1.4–v1.6 sequence builds on the stable v1.3 integration layer and focuses on daily usability, decision support and configurable workflows.
+
+### v1.4 — Productivity
+
+- Permission-aware cross-module Global Search shared with the `Ctrl/Cmd + K` Command Palette.
+- Optional module scope and richer result metadata.
+- Per-user Saved Views with one optional default view per registry.
+- Configurable 15/25/50/100 row page size on the six core registries.
+- Bulk status, priority, assignment/unassignment and delete actions for Projects, Tasks, Tickets and Assets.
+
+See [`docs/V1_4_PRODUCTIVITY.md`](docs/V1_4_PRODUCTIVITY.md).
+
+### v1.5 — Dashboard analytics and activity
+
+- 7/30/90-day, year-to-date and custom analytics periods.
+- Period KPIs for completed work, Ticket resolution time and SLA performance.
+- Automatic daily/weekly/monthly throughput granularity.
+- Permission-aware Activity Timeline backed by the audit log and configurable from Preferences.
+
+See [`docs/V1_5_ANALYTICS_TIMELINE.md`](docs/V1_5_ANALYTICS_TIMELINE.md).
+
+### v1.6 — Notification Center and Automation 2.0
+
+- Per-user notification channel preferences by category.
+- Notification status/category filters, deletion and read-history cleanup.
+- New automation triggers for unassigned Tasks/Tickets and overdue Projects.
+- New assignment and Task-priority automation actions.
+- Per-subject cooldown, rule preview, run-one and pause/resume controls.
+
+See [`docs/V1_6_NOTIFICATIONS_AUTOMATIONS.md`](docs/V1_6_NOTIFICATIONS_AUTOMATIONS.md).
 
 ## v1.1–v1.3 — Distribution, Demo & Integrations
 
@@ -276,6 +309,20 @@ php artisan test
 
 No new Composer or npm dependency is introduced by v1.1–v1.3. Restart the queue worker after the update so queued webhook jobs use the new delivery/signature logic.
 
+## Upgrade from v1.3.0 to v1.6.0
+
+After copying the incremental v1.4–v1.6 update over a working v1.3.0 installation:
+
+```bash
+php artisan optimize:clear
+php artisan migrate
+php artisan test
+npm run build
+php artisan flowmanager:doctor
+```
+
+v1.6 adds the notification-preference and automation-cooldown columns through a normal migration. v1.4–v1.6 add no Composer or npm dependency. Restart the scheduler and queue worker after updating so long-lived processes load the v1.6 application code.
+
 Then start/restart:
 
 ```bash
@@ -342,7 +389,7 @@ CSV imports do not require `ZipArchive`.
 php artisan test
 ```
 
-The v1.0 baseline contains **133 passing tests** and v1.0.1 raised the declared baseline to **138 feature tests**. v1.2–v1.3 add dedicated demo-mode, OpenAPI and webhook integration coverage.
+The v1.0 baseline contains **133 passing tests** and v1.0.1 raised the declared baseline to **138 feature tests**. The v1.3.0 + Hotfix 1 suite contains **150 feature tests**; v1.4–v1.6 add 12 focused scenarios, bringing the v1.6.0 suite to **162 feature tests**.
 
 Useful focused runs:
 

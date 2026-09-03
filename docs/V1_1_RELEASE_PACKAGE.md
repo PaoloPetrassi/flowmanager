@@ -20,7 +20,7 @@ composer release:package
 The default output is:
 
 ```text
-dist/flowmanager-v1.3.0.zip
+dist/flowmanager-v1.6.0.zip
 ```
 
 A custom relative or absolute destination can be supplied:

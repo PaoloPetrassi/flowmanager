@@ -10,6 +10,7 @@ use App\Models\Asset;
 use App\Models\Company;
 use App\Models\User;
 use App\Services\CollaborationService;
+use App\Services\SavedFilterService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,9 +20,12 @@ use Illuminate\View\View;
 
 class AssetController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, SavedFilterService $savedFilters): View
     {
         Gate::authorize('viewAny', Asset::class);
+
+        $savedFilters->applyDefault($request, 'assets');
+        $perPage = $savedFilters->perPage($request);
 
         $search = trim((string) $request->query('search'));
         $companyId = (string) $request->query('company_id');
@@ -87,7 +91,7 @@ class AssetController extends Controller
                 fn (Builder $query) => $query->where('category', $category)
             )
             ->orderBy($sort, $direction)
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         $categories = Asset::query()
@@ -111,6 +115,7 @@ class AssetController extends Controller
                 'category' => $category,
                 'sort' => $sort,
                 'direction' => $direction,
+                'per_page' => $perPage,
             ],
         ]);
     }

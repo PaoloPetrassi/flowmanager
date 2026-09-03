@@ -23,9 +23,18 @@ class FlowNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        $channels = ['database'];
+        $preferences = $notifiable->preference?->notification_preferences ?? [];
+        $category = $this->category();
+        $channels = [];
 
-        if (config('flowmanager.notifications.mail_enabled')) {
+        if ((bool) data_get($preferences, 'in_app.'.$category, true)) {
+            $channels[] = 'database';
+        }
+
+        if (
+            config('flowmanager.notifications.mail_enabled')
+            && (bool) data_get($preferences, 'mail.'.$category, true)
+        ) {
             $channels[] = 'mail';
         }
 
@@ -44,6 +53,7 @@ class FlowNotification extends Notification
     {
         return [
             'kind' => $this->kind,
+            'category' => $this->category(),
             'title_key' => $this->titleKey,
             'message_key' => $this->messageKey,
             'parameters' => $this->parameters,
@@ -51,5 +61,16 @@ class FlowNotification extends Notification
             'route_parameters' => $this->routeParameters,
             'icon' => $this->icon,
         ];
+    }
+
+    private function category(): string
+    {
+        return match ($this->kind) {
+            'assignment', 'reassignment' => 'assignments',
+            'comment' => 'comments',
+            'task_reminder', 'sla_reminder' => 'reminders',
+            'automation' => 'automations',
+            default => 'system',
+        };
     }
 }

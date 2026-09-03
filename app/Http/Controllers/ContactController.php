@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\Project;
 use App\Models\Ticket;
 use App\Services\CollaborationService;
+use App\Services\SavedFilterService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,9 +23,12 @@ class ContactController extends Controller
     /**
      * Display a listing of the contacts.
      */
-    public function index(Request $request): View
+    public function index(Request $request, SavedFilterService $savedFilters): View
     {
         Gate::authorize('viewAny', Contact::class);
+
+        $savedFilters->applyDefault($request, 'contacts');
+        $perPage = $savedFilters->perPage($request);
 
         $search = trim((string) $request->query('search'));
         $companyId = (string) $request->query('company_id');
@@ -101,7 +105,7 @@ class ContactController extends Controller
             ->orderBy($sort, $direction)
             ->orderBy('first_name', $direction)
 
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         $companies = Company::query()
@@ -121,6 +125,7 @@ class ContactController extends Controller
                 'primary' => $primary,
                 'sort' => $sort,
                 'direction' => $direction,
+                'per_page' => $perPage,
             ],
         ]);
     }

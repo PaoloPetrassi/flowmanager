@@ -280,6 +280,11 @@
 
     </div>
 
+    <?php echo $__env->make('partials.saved-filters', ['filterResource' => 'companies', 'filterRoute' => 'companies.index'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    <div class="d-flex justify-content-end mb-3">
+        <?php echo $__env->make('partials.per-page', ['resourceName' => 'companies'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+    </div>
+
     <div class="card fm-card">
 
         <div class="table-responsive">

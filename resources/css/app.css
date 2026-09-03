@@ -2751,3 +2751,153 @@ body[data-theme="dark"] .fm-gantt-label {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ----------------------------------------------------------
+   v1.4–v1.6 · productivity, analytics and automations
+---------------------------------------------------------- */
+.fm-command-main {
+    display: flex !important;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.fm-command-main > span {
+    display: block !important;
+    min-width: 0;
+}
+
+.fm-command-main strong,
+.fm-command-meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fm-command-meta {
+    display: block !important;
+    margin-top: 0.12rem;
+    font-size: 0.72rem;
+    font-weight: 400;
+}
+
+.fm-activity-timeline {
+    display: grid;
+    gap: 1.15rem;
+}
+
+.fm-activity-date,
+.fm-timeline-date {
+    color: var(--fm-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.fm-activity-items,
+.fm-timeline-items {
+    position: relative;
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 0.55rem;
+    padding-left: 2rem;
+}
+
+.fm-activity-items::before,
+.fm-timeline-items::before {
+    position: absolute;
+    top: 0.35rem;
+    bottom: 0.35rem;
+    left: 0.7rem;
+    width: 1px;
+    background: var(--fm-border);
+    content: '';
+}
+
+.fm-activity-item,
+.fm-timeline-item {
+    position: relative;
+    min-width: 0;
+}
+
+.fm-activity-marker,
+.fm-timeline-marker {
+    position: absolute;
+    top: 0.05rem;
+    left: -2rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.45rem;
+    height: 1.45rem;
+    border: 1px solid color-mix(in srgb, var(--fm-primary) 25%, var(--fm-border));
+    border-radius: 50%;
+    background: var(--fm-surface);
+    color: var(--fm-primary);
+    font-size: 0.7rem;
+}
+
+.fm-activity-content,
+.fm-timeline-content {
+    min-width: 0;
+    color: var(--fm-text);
+    font-size: 0.82rem;
+}
+
+.fm-automation-preview {
+    padding: 0.9rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--fm-primary) 24%, var(--fm-border));
+    border-radius: 0.75rem;
+    background: var(--fm-primary-soft);
+}
+
+.fm-automation-preview-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 0.6rem;
+    background: var(--fm-surface);
+}
+
+.fm-automation-preview-stat strong {
+    color: var(--fm-text);
+    font-size: 1rem;
+}
+
+.fm-automation-preview-stat span {
+    color: var(--fm-muted);
+    font-size: 0.7rem;
+}
+
+.fm-automation-runs {
+    display: block;
+    margin-top: 0.7rem;
+}
+
+.fm-notification-category {
+    border: 1px solid var(--fm-border);
+    background: var(--fm-surface-muted);
+    color: var(--fm-muted);
+    font-weight: 600;
+}
+
+body[data-theme="dark"] .fm-notification-row.is-unread {
+    background: color-mix(in srgb, var(--fm-primary) 8%, var(--fm-surface));
+}
+
+body[data-theme="dark"] .fm-automation-preview {
+    background: color-mix(in srgb, var(--fm-primary) 8%, var(--fm-surface));
+}
+
+@media (prefers-color-scheme: dark) {
+    body[data-theme="system"] .fm-notification-row.is-unread {
+        background: color-mix(in srgb, var(--fm-primary) 8%, var(--fm-surface));
+    }
+
+    body[data-theme="system"] .fm-automation-preview {
+        background: color-mix(in srgb, var(--fm-primary) 8%, var(--fm-surface));
+    }
+}

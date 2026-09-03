@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'version' => '1.3.0',
+    'version' => '1.6.0',
 
     'admin' => [
         'name' => env('FLOWMANAGER_ADMIN_NAME', 'FlowManager Administrator'),

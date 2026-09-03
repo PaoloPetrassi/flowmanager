@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'api_pagination' => 'Paginazione',
+
     'overdue_tasks' => '{1} Hai :count attività scaduta assegnata.|[2,*] Hai :count attività scadute assegnate.',
 
     'counts' => [

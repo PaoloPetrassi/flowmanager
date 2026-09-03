@@ -1,25 +1,159 @@
 @extends('layouts.app')
+
 @section('title', __('Assets'))
 @section('page-title', __('Assets'))
 @section('page-subtitle', __('Inventory, ownership, assignment and lifecycle tracking'))
-@section('content')
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"><div class="text-secondary">{{ trans_choice('ui.counts.assets', $assets->total(), ['count' => $assets->total()]) }}</div>@can('create', App\Models\Asset::class)<a href="{{ route('assets.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> {{ __('New asset') }}</a>@endcan</div>
-    <div class="card fm-card mb-4"><div class="card-body"><form method="GET" action="{{ route('assets.index') }}"><div class="row g-3">
-        <div class="col-12 col-lg-4"><label for="search" class="form-label fw-semibold">{{ __('Search') }}</label><input id="search" name="search" class="form-control" value="{{ $filters['search'] }}" placeholder="{{ __('Tag, serial, model, company...') }}"></div>
-        <div class="col-12 col-md-6 col-lg-2"><label for="company_id" class="form-label fw-semibold">{{ __('Company') }}</label><select id="company_id" name="company_id" class="form-select"><option value="">{{ __('All companies') }}</option>@foreach ($companies as $company)<option value="{{ $company->id }}" @selected((string) $filters['company_id'] === (string) $company->id)>{{ $company->name }}</option>@endforeach</select></div>
-        <div class="col-6 col-md-3 col-lg-2"><label for="status" class="form-label fw-semibold">{{ __('Status') }}</label><select id="status" name="status" class="form-select"><option value="">{{ __('All statuses') }}</option>@foreach ($statuses as $status)<option value="{{ $status->value }}" @selected($filters['status'] === $status->value)>{{ $status->label() }}</option>@endforeach</select></div>
-        <div class="col-6 col-md-3 col-lg-2"><label for="category" class="form-label fw-semibold">{{ __('Category') }}</label><select id="category" name="category" class="form-select"><option value="">{{ __('All categories') }}</option>@foreach ($categories as $category)<option value="{{ $category }}" @selected($filters['category'] === $category)>{{ $category }}</option>@endforeach</select></div>
-        <div class="col-12 col-md-6 col-lg-2"><label for="assigned_to" class="form-label fw-semibold">{{ __('Assigned to') }}</label><select id="assigned_to" name="assigned_to" class="form-select"><option value="">{{ __('All users') }}</option>@foreach ($users as $user)<option value="{{ $user->id }}" @selected((string) $filters['assigned_to'] === (string) $user->id)>{{ $user->name }}</option>@endforeach</select></div>
-        <div class="col-12 col-md-6 col-lg-3"><label for="sort" class="form-label fw-semibold">{{ __('Sort by') }}</label><select id="sort" name="sort" class="form-select">@foreach (['asset_tag' => 'Asset tag', 'name' => 'Name', 'category' => 'Category', 'status' => 'Status', 'purchase_date' => 'Purchase date', 'created_at' => 'Created'] as $value => $label)<option value="{{ $value }}" @selected($filters['sort'] === $value)>{{ __($label) }}</option>@endforeach</select></div>
-        <div class="col-6 col-md-3 col-lg-2"><label for="direction" class="form-label fw-semibold">{{ __('Order') }}</label><select id="direction" name="direction" class="form-select"><option value="asc" @selected($filters['direction'] === 'asc')>{{ __('Ascending') }}</option><option value="desc" @selected($filters['direction'] === 'desc')>{{ __('Descending') }}</option></select></div>
-    </div><div class="d-flex justify-content-end gap-2 mt-3"><a href="{{ route('assets.index') }}" class="btn btn-outline-secondary">{{ __('Reset') }}</a><button class="btn btn-primary">{{ __('Apply filters') }}</button></div></form></div></div>
 
+@section('content')
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div class="text-secondary">{{ trans_choice('ui.counts.assets', $assets->total(), ['count' => $assets->total()]) }}</div>
+
+        @can('create', App\Models\Asset::class)
+            <a href="{{ route('assets.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>{{ __('New asset') }}
+            </a>
+        @endcan
+    </div>
+
+    <div class="card fm-card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('assets.index') }}">
+                <div class="row g-3">
+                    <div class="col-12 col-lg-4">
+                        <label for="search" class="form-label fw-semibold">{{ __('Search') }}</label>
+                        <input id="search" name="search" class="form-control" value="{{ $filters['search'] }}" placeholder="{{ __('Tag, serial, model, company...') }}">
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <label for="company_id" class="form-label fw-semibold">{{ __('Company') }}</label>
+                        <select id="company_id" name="company_id" class="form-select">
+                            <option value="">{{ __('All companies') }}</option>
+                            @foreach ($companies as $company)
+                                <option value="{{ $company->id }}" @selected((string) $filters['company_id'] === (string) $company->id)>{{ $company->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <label for="status" class="form-label fw-semibold">{{ __('Status') }}</label>
+                        <select id="status" name="status" class="form-select">
+                            <option value="">{{ __('All statuses') }}</option>
+                            @foreach ($statuses as $status)
+                                <option value="{{ $status->value }}" @selected($filters['status'] === $status->value)>{{ $status->label() }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <label for="category" class="form-label fw-semibold">{{ __('Category') }}</label>
+                        <select id="category" name="category" class="form-select">
+                            <option value="">{{ __('All categories') }}</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category }}" @selected($filters['category'] === $category)>{{ $category }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-2">
+                        <label for="assigned_to" class="form-label fw-semibold">{{ __('Assigned to') }}</label>
+                        <select id="assigned_to" name="assigned_to" class="form-select">
+                            <option value="">{{ __('All users') }}</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}" @selected((string) $filters['assigned_to'] === (string) $user->id)>{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3">
+                        <label for="sort" class="form-label fw-semibold">{{ __('Sort by') }}</label>
+                        <select id="sort" name="sort" class="form-select">
+                            @foreach (['asset_tag' => 'Asset tag', 'name' => 'Name', 'category' => 'Category', 'status' => 'Status', 'purchase_date' => 'Purchase date', 'created_at' => 'Created'] as $value => $label)
+                                <option value="{{ $value }}" @selected($filters['sort'] === $value)>{{ __($label) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3 col-lg-2">
+                        <label for="direction" class="form-label fw-semibold">{{ __('Order') }}</label>
+                        <select id="direction" name="direction" class="form-select">
+                            <option value="asc" @selected($filters['direction'] === 'asc')>{{ __('Ascending') }}</option>
+                            <option value="desc" @selected($filters['direction'] === 'desc')>{{ __('Descending') }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <a href="{{ route('assets.index') }}" class="btn btn-outline-secondary">{{ __('Reset') }}</a>
+                    <button class="btn btn-primary">{{ __('Apply filters') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     @include('partials.saved-filters', ['filterResource' => 'assets', 'filterRoute' => 'assets.index'])
-    <div class="card fm-card"><div class="table-responsive"><table class="table align-middle mb-0 fm-table"><thead><tr><th>{{ __('Asset') }}</th><th>{{ __('Category') }}</th><th>{{ __('Company') }}</th><th>{{ __('Assigned to') }}</th><th>{{ __('Status') }}</th><th>{{ __('Serial') }}</th><th class="text-end">{{ __('Actions') }}</th></tr></thead><tbody>
-        @forelse ($assets as $asset)
-            @php $statusClass = match ($asset->status->value) {'available' => 'text-bg-success', 'assigned' => 'text-bg-primary', 'maintenance' => 'text-bg-warning', 'lost' => 'text-bg-danger', default => 'text-bg-secondary'}; @endphp
-            <tr><td><a class="fw-semibold text-dark" href="{{ route('assets.show', $asset) }}">{{ $asset->name }}</a><div class="small text-secondary">{{ $asset->asset_tag }}{{ $asset->brand ? ' · '.$asset->brand : '' }}</div></td><td>{{ $asset->category ?: '—' }}</td><td>{{ $asset->company?->name ?: __('Internal') }}</td><td>{{ $asset->assignee?->name ?: '—' }}</td><td><span class="badge {{ $statusClass }}">{{ $asset->status->label() }}</span></td><td>{{ $asset->serial_number ?: '—' }}</td><td class="text-end"><div class="btn-group"><a href="{{ route('assets.show', $asset) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('View') }}"><i class="bi bi-eye"></i></a>@can('assign', $asset)<a href="{{ route('assets.assignment.edit', $asset) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Assign') }}"><i class="bi bi-person-check"></i></a>@endcan @can('update', $asset)<a href="{{ route('assets.edit', $asset) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></a>@endcan @can('delete', $asset)<form method="POST" action="{{ route('assets.destroy', $asset) }}" onsubmit="return confirm(@js(__('Delete this asset?')));">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger rounded-start-0" title="{{ __('Delete') }}"><i class="bi bi-trash"></i></button></form>@endcan</div></td></tr>
-        @empty<tr><td colspan="7" class="text-center py-5"><i class="bi bi-laptop fs-1 text-secondary"></i><div class="fw-semibold mt-3">{{ __('No assets found') }}</div><div class="text-secondary">{{ __('Register an asset or change the active filters.') }}</div></td></tr>@endforelse
-    </tbody></table></div>@if ($assets->hasPages())<div class="card-footer bg-white p-3">{{ $assets->links() }}</div>@endif</div>
+
+    <div class="d-flex justify-content-end mb-3">
+        @include('partials.per-page', ['resourceName' => 'assets'])
+    </div>
+
+    <div data-bulk-container>
+        @include('partials.bulk-toolbar', [
+            'bulkResource' => 'assets',
+            'statuses' => $statuses,
+            'priorities' => [],
+            'users' => $users,
+        ])
+
+        <div class="card fm-card">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 fm-table">
+                    <thead>
+                        <tr>
+                            <th style="width:42px"><input type="checkbox" class="form-check-input" data-bulk-select-all aria-label="{{ __('Select all') }}"></th>
+                            <th>{{ __('Asset') }}</th>
+                            <th>{{ __('Category') }}</th>
+                            <th>{{ __('Company') }}</th>
+                            <th>{{ __('Assigned to') }}</th>
+                            <th>{{ __('Status') }}</th>
+                            <th>{{ __('Serial') }}</th>
+                            <th class="text-end">{{ __('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($assets as $asset)
+                            @php
+                                $statusClass = match ($asset->status->value) {
+                                    'available' => 'text-bg-success',
+                                    'assigned' => 'text-bg-primary',
+                                    'maintenance' => 'text-bg-warning',
+                                    'lost' => 'text-bg-danger',
+                                    default => 'text-bg-secondary',
+                                };
+                            @endphp
+                            <tr>
+                                <td><input type="checkbox" class="form-check-input" value="{{ $asset->id }}" data-bulk-checkbox aria-label="{{ __('Select') }}"></td>
+                                <td><a class="fw-semibold text-dark" href="{{ route('assets.show', $asset) }}">{{ $asset->name }}</a><div class="small text-secondary">{{ $asset->asset_tag }}{{ $asset->brand ? ' · '.$asset->brand : '' }}</div></td>
+                                <td>{{ $asset->category ?: '—' }}</td>
+                                <td>{{ $asset->company?->name ?: __('Internal') }}</td>
+                                <td>{{ $asset->assignee?->name ?: '—' }}</td>
+                                <td><span class="badge {{ $statusClass }}">{{ $asset->status->label() }}</span></td>
+                                <td>{{ $asset->serial_number ?: '—' }}</td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a href="{{ route('assets.show', $asset) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('View') }}"><i class="bi bi-eye"></i></a>
+                                        @can('assign', $asset)<a href="{{ route('assets.assignment.edit', $asset) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Assign') }}"><i class="bi bi-person-check"></i></a>@endcan
+                                        @can('update', $asset)<a href="{{ route('assets.edit', $asset) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Edit') }}"><i class="bi bi-pencil"></i></a>@endcan
+                                        @can('delete', $asset)
+                                            <form method="POST" action="{{ route('assets.destroy', $asset) }}" onsubmit="return confirm(@js(__('Delete this asset?')));">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-outline-danger rounded-start-0" title="{{ __('Delete') }}"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        @endcan
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="8" class="text-center py-5"><i class="bi bi-laptop fs-1 text-secondary"></i><div class="fw-semibold mt-3">{{ __('No assets found') }}</div><div class="text-secondary">{{ __('Register an asset or change the active filters.') }}</div></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if ($assets->hasPages())<div class="card-footer bg-white p-3">{{ $assets->links() }}</div>@endif
+        </div>
+    </div>
 @endsection

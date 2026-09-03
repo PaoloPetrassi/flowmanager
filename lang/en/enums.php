@@ -56,14 +56,19 @@ return [
     'automation_trigger' => [
         'task_overdue' => 'Task overdue',
         'task_due_soon' => 'Task due soon',
+        'task_unassigned' => 'Task unassigned',
         'ticket_sla_breached' => 'Ticket SLA breached',
+        'ticket_unassigned' => 'Ticket unassigned',
         'project_due_soon' => 'Project due soon',
+        'project_overdue' => 'Project overdue',
     ],
     'automation_action' => [
         'notify_assignee' => 'Notify assignee',
         'notify_manager' => 'Notify project manager',
         'notify_user' => 'Notify selected user',
+        'assign_user' => 'Assign selected user',
         'set_ticket_priority' => 'Set ticket priority',
+        'set_task_priority' => 'Set task priority',
     ],
     'ticket_category' => [
         'general' => 'General',

@@ -261,6 +261,11 @@
 
     </div>
 
+    @include('partials.saved-filters', ['filterResource' => 'companies', 'filterRoute' => 'companies.index'])
+    <div class="d-flex justify-content-end mb-3">
+        @include('partials.per-page', ['resourceName' => 'companies'])
+    </div>
+
     <div class="card fm-card">
 
         <div class="table-responsive">

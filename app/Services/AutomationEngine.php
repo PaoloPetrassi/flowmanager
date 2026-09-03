@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\AutomationAction;
 use App\Enums\AutomationTrigger;
 use App\Enums\ProjectStatus;
+use App\Enums\TaskPriority;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Models\AutomationRule;
@@ -20,41 +21,80 @@ use Illuminate\Support\Collection;
 
 class AutomationEngine
 {
-    public function run(): array
+    public function run(?AutomationRule $onlyRule = null): array
     {
         $summary = ['rules' => 0, 'executed' => 0, 'skipped' => 0, 'failed' => 0];
 
-        AutomationRule::query()
+        $rules = AutomationRule::query()
             ->where('is_active', true)
+            ->when($onlyRule, fn ($query) => $query->whereKey($onlyRule->getKey()))
             ->orderBy('id')
-            ->each(function (AutomationRule $rule) use (&$summary) {
-                $summary['rules']++;
+            ->get();
 
-                foreach ($this->subjectsFor($rule->trigger) as $subject) {
-                    if (! $this->matches($subject, $rule->conditions ?? [])) {
-                        $summary['skipped']++;
-                        continue;
-                    }
-
-                    if ($this->alreadyRanToday($rule, $subject)) {
-                        $summary['skipped']++;
-                        continue;
-                    }
-
-                    try {
-                        $message = $this->execute($rule, $subject);
-                        $this->logRun($rule, $subject, 'success', $message);
-                        $summary['executed']++;
-                    } catch (\Throwable $exception) {
-                        $this->logRun($rule, $subject, 'failed', $exception->getMessage());
-                        $summary['failed']++;
-                    }
-                }
-
-                $rule->forceFill(['last_run_at' => now()])->saveQuietly();
-            });
+        foreach ($rules as $rule) {
+            $summary['rules']++;
+            $this->executeRule($rule, $summary);
+        }
 
         return $summary;
+    }
+
+    /**
+     * @return array{matched:int, eligible:int, cooldown:int, items:array<int, string>}
+     */
+    public function preview(AutomationRule $rule): array
+    {
+        $matched = 0;
+        $eligible = 0;
+        $cooldown = 0;
+        $items = [];
+
+        foreach ($this->subjectsFor($rule->trigger) as $subject) {
+            if (! $this->matches($subject, $rule->conditions ?? [])) {
+                continue;
+            }
+
+            $matched++;
+
+            if ($this->withinCooldown($rule, $subject)) {
+                $cooldown++;
+                continue;
+            }
+
+            $eligible++;
+
+            if (count($items) < 5) {
+                $items[] = FlowResourceRegistry::labelForModel($subject);
+            }
+        }
+
+        return compact('matched', 'eligible', 'cooldown', 'items');
+    }
+
+    private function executeRule(AutomationRule $rule, array &$summary): void
+    {
+        foreach ($this->subjectsFor($rule->trigger) as $subject) {
+            if (! $this->matches($subject, $rule->conditions ?? [])) {
+                $summary['skipped']++;
+                continue;
+            }
+
+            if ($this->withinCooldown($rule, $subject)) {
+                $summary['skipped']++;
+                continue;
+            }
+
+            try {
+                $message = $this->execute($rule, $subject);
+                $this->logRun($rule, $subject, 'success', $message);
+                $summary['executed']++;
+            } catch (\Throwable $exception) {
+                $this->logRun($rule, $subject, 'failed', $exception->getMessage());
+                $summary['failed']++;
+            }
+        }
+
+        $rule->forceFill(['last_run_at' => now()])->saveQuietly();
     }
 
     private function subjectsFor(AutomationTrigger $trigger): Collection
@@ -68,19 +108,39 @@ class AutomationEngine
             AutomationTrigger::TaskDueSoon => Task::query()
                 ->operational()
                 ->open()
+                ->whereNotNull('due_date')
                 ->whereBetween('due_date', [today(), today()->addDay()])
                 ->with(['assignee', 'project.manager'])
                 ->get(),
+            AutomationTrigger::TaskUnassigned => Task::query()
+                ->operational()
+                ->open()
+                ->whereNull('assigned_to')
+                ->with(['assignee', 'project.manager'])
+                ->get(),
             AutomationTrigger::TicketSlaBreached => Ticket::query()
-                ->whereNotIn('status', [TicketStatus::Resolved->value, TicketStatus::Closed->value])
+                ->open()
                 ->whereNotNull('sla_due_at')
                 ->where('sla_due_at', '<=', now())
+                ->with('assignee')
+                ->get(),
+            AutomationTrigger::TicketUnassigned => Ticket::query()
+                ->open()
+                ->whereNull('assigned_to')
                 ->with('assignee')
                 ->get(),
             AutomationTrigger::ProjectDueSoon => Project::query()
                 ->operational()
                 ->whereNotIn('status', [ProjectStatus::Completed->value, ProjectStatus::Cancelled->value])
+                ->whereNotNull('due_date')
                 ->whereBetween('due_date', [today(), today()->addDays(7)])
+                ->with('manager')
+                ->get(),
+            AutomationTrigger::ProjectOverdue => Project::query()
+                ->operational()
+                ->whereNotIn('status', [ProjectStatus::Completed->value, ProjectStatus::Cancelled->value])
+                ->whereNotNull('due_date')
+                ->whereDate('due_date', '<', today())
                 ->with('manager')
                 ->get(),
         };
@@ -107,13 +167,16 @@ class AutomationEngine
         return true;
     }
 
-    private function alreadyRanToday(AutomationRule $rule, Model $subject): bool
+    private function withinCooldown(AutomationRule $rule, Model $subject): bool
     {
+        $cooldownMinutes = max(15, (int) ($rule->cooldown_minutes ?: 1440));
+
         return AutomationRun::query()
             ->where('automation_rule_id', $rule->id)
             ->where('subject_type', $subject::class)
             ->where('subject_id', $subject->getKey())
-            ->whereDate('ran_at', today())
+            ->where('status', 'success')
+            ->where('ran_at', '>=', now()->subMinutes($cooldownMinutes))
             ->exists();
     }
 
@@ -135,7 +198,9 @@ class AutomationEngine
                 $subject,
                 $rule->name
             ),
+            AutomationAction::AssignUser => $this->assignUser($rule, $subject),
             AutomationAction::SetTicketPriority => $this->setTicketPriority($rule, $subject),
+            AutomationAction::SetTaskPriority => $this->setTaskPriority($rule, $subject),
         };
     }
 
@@ -167,6 +232,29 @@ class AutomationEngine
         return 'Notification sent to '.$recipient->email.'.';
     }
 
+    private function assignUser(AutomationRule $rule, Model $subject): string
+    {
+        $user = User::query()->find($rule->action_config['user_id'] ?? null);
+
+        if (! $user) {
+            return 'Action skipped: target user not found.';
+        }
+
+        $attribute = match (true) {
+            $subject instanceof Task, $subject instanceof Ticket => 'assigned_to',
+            $subject instanceof Project => 'manager_id',
+            default => null,
+        };
+
+        if (! $attribute) {
+            return 'Action skipped: subject cannot be assigned.';
+        }
+
+        $subject->update([$attribute => $user->id]);
+
+        return 'Assigned to '.$user->email.'.';
+    }
+
     private function setTicketPriority(AutomationRule $rule, Model $subject): string
     {
         if (! $subject instanceof Ticket) {
@@ -182,6 +270,23 @@ class AutomationEngine
         $subject->update(['priority' => $priority]);
 
         return 'Ticket priority updated to '.$priority->value.'.';
+    }
+
+    private function setTaskPriority(AutomationRule $rule, Model $subject): string
+    {
+        if (! $subject instanceof Task) {
+            return 'Action skipped: subject is not a task.';
+        }
+
+        $priority = TaskPriority::tryFrom((string) ($rule->action_config['priority'] ?? ''));
+
+        if (! $priority) {
+            return 'Action skipped: invalid priority.';
+        }
+
+        $subject->update(['priority' => $priority]);
+
+        return 'Task priority updated to '.$priority->value.'.';
     }
 
     private function assigneeFor(Model $subject): ?User
@@ -218,6 +323,8 @@ class AutomationEngine
             'message' => $message,
             'context' => [
                 'label' => FlowResourceRegistry::labelForModel($subject),
+                'trigger' => $rule->trigger->value,
+                'action' => $rule->action->value,
             ],
             'ran_at' => now(),
         ]);

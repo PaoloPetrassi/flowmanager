@@ -1,0 +1,17 @@
+FlowManager v1.6.0 - COMPLETE PACKAGE
+
+This is the complete project, not an incremental patch.
+
+Recommended use on the existing local repository:
+1. Keep your current C:\Projects\flowmanager\.env and .git directory.
+2. Extract/copy the CONTENTS of this package over C:\Projects\flowmanager and allow overwrite.
+3. Open VS Code Git Bash in C:\Projects\flowmanager.
+4. Run:
+   php artisan optimize:clear
+   php artisan migrate
+   npm run build
+   php artisan test
+   php artisan flowmanager:doctor
+
+The archive intentionally does not contain .env or .git, so your local credentials and Git history are not overwritten.
+Vendor and the original Windows node_modules are included for faster setup.

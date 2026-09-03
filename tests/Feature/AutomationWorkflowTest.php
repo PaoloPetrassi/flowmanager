@@ -2,6 +2,7 @@
 
 use App\Enums\AutomationAction;
 use App\Enums\AutomationTrigger;
+use App\Enums\TaskPriority;
 use App\Enums\TaskRecurrence;
 use App\Enums\TaskStatus;
 use App\Enums\TicketPriority;
@@ -131,7 +132,7 @@ test('reminder service notifies task assignees and marks reminders as sent', fun
     Carbon::setTestNow();
 });
 
-test('automation engine executes an overdue task rule only once per day', function () {
+test('automation engine respects the per subject cooldown', function () {
     Notification::fake();
     Carbon::setTestNow('2026-08-30 12:00:00');
     $operator = automationWorkflowUser();
@@ -148,16 +149,134 @@ test('automation engine executes an overdue task rule only once per day', functi
         'name' => 'Overdue task alert',
         'trigger' => AutomationTrigger::TaskOverdue,
         'action' => AutomationAction::NotifyAssignee,
+        'cooldown_minutes' => 60,
         'is_active' => true,
         'created_by' => $operator->id,
     ]);
 
     $first = app(AutomationEngine::class)->run();
+
+    Carbon::setTestNow('2026-08-30 12:30:00');
     $second = app(AutomationEngine::class)->run();
+
+    Carbon::setTestNow('2026-08-30 13:01:00');
+    $third = app(AutomationEngine::class)->run();
 
     expect($first['executed'])->toBe(1)
         ->and($second['executed'])->toBe(0)
-        ->and($second['skipped'])->toBeGreaterThanOrEqual(1);
+        ->and($second['skipped'])->toBeGreaterThanOrEqual(1)
+        ->and($third['executed'])->toBe(1);
 
     Carbon::setTestNow();
+});
+
+test('automation can assign an unassigned task to a selected user', function () {
+    $manager = automationWorkflowUser('manager');
+    $target = automationWorkflowUser('operator');
+    $project = automationWorkflowProject($manager);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'assigned_to' => null,
+        'status' => TaskStatus::Todo,
+        'created_by' => $manager->id,
+    ]);
+
+    AutomationRule::query()->create([
+        'name' => 'Assign orphan tasks',
+        'trigger' => AutomationTrigger::TaskUnassigned,
+        'action' => AutomationAction::AssignUser,
+        'action_config' => ['user_id' => $target->id],
+        'cooldown_minutes' => 15,
+        'is_active' => true,
+        'created_by' => $manager->id,
+    ]);
+
+    $summary = app(AutomationEngine::class)->run();
+
+    expect($summary['executed'])->toBe(1)
+        ->and($task->fresh()->assigned_to)->toBe($target->id);
+});
+
+test('automation can raise the priority of an unassigned task', function () {
+    $manager = automationWorkflowUser('manager');
+    $project = automationWorkflowProject($manager);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'assigned_to' => null,
+        'status' => TaskStatus::Todo,
+        'priority' => TaskPriority::Low,
+        'created_by' => $manager->id,
+    ]);
+
+    AutomationRule::query()->create([
+        'name' => 'Escalate orphan tasks',
+        'trigger' => AutomationTrigger::TaskUnassigned,
+        'action' => AutomationAction::SetTaskPriority,
+        'action_config' => ['priority' => TaskPriority::Urgent->value],
+        'cooldown_minutes' => 15,
+        'is_active' => true,
+        'created_by' => $manager->id,
+    ]);
+
+    app(AutomationEngine::class)->run();
+
+    expect($task->fresh()->priority)->toBe(TaskPriority::Urgent);
+});
+
+test('automation preview reports eligible subjects without changing them', function () {
+    $manager = automationWorkflowUser('manager');
+    $target = automationWorkflowUser('operator');
+    $project = automationWorkflowProject($manager);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'assigned_to' => null,
+        'status' => TaskStatus::Todo,
+        'created_by' => $manager->id,
+    ]);
+
+    $rule = AutomationRule::query()->create([
+        'name' => 'Preview orphan tasks',
+        'trigger' => AutomationTrigger::TaskUnassigned,
+        'action' => AutomationAction::AssignUser,
+        'action_config' => ['user_id' => $target->id],
+        'cooldown_minutes' => 60,
+        'is_active' => true,
+        'created_by' => $manager->id,
+    ]);
+
+    $preview = app(AutomationEngine::class)->preview($rule);
+
+    expect($preview['matched'])->toBe(1)
+        ->and($preview['eligible'])->toBe(1)
+        ->and($preview['cooldown'])->toBe(0)
+        ->and($task->fresh()->assigned_to)->toBeNull();
+});
+
+test('automation manager can preview pause and resume a rule', function () {
+    $manager = automationWorkflowUser('manager');
+    $rule = AutomationRule::query()->create([
+        'name' => 'Managed rule',
+        'trigger' => AutomationTrigger::ProjectDueSoon,
+        'action' => AutomationAction::NotifyManager,
+        'cooldown_minutes' => 1440,
+        'is_active' => true,
+        'created_by' => $manager->id,
+    ]);
+
+    $this->actingAs($manager)
+        ->post(route('automations.preview', $rule))
+        ->assertRedirect()
+        ->assertSessionHas('automation_preview', fn (array $preview) => $preview['rule_id'] === $rule->id);
+
+    $this->actingAs($manager)
+        ->patch(route('automations.toggle', $rule))
+        ->assertRedirect();
+
+    expect($rule->fresh()->is_active)->toBeFalse();
+
+    $this->actingAs($manager)
+        ->patch(route('automations.toggle', $rule))
+        ->assertRedirect();
+
+    expect($rule->fresh()->is_active)->toBeTrue();
 });

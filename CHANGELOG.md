@@ -1,5 +1,35 @@
 # FlowManager Changelog
 
+## v1.6.0 — Notification Center & Automation 2.0 (local release)
+
+- Added per-user in-app/email notification preferences for assignments, comments, reminders, automations and system events.
+- Added Notification Center status/category filters, individual deletion and read-history cleanup.
+- Added Automation triggers for unassigned Tasks, unassigned Tickets and overdue Projects.
+- Added automation actions for assigning a selected user and changing Task priority.
+- Added configurable per-subject automation cooldowns from 15 minutes to 7 days.
+- Added rule preview, run-one, pause/resume controls and richer recent execution context.
+- Added focused feature coverage for notification preferences, category filtering, automation cooldowns, preview and assignment/escalation actions.
+- The complete v1.6.0 feature suite contains 162 Pest scenarios (12 added across v1.4–v1.6).
+- Production deployment remains intentionally postponed.
+
+## v1.5.0 — Dashboard Analytics & Activity Timeline (local release)
+
+- Added 7/30/90-day, year-to-date and custom dashboard analytics ranges.
+- Added period KPIs for completed Tasks/Projects, resolved Tickets, average resolution time and SLA overruns.
+- Made throughput aggregation automatically use daily, weekly or monthly buckets based on the selected period.
+- Added a permission-aware Activity Timeline dashboard widget backed by the existing audit log.
+- Added the Activity Timeline to dashboard preferences.
+- Added focused feature coverage for custom analytics ranges and tracked dashboard activity.
+
+## v1.4.0 — Search, Saved Views & Bulk Productivity (local release)
+
+- Unified full-page search and the Ctrl/Cmd+K Command Palette behind one permission-aware cross-module search service.
+- Added module-scoped search, prefix prioritisation, record metadata and module-specific palette icons.
+- Upgraded saved filters to per-user Saved Views with one optional default view per registry.
+- Added configurable 15/25/50/100 row pagination to Companies, Contacts, Projects, Tasks, Assets and Tickets.
+- Expanded bulk actions with assignment/unassignment and Asset support while preserving Task/Ticket completion timestamps.
+- Added focused feature coverage for scoped search, default views, assignment bulk actions and pagination-related behaviour.
+
 ## v1.3.0 — REST/OpenAPI & Webhooks (local release)
 
 - Added authenticated in-app API documentation and a public machine-readable OpenAPI 3.1 JSON specification.

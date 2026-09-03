@@ -12,6 +12,7 @@ use App\Models\Contact;
 use App\Models\Project;
 use App\Models\User;
 use App\Services\CollaborationService;
+use App\Services\SavedFilterService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,9 +23,12 @@ use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request, SavedFilterService $savedFilters): View
     {
         Gate::authorize('viewAny', Project::class);
+
+        $savedFilters->applyDefault($request, 'projects');
+        $perPage = $savedFilters->perPage($request);
 
         $search = trim((string) $request->query('search'));
         $companyId = (string) $request->query('company_id');
@@ -59,7 +63,7 @@ class ProjectController extends Controller
             ->when(ctype_digit($managerId), fn (Builder $query) => $query->where('manager_id', (int) $managerId))
             ->orderBy($sort, $direction)
             ->orderBy('id', 'desc')
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('projects.index', [
@@ -76,6 +80,7 @@ class ProjectController extends Controller
                 'manager_id' => $managerId,
                 'sort' => $sort,
                 'direction' => $direction,
+                'per_page' => $perPage,
             ],
         ]);
     }

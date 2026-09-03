@@ -309,6 +309,61 @@
     </div>
 
 
+    @if (in_array('charts', $dashboardWidgets, true) || in_array('activity', $dashboardWidgets, true))
+        <div class="card fm-card mb-4">
+            <div class="card-body py-3">
+                <form method="GET" action="{{ route('dashboard') }}" class="row g-3 align-items-end">
+                    <div class="col-12 col-md-4 col-xl-3">
+                        <label for="dashboard-period" class="form-label small fw-semibold">{{ __('Analytics period') }}</label>
+                        <select id="dashboard-period" name="period" class="form-select" data-dashboard-period>
+                            <option value="7d" @selected($period['key'] === '7d')>{{ __('Last 7 days') }}</option>
+                            <option value="30d" @selected($period['key'] === '30d')>{{ __('Last 30 days') }}</option>
+                            <option value="90d" @selected($period['key'] === '90d')>{{ __('Last 90 days') }}</option>
+                            <option value="ytd" @selected($period['key'] === 'ytd')>{{ __('Year to date') }}</option>
+                            <option value="custom" @selected($period['key'] === 'custom')>{{ __('Custom range') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-3 col-xl-2" data-dashboard-custom-field>
+                        <label for="dashboard-date-from" class="form-label small fw-semibold">{{ __('From') }}</label>
+                        <input id="dashboard-date-from" type="date" name="date_from" class="form-control" value="{{ $period['date_from'] }}" data-dashboard-custom-date>
+                    </div>
+                    <div class="col-6 col-md-3 col-xl-2" data-dashboard-custom-field>
+                        <label for="dashboard-date-to" class="form-label small fw-semibold">{{ __('To') }}</label>
+                        <input id="dashboard-date-to" type="date" name="date_to" class="form-control" value="{{ $period['date_to'] }}" data-dashboard-custom-date>
+                    </div>
+                    <div class="col-12 col-md-2 col-xl-2 d-grid">
+                        <button class="btn btn-outline-primary">{{ __('Apply period') }}</button>
+                    </div>
+                    <div class="col-12 col-xl-3 text-xl-end">
+                        <span class="small text-secondary">{{ $period['label'] }}</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    @if (in_array('charts', $dashboardWidgets, true) && !empty($periodKpis))
+        <div class="row g-3 mb-4">
+            @foreach ($periodKpis as $kpi)
+                <div class="col-12 col-sm-6 col-xl">
+                    <div class="card fm-card h-100 fm-period-kpi">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between gap-3">
+                                <div>
+                                    <div class="small text-secondary fw-semibold">{{ $kpi['label'] }}</div>
+                                    <div class="fs-3 fw-bold mt-1">{{ $kpi['value'] }}</div>
+                                </div>
+                                <span class="fm-stat-icon"><i class="bi {{ $kpi['icon'] }}"></i></span>
+                            </div>
+                            <div class="small text-secondary mt-2">{{ $kpi['help'] }}</div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+
     @if (in_array('charts', $dashboardWidgets, true))
     <div class="row g-4 mt-1">
         @if (!empty($trendSeries['items']))
@@ -316,8 +371,8 @@
                 <div class="card fm-card h-100">
                     <div class="card-header fm-card-header">
                         <div>
-                            <h2 class="fm-card-title">{{ __('Six-month throughput') }}</h2>
-                            <p class="fm-card-subtitle">{{ __('Completed tasks and resolved tickets by month') }}</p>
+                            <h2 class="fm-card-title">{{ __('Period throughput') }}</h2>
+                            <p class="fm-card-subtitle">{{ __('Completed tasks and resolved tickets in the selected period') }}</p>
                         </div>
                     </div>
                     <div class="card-body">
@@ -325,7 +380,7 @@
                             <span><i class="fm-legend-dot fm-legend-primary"></i>{{ __('Tasks completed') }}</span>
                             <span><i class="fm-legend-dot fm-legend-success"></i>{{ __('Tickets resolved') }}</span>
                         </div>
-                        <div class="fm-column-chart" role="img" aria-label="{{ __('Six-month throughput') }}">
+                        <div class="fm-column-chart" role="img" aria-label="{{ __('Period throughput') }}">
                             @foreach ($trendSeries['items'] as $point)
                                 <div class="fm-column-group">
                                     <div class="fm-column-pair">
@@ -422,5 +477,20 @@
         </div>
     @endif
 
+    @endif
+
+    @if (in_array('activity', $dashboardWidgets, true) && auth()->user()->hasPermission('audit.view'))
+        <div class="card fm-card mt-4">
+            <div class="card-header fm-card-header">
+                <div>
+                    <h2 class="fm-card-title">{{ __('Activity timeline') }}</h2>
+                    <p class="fm-card-subtitle">{{ __('Recent tracked changes inside the selected analytics period') }}</p>
+                </div>
+                <a href="{{ route('activity.index', ['date_from' => $period['date_from'], 'date_to' => $period['date_to']]) }}" class="btn btn-sm btn-outline-secondary">{{ __('View audit log') }}</a>
+            </div>
+            <div class="card-body p-0">
+                @include('partials.activity-timeline', ['activityLogs' => $activityLogs])
+            </div>
+        </div>
     @endif
 @endsection

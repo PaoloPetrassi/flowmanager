@@ -12,9 +12,14 @@ class ProtectDemoAccount
         'locale.update',
         'logout',
         'preferences.update',
+        'saved-filters.store',
+        'saved-filters.default',
+        'saved-filters.destroy',
         'notifications.open',
         'notifications.read',
         'notifications.read-all',
+        'notifications.destroy',
+        'notifications.clear-read',
     ];
 
     public function handle(Request $request, Closure $next): Response

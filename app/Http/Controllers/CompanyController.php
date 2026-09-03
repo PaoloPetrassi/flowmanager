@@ -12,6 +12,7 @@ use App\Models\Contact;
 use App\Models\Project;
 use App\Models\Ticket;
 use App\Services\CollaborationService;
+use App\Services\SavedFilterService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,9 +25,12 @@ class CompanyController extends Controller
     /**
      * Display a listing of the companies.
      */
-    public function index(Request $request): View
+    public function index(Request $request, SavedFilterService $savedFilters): View
     {
         Gate::authorize('viewAny', Company::class);
+
+        $savedFilters->applyDefault($request, 'companies');
+        $perPage = $savedFilters->perPage($request);
 
         $search = trim((string) $request->query('search'));
         $type = (string) $request->query('type');
@@ -85,7 +89,7 @@ class CompanyController extends Controller
 
             ->orderBy($sort, $direction)
 
-            ->paginate(15)
+            ->paginate($perPage)
             ->withQueryString();
 
         return view('companies.index', [
@@ -99,6 +103,7 @@ class CompanyController extends Controller
                 'status' => $status,
                 'sort' => $sort,
                 'direction' => $direction,
+                'per_page' => $perPage,
             ],
         ]);
     }
